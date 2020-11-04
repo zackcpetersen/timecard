@@ -20,11 +20,14 @@ from rest_framework import routers
 
 from accounts.api.urls import router as accounts_router
 from accounts.api.urls import urlpatterns as accounts_url_patterns
+from entries.api.urls import router as entries_router
 
 router = routers.DefaultRouter()
 router.registry.extend(accounts_router.registry)
+router.registry.extend(entries_router.registry)
 
-api_url_patterns = accounts_url_patterns
+api_url_patterns = accounts_url_patterns + \
+                   router.urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),

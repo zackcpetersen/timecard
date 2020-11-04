@@ -8,7 +8,7 @@ from accounts.models import User
 
 class UserViewSet(viewsets.ModelViewSet):
     """
-    API Endpoint to create and view new users
+    API Endpoint for User CRUD
     """
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
