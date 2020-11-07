@@ -8,5 +8,8 @@ router = routers.DefaultRouter()
 router.register(r'entries', entry_views.EntryViewSet)
 
 urlpatterns = [
-    path('start-time/', entry_views.StartTimeView.as_view())
+    path('start-time/', entry_views.StartTimeView.as_view()),
+    path('end-time/', entry_views.EndTimeView.as_view()),
+    path('start-pause/', entry_views.StartPauseView.as_view()),
+    path('end-pause/', entry_views.EndPauseView.as_view())
 ]
