@@ -23,9 +23,9 @@ class EntryTests(TestCase):
         self.c = Client()
         # TODO consider testing multiple users at the same time
 
-    def test_time_endpoints(self):
+    def test_entry_endpoints(self):
         """
-        Test all Entry endpoints and ensure they are behaving properly
+        Test Entry endpoints
         """
         with freeze_time("2020-11-7 9:00:00"):
             request = self.time_request(self.user1, self.start_time_endpoint)
@@ -54,6 +54,9 @@ class EntryTests(TestCase):
             self.assertEqual(actual_worked_time, expected_time_worked)
 
     def test_entry_edge(self):
+        """
+        Test entry edge cases
+        """
         with freeze_time("2020-11-7 9:00:00"):
             start_time = datetime.datetime.now(tz=pytz.UTC)
             entry = Entry.objects.create(user=self.user1, start_time=start_time)
