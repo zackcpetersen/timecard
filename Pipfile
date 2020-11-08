@@ -11,6 +11,7 @@ djangorestframework = "*"
 ipython = "*"
 django-rest-auth = "*"
 requests = "*"
+freezegun = "*"
 
 [requires]
 python_version = "3.9"
