@@ -49,15 +49,9 @@ class EndTimeView(views.APIView):
         form = UserForm(request.data)
         if form.is_valid():
             entry = form.cleaned_data['user'].entries.last()
-            # TODO handle null entry elsewhere on all these views
-            if entry and entry.start_time:
-                end_time = entry.pause_time if entry.pause_time else datetime.datetime.now(tz=pytz.UTC)
-                entry.end_time = end_time
-                entry.save()
-                entry.calculated_worked()
-                serializer = EntrySerializer(entry)
-                return Response(status=200, data=serializer.data)
-            raise FieldRequiredException('Start Time')
+            entry.calculated_worked()
+            serializer = EntrySerializer(entry)
+            return Response(status=200, data=serializer.data)
         return Response(status=400, data=form.errors)
 
 
@@ -66,6 +60,7 @@ class StartPauseView(views.APIView):
         form = UserForm(request.data)
         if form.is_valid():
             entry = form.cleaned_data['user'].entries.last()
+            # TODO handle null entry elsewhere on all these views
             if entry and not entry.pause_time:
                 entry.pause_time = datetime.datetime.now(tz=pytz.UTC)
                 entry.save()

@@ -41,8 +41,8 @@ class Entry(models.Model):
         # TODO raise exception
 
     def calculated_worked(self):
-        if self.start_time and self.end_time:
-            worked = self.end_time - self.time_paused - self.start_time
-            self.time_worked = worked
-            self.save()
-        # TODO raise exception
+        end_time = self.pause_time if self.pause_time else datetime.datetime.now(tz=pytz.UTC)
+        self.end_time = end_time
+        worked = self.end_time - self.time_paused - self.start_time
+        self.time_worked = worked
+        self.save()
