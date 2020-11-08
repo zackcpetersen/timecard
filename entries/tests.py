@@ -21,7 +21,7 @@ class EntryTests(TestCase):
         self.start_pause_endpoint = '/api/start-pause/'
         self.end_pause_endpoint = '/api/end-pause/'
         self.c = Client()
-        # TODO consider testing multiple users at the same time
+        # TODO test multiple users at the same time
 
     def test_entry_endpoints(self):
         """
@@ -29,24 +29,24 @@ class EntryTests(TestCase):
         """
         with freeze_time("2020-11-7 9:00:00"):
             request = self.time_request(self.user1, self.start_time_endpoint)
-            exp_start_formatted, exp_start_raw = self.get_datetime()
+            exp_start_formatted, exp_start_raw = self.get_test_datetime()
             self.assertEqual(request.json()['start_time'], exp_start_formatted)
 
         with freeze_time("2020-11-7 12:00:00"):
             request = self.time_request(self.user1, self.start_pause_endpoint)
-            exp_pause_formatted, exp_pause_raw = self.get_datetime()
-            self.assertEqual(request.json()['pause_time'], exp_pause_formatted)
-            pause_time = datetime.datetime.now(tz=pytz.UTC)
+            exp_pause_formatted, exp_pause_raw = self.get_test_datetime()
+            self.assertEqual(request.json()['start_pause'], exp_pause_formatted)
+            _, start_pause = self.get_test_datetime()
 
         with freeze_time("2020-11-7 13:00:00"):
             request = self.time_request(self.user1, self.end_pause_endpoint)
-            expected_time_paused = datetime.datetime.now(tz=pytz.UTC) - pause_time
+            expected_time_paused = datetime.datetime.now(tz=pytz.UTC) - start_pause
             actual_pause_time = self.format_timedelta(request.json()['time_paused'])
             self.assertEqual(expected_time_paused, actual_pause_time)
 
         with freeze_time("2020-11-7 17:00:00"):
             request = self.time_request(self.user1, self.end_time_endpoint)
-            exp_end_formatted, exp_end_raw = self.get_datetime()
+            exp_end_formatted, exp_end_raw = self.get_test_datetime()
             self.assertEqual(request.json()['end_time'], exp_end_formatted)
 
             expected_time_worked = exp_end_raw - expected_time_paused - exp_start_raw
@@ -58,20 +58,17 @@ class EntryTests(TestCase):
         Test entry edge cases
         """
         with freeze_time("2020-11-7 9:00:00"):
-            start_time = datetime.datetime.now(tz=pytz.UTC)
-            entry = Entry.objects.create(user=self.user1, start_time=start_time)
+            _, start_time = self.get_test_datetime()
+            entry = Entry.objects.create(user=self.user1)
         with freeze_time("2020-11-7 12:00:00"):
-            pause_time = datetime.datetime.now(tz=pytz.UTC)
-            entry.pause_time = pause_time
+            _, start_pause = self.get_test_datetime()
+            entry.start_pause = start_pause
         with freeze_time("2020-11-7 17:00:00"):
-            end_time = datetime.datetime.now(tz=pytz.UTC)
+            _, end_time = self.get_test_datetime()
             entry.end_time = end_time
             entry.save()
 
-            entry.calculate_paused()
-            entry.calculated_worked()
-
-        expected_time_worked = pause_time - start_time
+        expected_time_worked = start_pause - start_time
         self.assertEqual(entry.time_worked, expected_time_worked)
 
     def time_request(self, user, endpoint):
@@ -85,6 +82,6 @@ class EntryTests(TestCase):
         return datetime.timedelta(hours=time.hour, minutes=time.minute, seconds=time.second)
 
     @staticmethod
-    def get_datetime():
+    def get_test_datetime():
         now = datetime.datetime.now(tz=pytz.UTC)
         return now.strftime(entry_constants.DEFAULT_DATETIME_FORMAT), now
