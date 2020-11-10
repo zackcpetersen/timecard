@@ -8,6 +8,11 @@ from entries import constants
 from entries.exceptions import FieldRequiredException, NullRequiredException
 
 
+def add_start_time(sender, instance, *args, **kwargs):
+    if not instance.pk:
+        instance.start_time = instance.get_datetime()
+
+
 def update_time_paused(sender, instance, *args, **kwargs):
     if instance.end_pause and instance.start_pause:
         instance.calculate_paused()
@@ -18,6 +23,7 @@ def update_time_worked(sender, instance, *args, **kwargs):
         instance.calculate_worked()
 
 
+models.signals.pre_save.connect(add_start_time, sender='entries.Entry')
 models.signals.pre_save.connect(update_time_paused, sender='entries.Entry')
 models.signals.pre_save.connect(update_time_worked, sender='entries.Entry')
 
@@ -47,11 +53,6 @@ class Entry(models.Model):
 
     # def __str__(self):
     #     return '{} on {}'.format(self.user, self.project)
-
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.start_time = self.get_datetime()
-        super(Entry, self).save(*args, **kwargs)
 
     def open_start(self, date_time=None):
         self.start_time = date_time
