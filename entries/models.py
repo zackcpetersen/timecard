@@ -6,6 +6,7 @@ from django.db import models
 from accounts.models import User
 from entries import constants
 from entries.exceptions import FieldRequiredException, NullRequiredException
+from projects.models import Project
 
 
 def add_start_time(sender, instance, *args, **kwargs):
@@ -36,8 +37,11 @@ class Entry(models.Model):
     end_pause = models.DateTimeField(blank=True, null=True)
     time_paused = models.DurationField(default=datetime.timedelta())
     time_worked = models.DurationField(default=datetime.timedelta())
-    # paused = models.BooleanField(default=False)
-    # project = models.ForeignKey(Project, related_name='entries)
+    project = models.ForeignKey(Project,
+                                on_delete=models.PROTECT,
+                                related_name='entries',
+                                null=True,
+                                blank=True)
     # location = models.ForeignKey(Location, related_name='entries)
     # entry_group = models.ForeignKey(EntryGroup) ???
 
