@@ -6,7 +6,7 @@ from rest_framework.authentication import SessionAuthentication, TokenAuthentica
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from accounts.forms import UserForm
+from accounts.forms import StartTimeForm, UserForm
 from entries.api.serializers import EntrySerializer
 from entries import constants
 from entries.exceptions import FieldRequiredException, NullRequiredException
@@ -24,21 +24,16 @@ class EntryViewSet(viewsets.ModelViewSet):
     serializer_class = EntrySerializer
 
 
+# TODO add authentication on all views - Mixin?
 class StartTimeView(views.APIView):
     def post(self, request):
-        form = UserForm(request.data)
+        form = StartTimeForm(request.data)
         if form.is_valid():
             user = form.cleaned_data['user']
-            last_entry = user.entries.last()
+            last_entry = form.cleaned_data.get('last_entry')
             if last_entry and not last_entry.end_time:
-                # TODO possibly able to inherit this functionality - or mixin
-                # TODO may want to do a day check as well (check if new entry is same day as previous)
-                last_entry.end_time = last_entry.start_time.replace(hour=23, minute=59, second=59)
-                last_entry.status = constants.NEEDS_APPROVAL
-                last_entry.save()
-            start_time = datetime.datetime.now(tz=pytz.UTC)
-            entry = Entry.objects.create(user=user,
-                                         start_time=start_time)
+                last_entry.auto_end_entry()
+            entry = Entry.objects.create(user=user)
             serializer = EntrySerializer(entry)
             return Response(status=201, data=serializer.data)
         return Response(status=400, data=form.errors)
@@ -48,8 +43,8 @@ class EndTimeView(views.APIView):
     def post(self, request):
         form = UserForm(request.data)
         if form.is_valid():
-            entry = form.cleaned_data['user'].entries.last()
-            entry.calculated_worked()
+            entry = form.cleaned_data['last_entry']
+            entry.close_time()
             serializer = EntrySerializer(entry)
             return Response(status=200, data=serializer.data)
         return Response(status=400, data=form.errors)
@@ -59,11 +54,9 @@ class StartPauseView(views.APIView):
     def post(self, request):
         form = UserForm(request.data)
         if form.is_valid():
-            entry = form.cleaned_data['user'].entries.last()
-            # TODO handle null entry elsewhere on all these views
-            if entry and not entry.pause_time:
-                entry.pause_time = datetime.datetime.now(tz=pytz.UTC)
-                entry.save()
+            entry = form.cleaned_data['last_entry']
+            if not entry.start_pause:
+                entry.open_pause()
                 serializer = EntrySerializer(entry)
                 return Response(status=200, data=serializer.data)
             raise NullRequiredException('Pause Time')
@@ -74,10 +67,10 @@ class EndPauseView(views.APIView):
     def post(self, request):
         form = UserForm(request.data)
         if form.is_valid():
-            entry = form.cleaned_data['user'].entries.last()
-            if entry and entry.pause_time:
-                entry.calculate_paused()
+            entry = form.cleaned_data['last_entry']
+            if entry.start_pause:
+                entry.close_pause()
                 serializer = EntrySerializer(entry)
                 return Response(status=200, data=serializer.data)
-            raise FieldRequiredException('Pause Time')
+            raise FieldRequiredException('pause_time')
         return Response(status=400, data=form.errors)

@@ -5,7 +5,7 @@ class FieldRequiredException(APIException):
     status_code = 409
 
     def __init__(self, field):
-        self.detail = '{} not be null to continue'.format(field)
+        self.detail = '{} are required to continue'.format(field)
 
 
 class NullRequiredException(APIException):
