@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from rest_framework import routers
 
 from entries.api import viewsets as entry_views
