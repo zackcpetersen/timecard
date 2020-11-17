@@ -59,7 +59,7 @@ class EntryTests(TestCase):
         """
         with freeze_time("2020-11-7 9:00:00"):
             _, start_time = self.get_test_datetime()
-            entry = Entry.objects.create(user=self.user1)
+            entry = Entry.objects.create(user=self.user1, start_time=start_time)
         with freeze_time("2020-11-7 12:00:00"):
             _, start_pause = self.get_test_datetime()
             entry.start_pause = start_pause
@@ -67,6 +67,8 @@ class EntryTests(TestCase):
             _, end_time = self.get_test_datetime()
             entry.end_time = end_time
             entry.save()
+
+        entry.calculate_worked()
 
         expected_time_worked = start_pause - start_time
         self.assertEqual(entry.time_worked, expected_time_worked)

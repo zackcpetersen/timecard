@@ -33,6 +33,7 @@ class StartTimeView(views.APIView):
             if last_entry and not last_entry.end_time:
                 last_entry.auto_end_entry()
             entry = Entry.objects.create(user=user)
+            entry.open_start()
             serializer = EntrySerializer(entry)
             return Response(status=201, data=serializer.data)
         return Response(status=400, data=form.errors)
