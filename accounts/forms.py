@@ -1,5 +1,6 @@
-from django.forms import Form, ModelChoiceField
+from django.forms import Form, ModelChoiceField, ModelMultipleChoiceField, DateField
 
+from accounts.exceptions import InvalidDateRangeException
 from accounts.models import User
 
 
@@ -21,3 +22,13 @@ class UserForm(Form):
             return self.cleaned_data['user']
         msg = '{} has no entries!'.format(self.cleaned_data['user'])
         self.add_error('user', msg)
+
+
+class MultiUserForm(Form):
+    users = ModelMultipleChoiceField(queryset=User.objects.all())
+    start_date = DateField()
+    end_date = DateField()
+
+    def clean(self):
+        if self.cleaned_data['start_date'] > self.cleaned_data['end_date']:
+            raise InvalidDateRangeException(self.cleaned_data['start_date'], self.cleaned_data['end_date'])
