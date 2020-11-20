@@ -13,6 +13,8 @@ django-rest-auth = "*"
 requests = "*"
 freezegun = "*"
 pillow = "*"
+awsebcli = "*"
+gunicorn = "*"
 
 [requires]
-python_version = "3.9"
+python_version = "3.7"
