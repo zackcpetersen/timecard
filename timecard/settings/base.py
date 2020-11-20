@@ -21,12 +21,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '2ork@wj_*6!cevx85#&mcqij8hq_%15sq(i^8b^#t6kbwj3t)l'
+# DON'T PUBLISH THIS ONE
+SECRET_KEY = 'VcDOX7tKU8bf*Ew0D1QDtt@q@FG8Y1gmmZkTsrkzg@X*rB0Vt9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'timecard-environment.eba-deimtztc.us-west-2.elasticbeanstalk.com'
+]
 
 # Auth User Model
 AUTH_USER_MODEL = 'accounts.User'
@@ -132,6 +136,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = 'static'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'timecard/media')
 MEDIA_URL = '/media/'
