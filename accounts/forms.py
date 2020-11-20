@@ -30,5 +30,5 @@ class MultiUserForm(Form):
     end_date = DateField()
 
     def clean(self):
-        if self.cleaned_data['start_date'] > self.cleaned_data['end_date']:
+        if self.cleaned_data.get('start_date') > self.cleaned_data.get('end_date'):
             raise InvalidDateRangeException(self.cleaned_data['start_date'], self.cleaned_data['end_date'])
