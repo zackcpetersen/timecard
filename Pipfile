@@ -14,7 +14,6 @@ requests = "*"
 freezegun = "*"
 pillow = "*"
 awsebcli = "*"
-gunicorn = "*"
 
 [requires]
 python_version = "3.7"
