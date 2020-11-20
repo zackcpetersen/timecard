@@ -52,8 +52,7 @@ class ProjectTests(TestCase):
         proj = Project.objects.create(name=self.project_name,
                                       description=self.project_desc)
 
-        filepath = os.path.join(settings.BASE_DIR,
-                                'timecard/media/test_media/before_pic_test.jpg')
+        filepath = os.path.join(settings.BASE_DIR, 'media/test_media/before_pic_test.jpg')
         with open(filepath, 'rb') as pic:
             uploaded_image = SimpleUploadedFile(pic.name, pic.read())
             data = {
@@ -88,8 +87,7 @@ class ProjectTests(TestCase):
                                       description=self.project_desc)
 
         # Create Images for proj
-        filepath = os.path.join(settings.BASE_DIR,
-                                'timecard/media/test_media/before_pic_test.jpg')
+        filepath = os.path.join(settings.BASE_DIR, 'media/test_media/before_pic_test.jpg')
         with open(filepath, 'rb') as pic:
             uploaded_image = SimpleUploadedFile(pic.name, pic.read())
             ProjectImage.objects.create(name=self.proj_image_name,
@@ -97,8 +95,7 @@ class ProjectTests(TestCase):
                                         project=proj,
                                         image=uploaded_image)
 
-        filepath = os.path.join(settings.BASE_DIR,
-                                'timecard/media/test_media/after_remodel.jpg')
+        filepath = os.path.join(settings.BASE_DIR, 'media/test_media/after_remodel.jpg')
         with open(filepath, 'rb') as pic:
             uploaded_image = SimpleUploadedFile(pic.name, pic.read())
             ProjectImage.objects.create(name='After - Outside',

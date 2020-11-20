@@ -9,6 +9,9 @@ class Project(models.Model):
     # type = models.ForeignKey() ??
     # status = models.CharField(choices=) ??
 
+    def __str__(self):
+        return self.name
+
 
 class ProjectImage(models.Model):
     name = models.CharField(max_length=50)

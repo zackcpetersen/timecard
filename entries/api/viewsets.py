@@ -1,9 +1,12 @@
+import csv
+
+from django.http import HttpResponse
 from rest_framework import viewsets, views
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from accounts.forms import StartTimeForm, UserForm
+from accounts.forms import MultiUserForm, StartTimeForm, UserForm
 from entries.api.serializers import EntrySerializer
 from entries.exceptions import FieldRequiredException, NullRequiredException
 from entries.models import Entry
@@ -30,6 +33,7 @@ class StartTimeView(views.APIView):
             if last_entry and not last_entry.end_time:
                 last_entry.auto_end_entry()
             entry = Entry.objects.create(user=user)
+            entry.open_start()
             serializer = EntrySerializer(entry)
             return Response(status=201, data=serializer.data)
         return Response(status=400, data=form.errors)
@@ -70,3 +74,39 @@ class EndPauseView(views.APIView):
                 return Response(status=200, data=serializer.data)
             raise FieldRequiredException('pause_time')
         return Response(status=400, data=form.errors)
+
+
+class EntryCSVDownloadView(views.APIView):
+    def post(self, request):
+        form = MultiUserForm(request.data)
+        if form.is_valid():
+            users = form.cleaned_data['users']
+            start_date = form.cleaned_data['start_date']
+            end_date = form.cleaned_data['end_date']
+            return self.create_csv(users, start_date, end_date)
+        return Response(status=400, data=form.errors)
+
+    def create_csv(self, users, start_date, end_date):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=entries_{}-{}.csv'.format(start_date, end_date)
+        writer = csv.writer(response)
+        headers = ['Name', 'Date', 'Project', 'Clock-In', 'Clock-Out', 'Start-Pause', 'End-Pause', 'Time-Paused', 'Time-Worked']
+        writer.writerow(headers)
+        for user in users:
+            for entry in user.entries.filter(created_at__range=(start_date, end_date)):
+                data = [user.email, entry.created_at, entry.project, entry.start_time, entry.end_time,
+                        entry.start_pause, entry.end_pause, entry.time_paused, entry.time_worked]
+                entry_data = self.csv_no_null_vals(data)
+                writer.writerow(entry_data)
+        return response
+
+    def csv_no_null_vals(self, vals):
+        complete = []
+        for val in vals:
+            if not val:
+                val = ' '
+            else:
+                val = val
+            complete.append(val)
+
+        return complete

@@ -9,29 +9,9 @@ from entries.exceptions import FieldRequiredException, NullRequiredException
 from projects.models import Project
 
 
-def add_start_time(sender, instance, *args, **kwargs):
-    if not instance.pk:
-        instance.start_time = instance.get_datetime()
-
-
-def update_time_paused(sender, instance, *args, **kwargs):
-    if instance.end_pause and instance.start_pause:
-        instance.calculate_paused()
-
-
-def update_time_worked(sender, instance, *args, **kwargs):
-    if instance.end_time:
-        instance.calculate_worked()
-
-
-models.signals.pre_save.connect(add_start_time, sender='entries.Entry')
-models.signals.pre_save.connect(update_time_paused, sender='entries.Entry')
-models.signals.pre_save.connect(update_time_worked, sender='entries.Entry')
-
-
 class Entry(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='entries')
-    start_time = models.DateTimeField()
+    start_time = models.DateTimeField(blank=True, null=True)
     end_time = models.DateTimeField(blank=True, null=True)
     start_pause = models.DateTimeField(blank=True, null=True)
     end_pause = models.DateTimeField(blank=True, null=True)
@@ -59,7 +39,7 @@ class Entry(models.Model):
     #     return '{} on {}'.format(self.user, self.project)
 
     def open_start(self, date_time=None):
-        self.start_time = date_time
+        self.start_time = date_time if date_time else self.get_datetime()
         self.save()
 
     def open_pause(self, date_time=None):
@@ -70,16 +50,17 @@ class Entry(models.Model):
     def close_pause(self, date_time=None):
         end_pause = date_time if date_time else self.get_datetime()
         self.end_pause = end_pause
-        self.save()
+        self.calculate_paused()
 
     def close_time(self, date_time=None):
         end_time = date_time if date_time else self.get_datetime()
         self.end_time = end_time
-        self.save()
+        self.calculate_worked()
 
     def calculate_paused(self):
         if self.end_pause and self.start_pause:
             self.time_paused = self.end_pause - self.start_pause
+            self.save()
         else:
             raise FieldRequiredException('[start_time, end_time]')
 
@@ -88,6 +69,7 @@ class Entry(models.Model):
             self.end_time = self.start_pause if not self.end_pause else self.get_datetime()
             self.time_worked = self.end_time - self.time_paused - self.start_time
             self.status = constants.NEEDS_APPROVAL
+            self.save()
         else:
             raise FieldRequiredException('end_time')
 

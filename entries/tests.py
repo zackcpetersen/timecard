@@ -8,6 +8,7 @@ from freezegun import freeze_time
 from accounts.models import User
 from entries import constants as entry_constants
 from entries.models import Entry
+from projects.models import Project
 
 
 class EntryTests(TestCase):
@@ -20,6 +21,7 @@ class EntryTests(TestCase):
         self.end_time_endpoint = '/api/end-time/'
         self.start_pause_endpoint = '/api/start-pause/'
         self.end_pause_endpoint = '/api/end-pause/'
+        self.csv_download_endpoint = '/api/entry-download/'
         self.c = Client()
         # TODO test multiple users at the same time
 
@@ -59,7 +61,7 @@ class EntryTests(TestCase):
         """
         with freeze_time("2020-11-7 9:00:00"):
             _, start_time = self.get_test_datetime()
-            entry = Entry.objects.create(user=self.user1)
+            entry = Entry.objects.create(user=self.user1, start_time=start_time)
         with freeze_time("2020-11-7 12:00:00"):
             _, start_pause = self.get_test_datetime()
             entry.start_pause = start_pause
@@ -68,8 +70,64 @@ class EntryTests(TestCase):
             entry.end_time = end_time
             entry.save()
 
+        entry.calculate_worked()
+
         expected_time_worked = start_pause - start_time
         self.assertEqual(entry.time_worked, expected_time_worked)
+
+    def test_entry_csv_download(self):
+        project1 = Project.objects.create(name='Airport Job')
+        entry_data = [
+            {
+                'start_time': '2020-11-10 12:00:00',
+                'end_time': '2020-11-10 17:00:00',
+                'start_pause': '2020-11-10 12:00:00',
+                'end_pause': '2020-11-10 13:00:00',
+                'project': project1
+            },
+            {
+                'start_time': '2020-11-11 12:00:00',
+                'end_time': '2020-11-11 17:00:00',
+                'start_pause': '2020-11-11 12:00:00',
+                'end_pause': '2020-11-11 13:00:00',
+                'project': project1
+            },{
+                'start_time': '2020-11-12 12:00:00',
+                'end_time': '2020-11-12 17:00:00',
+                'start_pause': '2020-11-12 12:00:00',
+                'end_pause': '2020-11-12 13:00:00',
+                'project': project1
+            },{
+                'start_time': '2020-11-13 12:00:00',
+                'end_time': '2020-11-13 17:00:00',
+                'start_pause': '2020-11-13 12:00:00',
+                'end_pause': '2020-11-13 13:00:00',
+                'project': project1
+            },{
+                'start_time': '2020-11-15 12:00:00',
+                'end_time': '2020-11-15 17:00:00',
+                'start_pause': '2020-11-15 12:00:00',
+                'end_pause': '2020-11-15 13:00:00',
+                'project': project1
+            },
+        ]
+
+        for entry in entry_data:
+            Entry.objects.create(user=self.user1,
+                                 start_time=entry['start_time'],
+                                 end_time=entry['end_time'],
+                                 start_pause=entry['start_pause'],
+                                 end_pause=entry['end_pause'],
+                                 project=entry['project'])
+
+        data = {
+            'users': [self.user1.pk],
+            'start-date': '2020-11-10',
+            'end-date': '2020-11-15'
+        }
+
+        request = self.c.post(self.csv_download_endpoint, data=data)
+        print(request)
 
     def time_request(self, user, endpoint):
         self.c.force_login(user=user)
