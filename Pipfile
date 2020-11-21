@@ -5,9 +5,15 @@ verify_ssl = true
 
 [dev-packages]
 ipython = "*"
+awsebcli = "*"
 
 [packages]
 django = "*"
+djangorestframework = "*"
+django-rest-auth = "*"
+requests = "*"
+freezegun = "*"
+pillow = "*"
 gunicorn = "*"
 
 [requires]
