@@ -14,6 +14,7 @@ requests = "*"
 freezegun = "*"
 pillow = "*"
 awsebcli = "*"
+mysqlclient = "*"
 
 [requires]
 python_version = "3.7"

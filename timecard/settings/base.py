@@ -90,10 +90,20 @@ WSGI_APPLICATION = 'timecard.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR.parent / 'db.sqlite3',
+#     }
+# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR.parent / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'ebdb',
+        'USER': 'admin',
+        'PASSWORD': 'adminpassword',
+        'HOST': 'aaud4zwc14r4o5.c5tjuuwc28ok.us-west-2.rds.amazonaws.com',
+        'PORT': '3306',
     }
 }
 
