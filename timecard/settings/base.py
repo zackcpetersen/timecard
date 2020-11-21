@@ -32,9 +32,9 @@ ALLOWED_HOSTS = [
 
 # Auth User Model
 AUTH_USER_MODEL = 'accounts.User'
-REST_AUTH_SERIALIZERS = {
-    'USER_DETAILS_SERIALIZER': 'accounts.api.serializers.UserSerializer'
-}
+# REST_AUTH_SERIALIZERS = {
+#     'USER_DETAILS_SERIALIZER': 'accounts.api.serializers.UserSerializer'
+# }
 
 # Application definition
 
@@ -46,8 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'rest_framework',
-    'rest_framework.authtoken',
+    # 'rest_framework',
+    # 'rest_framework.authtoken',
     # 'rest_auth',
 
     'accounts',
