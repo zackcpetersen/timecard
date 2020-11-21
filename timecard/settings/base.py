@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     # 'rest_auth',
 
+    'storages',
+
     'accounts',
     'entries',
     'projects'
@@ -145,6 +147,20 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
+
+# AWS_ACCESS_KEY_ID = 'AKIATVXWHKRGX4PABZFT'
+# AWS_SECRET_ACCESS_KEY = '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'
+# AWS_STORAGE_BUCKET_NAME = 'timecard-static'
+# AWS_S3_CUSTOM_DOMAIN = '{}.s3.amazonaws.com'.format(AWS_STORAGE_BUCKET_NAME)
+# AWS_S3_OBJECT_PARAMETERS = {
+#     'CacheControl': 'max-age=86400',
+# }
+# AWS_LOCATION = 'static'
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static/'),
+# ]
+# STATIC_URL = 'http://{}/{}/'.format(AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
