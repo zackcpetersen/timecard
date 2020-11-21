@@ -7,16 +7,8 @@ verify_ssl = true
 
 [packages]
 django = "*"
-djangorestframework = "*"
-ipython = "*"
-django-rest-auth = "*"
-requests = "*"
-freezegun = "*"
-pillow = "*"
 awsebcli = "*"
 gunicorn = "*"
-sqlparse = "*"
-asgiref = "*"
 
 [requires]
 python_version = "3.7"
