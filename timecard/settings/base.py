@@ -92,10 +92,10 @@ WSGI_APPLICATION = 'timecard.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-if 'RDS_HOSTNAME' in os.environ:
+if 'RDS_DB_NAME' in os.environ:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.mysql',
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': os.environ['RDS_DB_NAME'],
             'USER': os.environ['RDS_USERNAME'],
             'PASSWORD': os.environ['RDS_PASSWORD'],
@@ -103,12 +103,15 @@ if 'RDS_HOSTNAME' in os.environ:
             'PORT': os.environ['RDS_PORT'],
         }
     }
-    # PASSWORD: adminpassword
 else:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR.parent / 'db.sqlite3',
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'timecard',
+            'USER': 'timecard',
+            'PASSWORD': 'timecard',
+            'HOST': 'localhost',
+            'PORT': '5432',
         }
     }
 
@@ -144,7 +147,8 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
+POSTGRES_USERNAME = 'postres'
+POSTGRES_PASSWORD = 'dAWr3q2C8h1FtDT8BHk6'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
