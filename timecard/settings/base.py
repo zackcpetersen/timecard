@@ -27,7 +27,8 @@ SECRET_KEY = 'VcDOX7tKU8bf*Ew0D1QDtt@q@FG8Y1gmmZkTsrkzg@X*rB0Vt9'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '*'
+    '127.0.0.1',
+    'timecard-dev.us-west-2.elasticbeanstalk.com'
 ]
 
 # Auth User Model
