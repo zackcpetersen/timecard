@@ -153,8 +153,8 @@ USE_TZ = True
 AWS_ACCESS_KEY_ID = 'AKIATVXWHKRGX4PABZFT'
 AWS_SECRET_ACCESS_KEY = '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'
 
-# AWS_STORAGE_BUCKET_NAME = 'timecard-static'
-# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_STORAGE_BUCKET_NAME = 'timecard-static'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "..", "static")
