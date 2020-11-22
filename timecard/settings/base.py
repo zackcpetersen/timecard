@@ -20,11 +20,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# DON'T PUBLISH THIS ONE
 SECRET_KEY = 'VcDOX7tKU8bf*Ew0D1QDtt@q@FG8Y1gmmZkTsrkzg@X*rB0Vt9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
@@ -147,28 +146,17 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-POSTGRES_USERNAME = 'postres'
-POSTGRES_PASSWORD = 'dAWr3q2C8h1FtDT8BHk6'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 AWS_ACCESS_KEY_ID = 'AKIATVXWHKRGX4PABZFT'
 AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'timecard-static'
-# AWS_S3_CUSTOM_DOMAIN = '{}.s3.amazonaws.com'.format(AWS_STORAGE_BUCKET_NAME)
-# AWS_S3_OBJECT_PARAMETERS = {
-#     'CacheControl': 'max-age=86400',  # maybe don't need
-# }
-# AWS_LOCATION = 'static'
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, 'static/'),
-# ]
-# STATIC_URL = 'http://{}/{}/'.format(AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+
+# AWS_STORAGE_BUCKET_NAME = 'timecard-static'
 # STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 STATIC_URL = '/static/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_ROOT = os.path.join(BASE_DIR, "..", "static")
 
 
