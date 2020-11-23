@@ -20,7 +20,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'VcDOX7tKU8bf*Ew0D1QDtt@q@FG8Y1gmmZkTsrkzg@X*rB0Vt9'
+if 'SECRET_KEY' in os.environ:
+    SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -150,8 +151,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-AWS_ACCESS_KEY_ID = 'AKIATVXWHKRGX4PABZFT'
-AWS_SECRET_ACCESS_KEY = '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'
+if 'AWS_ACCESS_KEY_ID' in os.environ:
+    AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+    AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
 
 AWS_STORAGE_BUCKET_NAME = 'timecard-static'
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
