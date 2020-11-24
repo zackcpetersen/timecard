@@ -1,3 +1,4 @@
+
 [[source]]
 name = "pypi"
 url = "https://pypi.org/simple"
@@ -10,7 +11,6 @@ awsebcli = "*"
 [packages]
 django = "*"
 djangorestframework = "*"
-ipython = "*"
 django-rest-auth = "*"
 requests = "*"
 freezegun = "*"
