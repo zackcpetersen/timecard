@@ -2,11 +2,23 @@ import datetime
 import pytz
 
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 from accounts.models import User
 from entries import constants
-from entries.exceptions import FieldRequiredException, NullRequiredException
+from entries import exceptions
 from projects.models import Project
+
+
+# @receiver(pre_save, sender='entries.Entry')
+# def check_project(sender, instance, **kwargs):
+#     if instance.start_time and instance.end_time:
+#         if not instance.project:
+#             raise exceptions.ProjectRequiredException()
+#
+#
+# pre_save.connect(check_project, sender='entries.Entry')
 
 
 class Entry(models.Model):
