@@ -5,7 +5,7 @@ from accounts.models import User
 
 
 class StartTimeForm(Form):
-    user = ModelChoiceField(queryset=User.objects.all())
+    user = ModelChoiceField(queryset=User.objects.all(), required=False)
 
     def clean_user(self):
         if self.cleaned_data.get('user').entries.count():
@@ -14,7 +14,7 @@ class StartTimeForm(Form):
 
 
 class UserForm(Form):
-    user = ModelChoiceField(queryset=User.objects.all())
+    user = ModelChoiceField(queryset=User.objects.all(), required=False)
 
     def clean_user(self):
         if self.cleaned_data.get('user').entries.count():

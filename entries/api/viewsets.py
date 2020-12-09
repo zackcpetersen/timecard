@@ -1,3 +1,4 @@
+import copy
 import csv
 
 from django.http import HttpResponse
@@ -9,6 +10,7 @@ from rest_framework.response import Response
 from accounts.forms import MultiUserForm, StartTimeForm, UserForm
 from entries.api.serializers import EntrySerializer
 from entries.exceptions import FieldRequiredException, NullRequiredException
+from entries.forms import EntryFilterForm
 from entries.models import Entry
 
 
@@ -24,9 +26,37 @@ class EntryViewSet(viewsets.ModelViewSet):
 
 
 # TODO add authentication on all views - Mixin?
-class StartTimeView(views.APIView):
+class EntryFilterView(views.APIView):
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
-        form = StartTimeForm(request.data)
+        user = request.user if request.user else None
+        form = EntryFilterForm(request.data, user=user)
+        if form.is_valid():
+            entries = Entry.objects.all()
+            if form.cleaned_data.get('projects'):
+                entries = entries.filter(project__in=form.cleaned_data['projects'])
+            if not form.cleaned_data['include_active_entries']:
+                entries.exclude(end_time__null=True)
+            entries = entries.filter(user__in=form.cleaned_data['users'],
+                                     start_time__range=(form.cleaned_data['start_date'],
+                                                        form.cleaned_data['end_date']))
+
+            serializer = EntrySerializer(entries, many=True)
+            return Response(status=200, data=serializer.data)
+        return Response(status=400, data=form.errors)
+
+
+class StartTimeView(views.APIView):
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        data = copy.deepcopy(request.data)
+        if request.user:
+            data.update({'user': request.user})
+        form = StartTimeForm(data)
         if form.is_valid():
             user = form.cleaned_data['user']
             last_entry = form.cleaned_data.get('last_entry')
@@ -40,8 +70,14 @@ class StartTimeView(views.APIView):
 
 
 class EndTimeView(views.APIView):
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
-        form = UserForm(request.data)
+        data = copy.deepcopy(request.data)
+        if request.user:
+            data.update({'user': request.user})
+        form = UserForm(data)
         if form.is_valid():
             entry = form.cleaned_data['last_entry']
             entry.close_time()
@@ -51,8 +87,14 @@ class EndTimeView(views.APIView):
 
 
 class StartPauseView(views.APIView):
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
-        form = UserForm(request.data)
+        data = copy.deepcopy(request.data)
+        if request.user:
+            data.update({'user': request.user})
+        form = UserForm(data)
         if form.is_valid():
             entry = form.cleaned_data['last_entry']
             if not entry.start_pause:
@@ -64,8 +106,14 @@ class StartPauseView(views.APIView):
 
 
 class EndPauseView(views.APIView):
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
-        form = UserForm(request.data)
+        data = copy.deepcopy(request.data)
+        if request.user:
+            data.update({'user': request.user})
+        form = UserForm(data)
         if form.is_valid():
             entry = form.cleaned_data['last_entry']
             if entry.start_pause:

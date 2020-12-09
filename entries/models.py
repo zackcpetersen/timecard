@@ -53,8 +53,7 @@ class Entry(models.Model):
         self.calculate_paused()
 
     def close_time(self, date_time=None):
-        end_time = date_time if date_time else self.get_datetime()
-        self.end_time = end_time
+        self.end_time = date_time if date_time else self.get_datetime()
         self.calculate_worked()
 
     def calculate_paused(self):
@@ -62,16 +61,16 @@ class Entry(models.Model):
             self.time_paused = self.end_pause - self.start_pause
             self.save()
         else:
-            raise FieldRequiredException('[start_time, end_time]')
+            raise exceptions.FieldRequiredException('[start_time, end_time]')
 
     def calculate_worked(self):
         if self.end_time:
-            self.end_time = self.start_pause if not self.end_pause else self.get_datetime()
+            self.end_time = self.start_pause if not self.end_pause and self.start_pause else self.end_time
             self.time_worked = self.end_time - self.time_paused - self.start_time
             self.status = constants.NEEDS_APPROVAL
             self.save()
         else:
-            raise FieldRequiredException('end_time')
+            raise exceptions.FieldRequiredException('end_time')
 
     def auto_end_entry(self):
         if not self.end_time:
@@ -87,7 +86,7 @@ class Entry(models.Model):
             self.status = constants.FLAGGED
             self.save()
         else:
-            raise NullRequiredException('end_time')
+            raise exceptions.NullRequiredException('end_time')
 
     @staticmethod
     def get_datetime():
