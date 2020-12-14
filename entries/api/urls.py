@@ -12,5 +12,6 @@ urlpatterns = [
     path('end-time/', entry_views.EndTimeView.as_view()),
     path('start-pause/', entry_views.StartPauseView.as_view()),
     path('end-pause/', entry_views.EndPauseView.as_view()),
-    path('entry-download/', entry_views.EntryCSVDownloadView.as_view())
+    path('entry-download/', entry_views.EntryCSVDownloadView.as_view()),
+    path('filter-entries/', entry_views.EntryFilterView.as_view())
 ]

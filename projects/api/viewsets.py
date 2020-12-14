@@ -19,10 +19,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 class ProjectImageViewSet(viewsets.ModelViewSet):
     """
-   API Endpoint for project image CRUD
-   """
+    API Endpoint for project image CRUD
+    """
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    queryset = ProjectImage.objects.all()
+    queryset = ProjectImage.objects.all().order_by('-id')
     serializer_class = ProjectImageSerializer
