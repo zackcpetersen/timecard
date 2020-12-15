@@ -25,10 +25,12 @@ class EntryViewSet(viewsets.ModelViewSet):
     serializer_class = EntrySerializer
 
 
-# TODO add authentication on all views - Mixin?
-class EntryFilterView(views.APIView):
+class AuthenticatedApiView(views.APIView):
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
+
+
+class EntryFilterView(AuthenticatedApiView):
 
     def post(self, request):
         user = request.user if request.user else None
@@ -48,15 +50,12 @@ class EntryFilterView(views.APIView):
         return Response(status=400, data=form.errors)
 
 
-class StartTimeView(views.APIView):
-    authentication_classes = [SessionAuthentication, TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+class StartTimeView(AuthenticatedApiView):
 
     def post(self, request):
-        data = copy.deepcopy(request.data)
-        if request.user:
-            data.update({'user': request.user})
-        form = StartTimeForm(data)
+        if request.user and not request.data.get('user'):
+            request.data['user'] = request.user
+        form = StartTimeForm(request.data)
         if form.is_valid():
             user = form.cleaned_data['user']
             last_entry = form.cleaned_data.get('last_entry')
@@ -69,15 +68,12 @@ class StartTimeView(views.APIView):
         return Response(status=400, data=form.errors)
 
 
-class EndTimeView(views.APIView):
-    authentication_classes = [SessionAuthentication, TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+class EndTimeView(AuthenticatedApiView):
 
     def post(self, request):
-        data = copy.deepcopy(request.data)
-        if request.user:
-            data.update({'user': request.user})
-        form = UserForm(data)
+        if request.user and not request.data.get('user'):
+            request.data['user'] = request.user
+        form = UserForm(request.data)
         if form.is_valid():
             entry = form.cleaned_data['last_entry']
             entry.close_time()
@@ -86,15 +82,12 @@ class EndTimeView(views.APIView):
         return Response(status=400, data=form.errors)
 
 
-class StartPauseView(views.APIView):
-    authentication_classes = [SessionAuthentication, TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+class StartPauseView(AuthenticatedApiView):
 
     def post(self, request):
-        data = copy.deepcopy(request.data)
-        if request.user:
-            data.update({'user': request.user})
-        form = UserForm(data)
+        if request.user and not request.data.get('user'):
+            request.data['user'] = request.user
+        form = UserForm(request.data)
         if form.is_valid():
             entry = form.cleaned_data['last_entry']
             if not entry.start_pause:
@@ -105,15 +98,12 @@ class StartPauseView(views.APIView):
         return Response(status=400, data=form.errors)
 
 
-class EndPauseView(views.APIView):
-    authentication_classes = [SessionAuthentication, TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+class EndPauseView(AuthenticatedApiView):
 
     def post(self, request):
-        data = copy.deepcopy(request.data)
-        if request.user:
-            data.update({'user': request.user})
-        form = UserForm(data)
+        if request.user and not request.data.get('user'):
+            request.data['user'] = request.user
+        form = UserForm(request.data)
         if form.is_valid():
             entry = form.cleaned_data['last_entry']
             if entry.start_pause:
@@ -124,9 +114,7 @@ class EndPauseView(views.APIView):
         return Response(status=400, data=form.errors)
 
 
-class EntryCSVDownloadView(views.APIView):
-    authentication_classes = [SessionAuthentication, TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+class EntryCSVDownloadView(AuthenticatedApiView):
 
     def post(self, request):
         form = MultiUserForm(request.data)
