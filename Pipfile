@@ -1,18 +1,24 @@
+
 [[source]]
 name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+ipython = "*"
+awsebcli = "*"
 
 [packages]
 django = "*"
 djangorestframework = "*"
-ipython = "*"
 django-rest-auth = "*"
 requests = "*"
 freezegun = "*"
 pillow = "*"
+gunicorn = "*"
+boto3 = "*"
+django-storages = "*"
+psycopg2-binary = "*"
 
 [requires]
-python_version = "3.9"
+python_version = "3.7"
