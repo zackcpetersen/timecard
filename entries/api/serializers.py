@@ -16,7 +16,6 @@ class EntrySerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'start_time', 'end_time', 'start_pause', 'end_pause',
                   'time_paused', 'time_worked', 'project', 'status', 'comments',
                   'created_at', 'updated_at', 'entry_images']
-        # fields = '__all__'
 
     def time_paused_seconds (self, entry):
         return entry.time_paused.total_seconds()

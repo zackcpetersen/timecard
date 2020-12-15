@@ -125,6 +125,9 @@ class EndPauseView(views.APIView):
 
 
 class EntryCSVDownloadView(views.APIView):
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         form = MultiUserForm(request.data)
         if form.is_valid():
