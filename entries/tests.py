@@ -43,8 +43,9 @@ class EntryTests(TestCase):
         with freeze_time("2020-11-7 13:00:00"):
             request = self.time_request(self.user1, self.end_pause_endpoint)
             expected_time_paused = datetime.datetime.now(tz=pytz.UTC) - start_pause
-            actual_pause_time = self.format_timedelta(request.json()['time_paused'])
-            self.assertEqual(expected_time_paused, actual_pause_time)
+            expected_time_paused_secs = expected_time_paused.total_seconds()
+            actual_pause_time = request.json()['time_paused']
+            self.assertEqual(expected_time_paused_secs, actual_pause_time)
 
         with freeze_time("2020-11-7 17:00:00"):
             request = self.time_request(self.user1, self.end_time_endpoint)
@@ -52,8 +53,9 @@ class EntryTests(TestCase):
             self.assertEqual(request.json()['end_time'], exp_end_formatted)
 
             expected_time_worked = exp_end_raw - expected_time_paused - exp_start_raw
-            actual_worked_time = self.format_timedelta(request.json()['time_worked'])
-            self.assertEqual(actual_worked_time, expected_time_worked)
+            expected_time_worked_secs = expected_time_worked.total_seconds()
+            actual_worked_time_secs = request.json()['time_worked']
+            self.assertEqual(actual_worked_time_secs, expected_time_worked_secs)
 
     def test_entry_edge(self):
         """
@@ -114,10 +116,10 @@ class EntryTests(TestCase):
 
         for entry in entry_data:
             Entry.objects.create(user=self.user1,
-                                 start_time=entry['start_time'],
-                                 end_time=entry['end_time'],
-                                 start_pause=entry['start_pause'],
-                                 end_pause=entry['end_pause'],
+                                 start_time=self.add_tz(entry['start_time']),
+                                 end_time=self.add_tz(entry['end_time']),
+                                 start_pause=self.add_tz(entry['start_pause']),
+                                 end_pause=self.add_tz(entry['end_pause']),
                                  project=entry['project'])
 
         data = {
@@ -133,6 +135,10 @@ class EntryTests(TestCase):
         self.c.force_login(user=user)
         data = {'user': user.pk}
         return self.c.post(endpoint, data=data)
+
+    @staticmethod
+    def add_tz(str_datetime):
+        return pytz.utc.localize(datetime.datetime.strptime(str_datetime, entry_constants.DATETIME_NO_MICROSECOND))
 
     @staticmethod
     def format_timedelta(str_time):
