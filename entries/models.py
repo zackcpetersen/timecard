@@ -63,6 +63,8 @@ class Entry(models.Model):
         end_pause = date_time if date_time else self.get_datetime()
         self.end_pause = end_pause
         self.calculate_paused()
+        self.start_pause, self.end_pause = None, None
+        self.save()
 
     def close_time(self, date_time=None):
         self.end_time = date_time if date_time else self.get_datetime()
@@ -70,7 +72,8 @@ class Entry(models.Model):
 
     def calculate_paused(self):
         if self.end_pause and self.start_pause:
-            self.time_paused = self.end_pause - self.start_pause
+            time_paused = self.end_pause - self.start_pause
+            self.time_paused += time_paused
             self.save()
         else:
             raise exceptions.FieldRequiredException('[start_time, end_time]')
