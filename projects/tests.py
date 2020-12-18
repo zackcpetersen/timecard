@@ -104,3 +104,35 @@ class ProjectTests(TestCase):
                                         image=uploaded_image)
 
         self.assertEqual(len(proj.project_images.all()), 2)
+
+    def test_single_featured_img(self):
+        # Create Project
+        proj = Project.objects.create(name=self.project_name,
+                                      description=self.project_desc)
+
+        # Create Images for proj
+        filepath = os.path.join(settings.BASE_DIR.parent, 'media/test_media/before_pic_test.jpg')
+        with open(filepath, 'rb') as pic:
+            uploaded_image = SimpleUploadedFile(pic.name, pic.read())
+            proj_img_1 = ProjectImage.objects.create(name=self.proj_image_name,
+                                                     description=self.proj_image_desc,
+                                                     project=proj,
+                                                     image=uploaded_image)
+        proj_img_1.featured = True
+        proj_img_1.save()
+
+        self.assertTrue(proj_img_1.featured)
+
+        filepath = os.path.join(settings.BASE_DIR.parent, 'media/test_media/after_remodel.jpg')
+        with open(filepath, 'rb') as pic:
+            uploaded_image = SimpleUploadedFile(pic.name, pic.read())
+            proj_img_2 = ProjectImage.objects.create(name='After - Outside',
+                                                     description='After image outside the home',
+                                                     project=proj,
+                                                     image=uploaded_image)
+
+        proj_img_2.featured = True
+        proj_img_2.save()
+
+        self.assertFalse(ProjectImage.objects.get(pk=proj_img_1.pk).featured)
+        self.assertTrue(ProjectImage.objects.get(pk=proj_img_2.pk).featured)

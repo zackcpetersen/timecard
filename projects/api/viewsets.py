@@ -13,7 +13,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    queryset = Project.objects.all()
+    queryset = Project.objects.all().order_by('-created_at')
     serializer_class = ProjectSerializer
 
 
