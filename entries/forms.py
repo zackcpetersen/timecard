@@ -1,9 +1,10 @@
 import datetime
 
-from django.forms import Form, BooleanField, DateField, ModelMultipleChoiceField
+from django.forms import BooleanField, ChoiceField, DateField, Form, ModelMultipleChoiceField
 
 from accounts.models import User
-# from entries.models import Entry
+from entries import constants
+from entries.models import Entry
 from projects.models import Project
 
 
@@ -23,7 +24,7 @@ class EntryFilterForm(Form):
             self.cleaned_data['users'] = User.objects.all()
         if not self.cleaned_data.get('start_date'):
             self.cleaned_data['start_date'] = datetime.date.today() - \
-                                              datetime.timedelta(days=14)
+                                              datetime.timedelta(days=30)
             if not self.cleaned_data.get('end_date'):
                 self.cleaned_data['end_date'] = datetime.date.today() + datetime.timedelta(days=1)
         if not self.cleaned_data.get('include_active_entries'):
@@ -34,3 +35,14 @@ class EntryFilterForm(Form):
             self.request_user = kwargs.get('user')
             kwargs.pop('user')
         super(EntryFilterForm, self).__init__(*args, **kwargs)
+
+
+class EntryStatusForm(Form):
+    entries = ModelMultipleChoiceField(queryset=Entry.objects.all())
+    status = ChoiceField(choices=constants.ENTRY_STATUSES)
+
+    def __init__(self, *args, **kwargs):
+        if kwargs.get('user'):
+            self.request_user = kwargs.get('user')
+            kwargs.pop('user')
+        super(EntryStatusForm, self).__init__(*args, **kwargs)

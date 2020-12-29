@@ -1,13 +1,13 @@
 APPROVED = 'approved'
-UNVERIFIED = 'unverified'
 NEEDS_APPROVAL = 'needs_approval'
 FLAGGED = 'flagged'
+ACTIVE = 'active'
 
 ENTRY_STATUSES = (
     (APPROVED, 'Approved'),
-    (UNVERIFIED, 'Unverified'),
     (NEEDS_APPROVAL, 'Needs Approval'),
-    (FLAGGED, 'Flagged')
+    (FLAGGED, 'Flagged'),
+    (ACTIVE, 'Active')
 )
 
 DEFAULT_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'

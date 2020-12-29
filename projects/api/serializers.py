@@ -14,3 +14,9 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = '__all__'
+
+#
+# class ProjectNameSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Project
+#         fields = ['name']

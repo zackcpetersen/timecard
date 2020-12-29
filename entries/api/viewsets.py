@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from accounts.forms import MultiUserForm, StartTimeForm, UserForm
 from entries.api.serializers import EntrySerializer
 from entries.exceptions import FieldRequiredException, NullRequiredException
-from entries.forms import EntryFilterForm
+from entries.forms import EntryFilterForm, EntryStatusForm
 from entries.models import Entry
 
 
@@ -43,8 +43,24 @@ class EntryFilterView(AuthenticatedApiView):
                 entries.exclude(end_time__null=True)
             entries = entries.filter(user__in=form.cleaned_data['users'],
                                      start_time__range=(form.cleaned_data['start_date'],
-                                                        form.cleaned_data['end_date']))
+                                                        form.cleaned_data['end_date'])).order_by('-created_at')
 
+            serializer = EntrySerializer(entries, many=True)
+            return Response(status=200, data=serializer.data)
+        return Response(status=400, data=form.errors)
+
+
+class EntryStatusView(AuthenticatedApiView):
+    def post(self, request):
+        user = request.user
+        form = EntryStatusForm(request.data, user=user)
+        if form.is_valid():
+            entries = form.cleaned_data['entries']
+            status = form.cleaned_data['status']
+            for entry in entries:
+                if entry.status != 'active':
+                    entry.status = status
+                    entry.save()
             serializer = EntrySerializer(entries, many=True)
             return Response(status=200, data=serializer.data)
         return Response(status=400, data=form.errors)
