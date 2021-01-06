@@ -1,4 +1,3 @@
-import copy
 import csv
 
 from django.http import HttpResponse
@@ -7,8 +6,9 @@ from rest_framework.authentication import SessionAuthentication, TokenAuthentica
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from accounts.forms import MultiUserForm, StartTimeForm, UserForm
-from entries.api.serializers import EntrySerializer
+from accounts.forms import StartTimeForm, UserForm
+from entries.api.serializers import EntryCSVSerializer, EntrySerializer
+from entries import constants as entry_constants
 from entries.exceptions import FieldRequiredException, NullRequiredException
 from entries.forms import EntryFilterForm, EntryStatusForm
 from entries.models import Entry
@@ -36,14 +36,7 @@ class EntryFilterView(AuthenticatedApiView):
         user = request.user if request.user else None
         form = EntryFilterForm(request.data, user=user)
         if form.is_valid():
-            entries = Entry.objects.all()
-            if form.cleaned_data.get('projects'):
-                entries = entries.filter(project__in=form.cleaned_data['projects'])
-            if not form.cleaned_data['include_active_entries']:
-                entries.exclude(end_time__null=True)
-            entries = entries.filter(user__in=form.cleaned_data['users'],
-                                     start_time__range=(form.cleaned_data['start_date'],
-                                                        form.cleaned_data['end_date'])).order_by('-created_at')
+            entries = form.cleaned_data.get('entries').order_by('-created_at')
 
             serializer = EntrySerializer(entries, many=True)
             return Response(status=200, data=serializer.data)
@@ -133,35 +126,21 @@ class EndPauseView(AuthenticatedApiView):
 class EntryCSVDownloadView(AuthenticatedApiView):
 
     def post(self, request):
-        form = MultiUserForm(request.data)
+        form = EntryFilterForm(request.data)
         if form.is_valid():
-            users = form.cleaned_data['users']
-            start_date = form.cleaned_data['start_date']
-            end_date = form.cleaned_data['end_date']
-            return self.create_csv(users, start_date, end_date)
+            headers = {field: field for field in entry_constants.ENTRY_CSV_ATTRS}
+            filename = 'entries_{}-{}'.format(form.cleaned_data['start_date'],
+                                              form.cleaned_data['end_date'])
+            entries = EntryCSVSerializer(form.cleaned_data['entries'], many=True)
+            return self.create_csv(headers, entries.data, filename)
         return Response(status=400, data=form.errors)
 
-    def create_csv(self, users, start_date, end_date):
+    def create_csv(self, headers, rows, filename):
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename=entries_{}-{}.csv'.format(start_date, end_date)
-        writer = csv.writer(response)
-        headers = ['Name', 'Date', 'Project', 'Clock-In', 'Clock-Out', 'Start-Pause', 'End-Pause', 'Time-Paused', 'Time-Worked']
+        response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
+        writer = csv.DictWriter(response, fieldnames=headers)
         writer.writerow(headers)
-        for user in users:
-            for entry in user.entries.filter(created_at__range=(start_date, end_date)):
-                data = [user.email, entry.created_at, entry.project, entry.start_time, entry.end_time,
-                        entry.start_pause, entry.end_pause, entry.time_paused, entry.time_worked]
-                entry_data = self.csv_no_null_vals(data)
-                writer.writerow(entry_data)
+        for row in rows:
+            writer.writerow(row)
+
         return response
-
-    def csv_no_null_vals(self, vals):
-        complete = []
-        for val in vals:
-            if not val:
-                val = ' '
-            else:
-                val = val
-            complete.append(val)
-
-        return complete
