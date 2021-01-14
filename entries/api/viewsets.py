@@ -10,7 +10,7 @@ from accounts.forms import StartTimeForm, UserForm
 from entries.api.serializers import EntryCSVSerializer, EntrySerializer
 from entries import constants as entry_constants
 from entries.exceptions import FieldRequiredException, NullRequiredException
-from entries.forms import EntryFilterForm, EntryStatusForm
+from entries.forms import EntryDateForm, EntryCsvForm, EntryStatusForm
 from entries.models import Entry
 
 
@@ -28,19 +28,6 @@ class EntryViewSet(viewsets.ModelViewSet):
 class AuthenticatedApiView(views.APIView):
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
-
-
-class EntryFilterView(AuthenticatedApiView):
-
-    def post(self, request):
-        user = request.user if request.user else None
-        form = EntryFilterForm(request.data, user=user)
-        if form.is_valid():
-            entries = form.cleaned_data.get('entries').order_by('-created_at')
-
-            serializer = EntrySerializer(entries, many=True)
-            return Response(status=200, data=serializer.data)
-        return Response(status=400, data=form.errors)
 
 
 class EntryStatusView(AuthenticatedApiView):
@@ -123,23 +110,38 @@ class EndPauseView(AuthenticatedApiView):
         return Response(status=400, data=form.errors)
 
 
-class EntryCSVDownloadView(AuthenticatedApiView):
+class EntryFilterView(AuthenticatedApiView):
 
     def post(self, request):
-        form = EntryFilterForm(request.data)
+        user = request.user if request.user else None
+        form = EntryDateForm(request.data, user=user)
         if form.is_valid():
-            headers = {field: field for field in entry_constants.ENTRY_CSV_ATTRS}
+            entries = form.cleaned_data.get('entries').order_by('-start_time')
+
+            serializer = EntrySerializer(entries, many=True)
+            return Response(status=200, data=serializer.data)
+        return Response(status=400, data=form.errors)
+
+
+class EntryCSVDownloadView(AuthenticatedApiView):
+    def post(self, request):
+        form = EntryCsvForm(request.data)
+        if form.is_valid():
             filename = 'entries_{}-{}'.format(form.cleaned_data['start_date'],
                                               form.cleaned_data['end_date'])
             entries = EntryCSVSerializer(form.cleaned_data['entries'], many=True)
-            return self.create_csv(headers, entries.data, filename)
+            rows = form.cleaned_data['user_totals']
+            rows += form.cleaned_data['project_totals']
+            rows += [entry_constants.ENTRY_CSV_ATTRS]
+            rows += [entry.values() for entry in entries.data]
+            return self.create_csv(entry_constants.ENTRY_CSV_ATTRS, rows, filename)
         return Response(status=400, data=form.errors)
 
     def create_csv(self, headers, rows, filename):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
-        writer = csv.DictWriter(response, fieldnames=headers)
-        writer.writerow(headers)
+        writer = csv.writer(response)
+        # writer.writerow(headers)
         for row in rows:
             writer.writerow(row)
 
