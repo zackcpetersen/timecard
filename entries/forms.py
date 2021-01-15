@@ -16,12 +16,12 @@ class EntryDateForm(Form):
     def clean(self):
         if not self.cleaned_data.get('start_date'):
             self.cleaned_data['start_date'] = datetime.date.today() - \
-                                              datetime.timedelta(days=45)
+                                              datetime.timedelta(days=14)
         if not self.cleaned_data.get('end_date'):
             self.cleaned_data['end_date'] = datetime.date.today() + datetime.timedelta(days=1)
 
         self.cleaned_data['entries'] = Entry.objects.filter(start_time__range=(
-            self.cleaned_data['start_date'], self.cleaned_data['end_date']))
+            self.cleaned_data['start_date'], self.cleaned_data['end_date'])).order_by('-start_time')
 
     def __init__(self, *args, **kwargs):
         if kwargs.get('user'):

@@ -21,7 +21,7 @@ class EntryViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    queryset = Entry.objects.all()
+    queryset = Entry.objects.all().order_by('-start_time')
     serializer_class = EntrySerializer
 
 
@@ -116,7 +116,7 @@ class EntryFilterView(AuthenticatedApiView):
         user = request.user if request.user else None
         form = EntryDateForm(request.data, user=user)
         if form.is_valid():
-            entries = form.cleaned_data.get('entries').order_by('-start_time')
+            entries = form.cleaned_data.get('entries')
 
             serializer = EntrySerializer(entries, many=True)
             return Response(status=200, data=serializer.data)
