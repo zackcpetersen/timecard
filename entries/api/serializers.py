@@ -10,17 +10,17 @@ from projects.models import Project
 
 
 class EntryBaseSerializer(serializers.ModelSerializer):
-    def time_paused_seconds (self, entry):
+    def get_time_paused_secs(self, entry):
         return entry.time_paused.total_seconds()
 
-    def time_worked_seconds(self, entry):
+    def get_time_worked_secs(self, entry):
         return entry.time_worked.total_seconds()
 
     def get_project_name(self, entry):
         if entry.project:
             return Project.objects.get(pk=entry.project.pk).name
 
-    def user_full_name(self, entry):
+    def get_name(self, entry):
         return '{} {}'.format(entry.user.first_name, entry.user.last_name)
 
     def get_start_time(self, entry):
@@ -45,12 +45,12 @@ class EntryBaseSerializer(serializers.ModelSerializer):
 
 
 class EntryCSVSerializer(EntryBaseSerializer):
-    name = serializers.SerializerMethodField('user_full_name')
-    project_name = serializers.SerializerMethodField('get_project_name')
-    start_time = serializers.SerializerMethodField('get_start_time')
-    end_time = serializers.SerializerMethodField('get_end_time')
-    created_at = serializers.SerializerMethodField('get_created_at')
-    updated_at = serializers.SerializerMethodField('get_updated_at')
+    name = serializers.SerializerMethodField()
+    project_name = serializers.SerializerMethodField()
+    start_time = serializers.SerializerMethodField()
+    end_time = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField()
+    updated_at = serializers.SerializerMethodField()
 
     class Meta:
         model = Entry
@@ -63,9 +63,9 @@ class EntryCSVSerializer(EntryBaseSerializer):
 class EntrySerializer(EntryBaseSerializer):
     user = UserSerializer(read_only=True)
     entry_images = ProjectImageSerializer(many=True, read_only=True)
-    time_paused_secs = serializers.SerializerMethodField('time_paused_seconds')
-    time_worked_secs = serializers.SerializerMethodField('time_worked_seconds')
-    project_name = serializers.SerializerMethodField('get_project_name')
+    time_paused_secs = serializers.SerializerMethodField()
+    time_worked_secs = serializers.SerializerMethodField()
+    project_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Entry
