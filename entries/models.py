@@ -21,6 +21,18 @@ from projects.models import Project
 # pre_save.connect(check_project, sender='entries.Entry')
 
 
+@receiver(pre_save, sender='entries.Entry')
+def manual_pause_time(sender, instance, **kwargs):
+    if instance.end_time:
+        expected_time_worked = instance.end_time - instance.start_time - instance.time_paused
+        if expected_time_worked != instance.time_worked:
+            instance.start_pause, instance.end_pause = None, None
+            instance.calculate_worked()
+
+
+pre_save.connect(manual_pause_time, sender='entries.Entry')
+
+
 class Entry(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='entries')
     start_time = models.DateTimeField(blank=True, null=True)
@@ -39,7 +51,7 @@ class Entry(models.Model):
 
     status = models.CharField(max_length=24,
                               choices=constants.ENTRY_STATUSES,
-                              default=constants.UNVERIFIED)
+                              default=constants.ACTIVE)
     comments = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -63,14 +75,18 @@ class Entry(models.Model):
         end_pause = date_time if date_time else self.get_datetime()
         self.end_pause = end_pause
         self.calculate_paused()
+        self.start_pause, self.end_pause = None, None
+        self.save()
 
     def close_time(self, date_time=None):
         self.end_time = date_time if date_time else self.get_datetime()
+        self.status = constants.NEEDS_APPROVAL
         self.calculate_worked()
 
     def calculate_paused(self):
         if self.end_pause and self.start_pause:
-            self.time_paused = self.end_pause - self.start_pause
+            time_paused = self.end_pause - self.start_pause
+            self.time_paused += time_paused
             self.save()
         else:
             raise exceptions.FieldRequiredException('[start_time, end_time]')
@@ -92,7 +108,7 @@ class Entry(models.Model):
             if entry_start_day == today:
                 end_time = self.get_datetime()
             else:
-                end_time = self.start_time.replace(hour=23, minute=59, second=59)
+                end_time = None
 
             self.end_time = end_time
             self.status = constants.FLAGGED

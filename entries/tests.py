@@ -42,17 +42,32 @@ class EntryTests(TestCase):
 
         with freeze_time("2020-11-7 13:00:00"):
             request = self.time_request(self.user1, self.end_pause_endpoint)
-            expected_time_paused = datetime.datetime.now(tz=pytz.UTC) - start_pause
-            expected_time_paused_secs = expected_time_paused.total_seconds()
+            expected_time_paused_1 = datetime.datetime.now(tz=pytz.UTC) - start_pause
+            expected_time_paused_secs_1 = expected_time_paused_1.total_seconds()
             actual_pause_time = request.json()['time_paused']
-            self.assertEqual(expected_time_paused_secs, actual_pause_time)
+            self.assertEqual(expected_time_paused_secs_1, actual_pause_time)
+
+        with freeze_time("2020-11-7 14:00:00"):
+            request = self.time_request(self.user1, self.start_pause_endpoint)
+            exp_pause_formatted, exp_pause_raw = self.get_test_datetime()
+            self.assertEqual(request.json()['start_pause'], exp_pause_formatted)
+            _, start_pause = self.get_test_datetime()
+
+        with freeze_time("2020-11-7 14:30:00"):
+            request = self.time_request(self.user1, self.end_pause_endpoint)
+            expected_time_paused_2 = datetime.datetime.now(tz=pytz.UTC) - start_pause
+            expected_time_paused_secs_total = expected_time_paused_2.total_seconds() + \
+                                              expected_time_paused_secs_1
+            actual_pause_time = request.json()['time_paused']
+            self.assertEqual(expected_time_paused_secs_total, actual_pause_time)
 
         with freeze_time("2020-11-7 17:00:00"):
             request = self.time_request(self.user1, self.end_time_endpoint)
             exp_end_formatted, exp_end_raw = self.get_test_datetime()
             self.assertEqual(request.json()['end_time'], exp_end_formatted)
 
-            expected_time_worked = exp_end_raw - expected_time_paused - exp_start_raw
+            total_pause_time = expected_time_paused_1 + expected_time_paused_2
+            expected_time_worked = exp_end_raw - total_pause_time - exp_start_raw
             expected_time_worked_secs = expected_time_worked.total_seconds()
             actual_worked_time_secs = request.json()['time_worked']
             self.assertEqual(actual_worked_time_secs, expected_time_worked_secs)
