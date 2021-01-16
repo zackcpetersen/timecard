@@ -2,6 +2,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from projects import constants as project_constants
+
 
 @receiver(post_save, sender='projects.ProjectImage')
 def allow_single_featured_img(sender, instance, **kwargs):
@@ -17,8 +19,10 @@ class Project(models.Model):
     description = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    status = models.CharField(choices=project_constants.PROJECT_STATUSES,
+                              default=project_constants.STATUS_ACTIVE,
+                              max_length=255)
     # type = models.ForeignKey() ??
-    # status = models.CharField(choices=) ??
 
     def __str__(self):
         return self.name
