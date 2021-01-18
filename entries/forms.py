@@ -33,7 +33,7 @@ class EntryDateForm(Form):
         if self.cleaned_data['end_date']:
             if self.cleaned_data['end_date'] < self.cleaned_data['start_date']:
                 self.add_error(error='Start Date must be before End Date!', field='end_date')
-            return self.cleaned_data['end_date']
+            return self.cleaned_data['end_date'] + datetime.timedelta(days=1)
 
 
 class EntryCsvForm(EntryDateForm):
@@ -87,12 +87,15 @@ class EntryCsvForm(EntryDateForm):
 
     def project_filter(self, entries):
         null_projects = self.cleaned_data.get('null_projects')
-        if null_projects and not self.cleaned_data.get('projects'):
-            filters = Q(project__isnull=null_projects)
-        else:
-            filters = Q(project__in=self.cleaned_data.get('projects')) | \
-                     Q(project__isnull=null_projects)
-        return entries.filter(filters)
+        specific_projects = self.cleaned_data.get('projects')
+        if null_projects and specific_projects:
+            return entries.filter(Q(project__in=self.cleaned_data.get(
+                'projects')) | Q(project__isnull=null_projects))
+        if null_projects:
+            entries = entries.filter(project__isnull=null_projects)
+        if specific_projects:
+            entries = entries.filter(project__in=specific_projects)
+        return entries
 
 
 class EntryStatusForm(Form):
