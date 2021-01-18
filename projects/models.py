@@ -22,16 +22,16 @@ class Project(models.Model):
     status = models.CharField(choices=project_constants.PROJECT_STATUSES,
                               default=project_constants.STATUS_ACTIVE,
                               max_length=255)
-    # type = models.ForeignKey('projects.ProjectType',
-    #                          on_delete=models.PROTECT,
-    #                          related_name='projects')
+    type = models.ForeignKey('projects.ProjectType',
+                             on_delete=models.PROTECT,
+                             related_name='projects')
 
     def __str__(self):
         return self.name
 
 
 class ProjectImage(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     description = models.CharField(max_length=255, blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.PROTECT,
                                 related_name='project_images')
@@ -48,7 +48,7 @@ class ProjectImage(models.Model):
 
 
 class ProjectType(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name

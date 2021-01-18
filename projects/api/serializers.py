@@ -10,10 +10,14 @@ class ProjectImageSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
     project_images = ProjectImageSerializer(many=True, read_only=True)
+    type_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
         fields = '__all__'
+
+    def get_type_name(self, project):
+        return project.type.name
 
 
 class ProjectTypeSerializer(serializers.ModelSerializer):
