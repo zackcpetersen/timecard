@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from projects.models import Project, ProjectImage
+from projects.models import Project, ProjectImage, ProjectType
 
 
 class ProjectImageSerializer(serializers.ModelSerializer):
@@ -15,8 +15,8 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = '__all__'
 
-#
-# class ProjectNameSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Project
-#         fields = ['name']
+
+class ProjectTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectType
+        fields = '__all__'

@@ -22,7 +22,9 @@ class Project(models.Model):
     status = models.CharField(choices=project_constants.PROJECT_STATUSES,
                               default=project_constants.STATUS_ACTIVE,
                               max_length=255)
-    # type = models.ForeignKey() ??
+    # type = models.ForeignKey('projects.ProjectType',
+    #                          on_delete=models.PROTECT,
+    #                          related_name='projects')
 
     def __str__(self):
         return self.name
@@ -40,3 +42,13 @@ class ProjectImage(models.Model):
     image = models.ImageField(upload_to='project-images')
     created_at = models.DateTimeField(auto_now_add=True)
     featured = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+
+class ProjectType(models.Model):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
