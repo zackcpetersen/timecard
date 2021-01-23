@@ -53,9 +53,11 @@ class EntryStatusView(AuthenticatedApiView):
 
 
 class StartTimeView(AuthenticatedApiView):
-
+    """
+    API endpoint to create and start an entry
+    """
     def post(self, request):
-        if request.user and not request.data.get('user'):
+        if not request.data.get('user'):
             request.data['user'] = request.user
         form = StartTimeForm(request.data)
         if form.is_valid():
@@ -71,7 +73,9 @@ class StartTimeView(AuthenticatedApiView):
 
 
 class EndTimeView(AuthenticatedApiView):
-
+    """
+    API endpoint to set end time and close an entry
+    """
     def post(self, request):
         if request.user and not request.data.get('user'):
             request.data['user'] = request.user
@@ -85,7 +89,9 @@ class EndTimeView(AuthenticatedApiView):
 
 
 class StartPauseView(AuthenticatedApiView):
-
+    """
+    API endpoint to start pause time on an entry
+    """
     def post(self, request):
         if request.user and not request.data.get('user'):
             request.data['user'] = request.user
@@ -101,7 +107,9 @@ class StartPauseView(AuthenticatedApiView):
 
 
 class EndPauseView(AuthenticatedApiView):
-
+    """
+    API endpoint to set end pause time and calculate paused time
+    """
     def post(self, request):
         if request.user and not request.data.get('user'):
             request.data['user'] = request.user
@@ -117,10 +125,11 @@ class EndPauseView(AuthenticatedApiView):
 
 
 class EntryFilterView(AuthenticatedApiView):
-
+    """
+    API endpoint to get entries within a given date range
+    """
     def post(self, request):
-        user = request.user if request.user else None
-        form = EntryDateForm(request.data, user=user)
+        form = EntryDateForm(request.data, user=request.user)
         if form.is_valid():
             entries = form.cleaned_data.get('entries')
 
