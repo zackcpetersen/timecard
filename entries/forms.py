@@ -20,8 +20,15 @@ class EntryDateForm(Form):
         if not self.cleaned_data.get('end_date'):
             self.cleaned_data['end_date'] = datetime.date.today() + datetime.timedelta(days=1)
 
-        self.cleaned_data['entries'] = Entry.objects.filter(start_time__range=(
-            self.cleaned_data['start_date'], self.cleaned_data['end_date'])).order_by('-start_time')
+        start_date = self.cleaned_data['start_date']
+        end_date = self.cleaned_data['end_date']
+        user = self.request_user
+
+        entries = Entry.objects.filter(start_time__range=(
+            start_date, end_date)).order_by('-start_time')
+        if not user.is_admin:
+            entries = entries.filter(user=user)
+        self.cleaned_data['entries'] = entries
 
     def __init__(self, *args, **kwargs):
         if kwargs.get('user'):

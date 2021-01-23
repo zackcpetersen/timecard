@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from accounts.forms import StartTimeForm, UserForm
+from accounts import permissions
 from entries.api.serializers import EntryCSVSerializer, EntrySerializer
 from entries import constants as entry_constants
 from entries.exceptions import FieldRequiredException, NullRequiredException
@@ -19,10 +20,15 @@ class EntryViewSet(viewsets.ModelViewSet):
     API Endpoint for Entry CRUD
     """
     authentication_classes = [SessionAuthentication, TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, permissions.OwnerReadOnlyAdminEdit]
 
     queryset = Entry.objects.all().order_by('-start_time')
     serializer_class = EntrySerializer
+
+    def get_queryset(self):
+        if self.request.user.is_admin:
+            return self.queryset
+        return self.queryset.filter(user=self.request.user)
 
 
 class AuthenticatedApiView(views.APIView):
@@ -123,7 +129,10 @@ class EntryFilterView(AuthenticatedApiView):
         return Response(status=400, data=form.errors)
 
 
-class EntryCSVDownloadView(AuthenticatedApiView):
+class EntryCSVDownloadView(views.APIView):
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated, permissions.CustomAdminUser]
+
     def post(self, request):
         form = EntryCsvForm(request.data)
         if form.is_valid():
