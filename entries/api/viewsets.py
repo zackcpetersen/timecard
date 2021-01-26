@@ -20,7 +20,7 @@ class EntryViewSet(viewsets.ModelViewSet):
     API Endpoint for Entry CRUD
     """
     authentication_classes = [SessionAuthentication, TokenAuthentication]
-    permission_classes = [IsAuthenticated, permissions.OwnerReadOnlyAdminEdit]
+    permission_classes = [IsAuthenticated, permissions.ObjectOwnerReadOnlyAdminEdit]
 
     queryset = Entry.objects.all().order_by('-start_time')
     serializer_class = EntrySerializer
