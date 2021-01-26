@@ -4,12 +4,18 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, first_name, last_name, password=None):
+    def create_user(self, email, first_name, last_name, password,
+                    is_admin=False, is_superuser=False):
         user = self.model(
             email=self.normalize_email(email),
             first_name=first_name,
             last_name=last_name
         )
+        user.is_admin = is_admin
+        if is_superuser:
+            user.is_staff = True
+            user.is_admin = True
+            user.is_superuser = True
         user.set_password(password)
         user.save()
         return user
@@ -21,6 +27,7 @@ class CustomUserManager(BaseUserManager):
             last_name=last_name
         )
         user.is_staff = True
+        user.is_admin = True
         user.is_superuser = True
         user.set_password(password)
         user.save()
@@ -38,4 +45,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name='Email Address', max_length=255,
                               unique=True, db_index=True, )
 
+    is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)

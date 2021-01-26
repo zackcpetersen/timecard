@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from accounts.forms import StartTimeForm, UserForm
+from accounts import permissions
 from entries.api.serializers import EntryCSVSerializer, EntrySerializer
 from entries import constants as entry_constants
 from entries.exceptions import FieldRequiredException, NullRequiredException
@@ -19,10 +20,15 @@ class EntryViewSet(viewsets.ModelViewSet):
     API Endpoint for Entry CRUD
     """
     authentication_classes = [SessionAuthentication, TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, permissions.ObjectOwnerReadOnlyAdminEdit]
 
     queryset = Entry.objects.all().order_by('-start_time')
     serializer_class = EntrySerializer
+
+    def get_queryset(self):
+        if self.request.user.is_admin:
+            return self.queryset
+        return self.queryset.filter(user=self.request.user)
 
 
 class AuthenticatedApiView(views.APIView):
@@ -47,9 +53,11 @@ class EntryStatusView(AuthenticatedApiView):
 
 
 class StartTimeView(AuthenticatedApiView):
-
+    """
+    API endpoint to create and start an entry
+    """
     def post(self, request):
-        if request.user and not request.data.get('user'):
+        if not request.data.get('user'):
             request.data['user'] = request.user
         form = StartTimeForm(request.data)
         if form.is_valid():
@@ -65,7 +73,9 @@ class StartTimeView(AuthenticatedApiView):
 
 
 class EndTimeView(AuthenticatedApiView):
-
+    """
+    API endpoint to set end time and close an entry
+    """
     def post(self, request):
         if request.user and not request.data.get('user'):
             request.data['user'] = request.user
@@ -79,7 +89,9 @@ class EndTimeView(AuthenticatedApiView):
 
 
 class StartPauseView(AuthenticatedApiView):
-
+    """
+    API endpoint to start pause time on an entry
+    """
     def post(self, request):
         if request.user and not request.data.get('user'):
             request.data['user'] = request.user
@@ -95,7 +107,9 @@ class StartPauseView(AuthenticatedApiView):
 
 
 class EndPauseView(AuthenticatedApiView):
-
+    """
+    API endpoint to set end pause time and calculate paused time
+    """
     def post(self, request):
         if request.user and not request.data.get('user'):
             request.data['user'] = request.user
@@ -111,10 +125,11 @@ class EndPauseView(AuthenticatedApiView):
 
 
 class EntryFilterView(AuthenticatedApiView):
-
+    """
+    API endpoint to get entries within a given date range
+    """
     def post(self, request):
-        user = request.user if request.user else None
-        form = EntryDateForm(request.data, user=user)
+        form = EntryDateForm(request.data, user=request.user)
         if form.is_valid():
             entries = form.cleaned_data.get('entries')
 
@@ -123,7 +138,10 @@ class EntryFilterView(AuthenticatedApiView):
         return Response(status=400, data=form.errors)
 
 
-class EntryCSVDownloadView(AuthenticatedApiView):
+class EntryCSVDownloadView(views.APIView):
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated, permissions.CustomAdminUser]
+
     def post(self, request):
         form = EntryCsvForm(request.data)
         if form.is_valid():
