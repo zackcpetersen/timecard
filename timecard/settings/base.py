@@ -30,7 +30,7 @@ ALLOWED_HOSTS = ['timecard-dev.us-west-2.elasticbeanstalk.com']
 # Auth User Model
 AUTH_USER_MODEL = 'accounts.User'
 REST_AUTH_SERIALIZERS = {
-    'USER_DETAILS_SERIALIZER': 'accounts.api.serializers.UserSerializer'
+    'USER_DETAILS_SERIALIZER': 'accounts.api.serializers.UserCreationSerializer'
 }
 
 REST_FRAMEWORK = {

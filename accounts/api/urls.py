@@ -5,7 +5,9 @@ from accounts.api import viewsets as account_views
 
 router = routers.DefaultRouter()
 
-router.register(r'users', account_views.UserViewSet)
+router.register(r'users', account_views.UserCreationViewSet)
+router.register(r'update-user', account_views.UserUpdateViewSet)
+
 
 urlpatterns = [
     path('accounts/', include('rest_auth.urls')),

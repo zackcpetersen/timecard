@@ -11,13 +11,19 @@ class ObjectOwnerReadOnlyAdminEdit(permissions.BasePermission):
 
 class ObjectOwnerOrAdminUpdate(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        return bool(request.user == obj.user) or request.user.is_admin
+        return request.user.is_admin or bool(request.user == obj.user)
+
+
+class ImageOwnerOrAdminUpdate(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return request.user.is_admin or bool(request.user == obj.entry.user)
 
 
 class ObjectOwnerOrSuperuserUpdate(permissions.BasePermission):
     def has_permission(self, request, view):
-        return bool(request.method in permissions.SAFE_METHODS
-                    and request.user.is_admin) or request.user.is_superuser
+        return bool(request.method in permissions.SAFE_METHODS) or \
+               request.user.is_superuser or \
+               bool(request.method != 'POST')
 
     def has_object_permission(self, request, view, obj):
         if isinstance(obj, User):

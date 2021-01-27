@@ -26,7 +26,7 @@ class ProjectImageViewSet(AuthenticatedAPIView):
     """
     API Endpoint for project image CRUD
     """
-    permission_classes = [IsAuthenticated, permissions.ObjectOwnerOrAdminUpdate]
+    permission_classes = [IsAuthenticated, permissions.ImageOwnerOrAdminUpdate]
     queryset = ProjectImage.objects.all().order_by('-id')
     serializer_class = ProjectImageSerializer
 
@@ -35,6 +35,6 @@ class ProjectTypeViewSet(AuthenticatedAPIView):
     """
     API Endpoint for project type crud
     """
-    permission_classes = [IsAuthenticated, permissions.CustomAdminUser]
+    permission_classes = [IsAuthenticated, permissions.AdminOrReadOnly]
     queryset = ProjectType.objects.all().order_by('-id')
     serializer_class = ProjectTypeSerializer
