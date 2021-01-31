@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from accounts.forms import StartTimeForm, UserForm
 from accounts import permissions
-from entries.api.serializers import EntryCSVSerializer, EntrySerializer
+from entries.api.serializers import EntryCSVSerializer, EntrySerializer, EntryUpdateSerializer
 from entries import constants as entry_constants
 from entries.exceptions import FieldRequiredException, NullRequiredException
 from entries.forms import EntryDateForm, EntryCsvForm, EntryStatusForm
@@ -29,6 +29,11 @@ class EntryViewSet(viewsets.ModelViewSet):
         if self.request.user.is_admin:
             return self.queryset
         return self.queryset.filter(user=self.request.user)
+
+
+class EntryUpdateViewSet(EntryViewSet):
+    permission_classes = [IsAuthenticated, permissions.ObjectOwnerOrAdminUpdate]
+    serializer_class = EntryUpdateSerializer
 
 
 class AuthenticatedApiView(views.APIView):

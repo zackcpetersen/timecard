@@ -6,6 +6,7 @@ from entries.api import viewsets as entry_views
 router = routers.DefaultRouter()
 
 router.register(r'entries', entry_views.EntryViewSet)
+router.register(r'update-entry', entry_views.EntryUpdateViewSet)
 
 urlpatterns = [
     path('start-time/', entry_views.StartTimeView.as_view()),

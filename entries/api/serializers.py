@@ -2,7 +2,7 @@ import pytz
 
 from rest_framework import serializers
 
-from accounts.api.serializers import UserSerializer
+from accounts.api.serializers import UserCreationSerializer
 from entries import constants as entry_constants
 from entries.models import Entry
 from projects.api.serializers import ProjectImageSerializer
@@ -61,7 +61,7 @@ class EntryCSVSerializer(EntryBaseSerializer):
 
 
 class EntrySerializer(EntryBaseSerializer):
-    user = UserSerializer(read_only=True)
+    user = UserCreationSerializer(read_only=True)
     entry_images = ProjectImageSerializer(many=True, read_only=True)
     time_paused_secs = serializers.SerializerMethodField()
     time_worked_secs = serializers.SerializerMethodField()
@@ -70,3 +70,14 @@ class EntrySerializer(EntryBaseSerializer):
     class Meta:
         model = Entry
         fields = entry_constants.ENTRY_ATTRS
+
+
+class EntryUpdateSerializer(EntrySerializer):
+    time_paused_secs = serializers.SerializerMethodField()
+    project_name = serializers.SerializerMethodField()
+    entry_images = ProjectImageSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Entry
+        fields = ['start_time', 'end_time', 'start_pause', 'end_pause', 'end_time', 'project',
+                  'project_name', 'time_paused_secs', 'entry_images']
