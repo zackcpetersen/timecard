@@ -1,6 +1,7 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, views
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from accounts.api.serializers import UserCreationSerializer, UserUpdateSerializer
 from accounts.models import User
@@ -24,3 +25,12 @@ class UserUpdateViewSet(viewsets.ModelViewSet):
 
     queryset = User.objects.all()
     serializer_class = UserUpdateSerializer
+
+
+class CurrentUserGetView(views.APIView):
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserUpdateSerializer(request.user)
+        return Response(status=200, data=serializer.data)
