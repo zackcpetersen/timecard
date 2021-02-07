@@ -23,7 +23,7 @@ class UserUpdateViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated, permissions.ObjectOwnerOrSuperuserUpdate]
 
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by('-pk')
     serializer_class = UserUpdateSerializer
 
 
