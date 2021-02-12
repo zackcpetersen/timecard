@@ -15,6 +15,7 @@ class UserBaseSerializer(serializers.ModelSerializer):
 
 class UserCreationSerializer(UserBaseSerializer):
     image = serializers.ImageField(read_only=True)
+    password = serializers.CharField(required=False)
 
     class Meta:
         model = User
@@ -34,4 +35,4 @@ class UserUpdateSerializer(UserBaseSerializer):
     class Meta:
         model = User
         fields = ['id', 'first_name', 'last_name', 'initials', 'full_name',
-                  'email', 'is_admin', 'is_superuser', 'image']
+                  'email', 'is_admin', 'is_superuser', 'image', 'pass_valid']

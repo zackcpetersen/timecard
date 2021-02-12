@@ -1,10 +1,10 @@
-from django.forms import Form, ModelChoiceField, ModelMultipleChoiceField, DateField
+from django.forms import CharField, EmailField, Form, ModelChoiceField
 
-from accounts.exceptions import InvalidDateRangeException
 from accounts.models import User
 
 
 class StartTimeForm(Form):
+    # TODO this can probably be removed
     user = ModelChoiceField(queryset=User.objects.all(), required=False)
 
     def clean_user(self):
@@ -24,11 +24,26 @@ class UserForm(Form):
         self.add_error('user', msg)
 
 
-class MultiUserForm(Form):
-    users = ModelMultipleChoiceField(queryset=User.objects.all())
-    start_date = DateField()
-    end_date = DateField()
+class UserResetPasswordForm(Form):
+    new_password = CharField(max_length=99)
+    confirm_password = CharField(max_length=99)
 
     def clean(self):
-        if self.cleaned_data.get('start_date') > self.cleaned_data.get('end_date'):
-            raise InvalidDateRangeException(self.cleaned_data['start_date'], self.cleaned_data['end_date'])
+        if self.cleaned_data['new_password'] != self.cleaned_data['confirm_password']:
+            msg = 'Both passwords must match!'
+            self.add_error('confirm_password', msg)
+        else:
+            self.cleaned_data['password'] = self.cleaned_data['new_password']
+
+
+class ForgotPasswordForm(Form):
+    email = EmailField()
+
+    def clean_email(self):
+        user = User.objects.filter(email=self.cleaned_data['email']).first()
+        if user:
+            self.cleaned_data['user'] = user
+            return self.cleaned_data['email']
+
+        msg = '{} is not associated to an account!'.format(self.cleaned_data['email'])
+        self.add_error('email', msg)
