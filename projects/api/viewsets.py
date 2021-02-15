@@ -1,15 +1,9 @@
-from rest_framework import viewsets
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 from accounts import permissions
 from projects.api.serializers import ProjectImageSerializer, ProjectSerializer, ProjectTypeSerializer
 from projects.models import Project, ProjectImage, ProjectType
-
-
-class AuthenticatedAPIView(viewsets.ModelViewSet):
-    authentication_classes = [SessionAuthentication, TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+from timecard.viewsets import AuthenticatedAPIView
 
 
 class ProjectViewSet(AuthenticatedAPIView):

@@ -1,7 +1,7 @@
 import csv
 
 from django.http import HttpResponse
-from rest_framework import viewsets, views
+from rest_framework import views
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -13,13 +13,13 @@ from entries import constants as entry_constants
 from entries.exceptions import FieldRequiredException, NullRequiredException
 from entries.forms import EntryDateForm, EntryCsvForm, EntryStatusForm
 from entries.models import Entry
+from timecard.viewsets import AuthenticatedAPIView
 
 
-class EntryViewSet(viewsets.ModelViewSet):
+class EntryViewSet(AuthenticatedAPIView):
     """
     API Endpoint for Entry CRUD
     """
-    authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated, permissions.ObjectOwnerReadOnlyAdminEdit]
 
     queryset = Entry.objects.all().order_by('-start_time')
