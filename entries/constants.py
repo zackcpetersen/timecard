@@ -17,8 +17,8 @@ DATE_ONLY_FORMAT = '%Y-%m-%d'
 
 ENTRY_ATTRS = ['id', 'user', 'start_time', 'end_time', 'start_pause', 'end_pause',
                'time_paused', 'time_paused_secs', 'time_worked', 'time_worked_secs', 'project',
-               'project_name', 'status', 'comments', 'created_at', 'updated_at',
-               'entry_images']
+               'project_name', 'loc_latitude', 'loc_longitude', 'loc_errors', 'status',
+               'comments', 'created_at', 'updated_at', 'entry_images']
 
 ENTRY_CSV_ATTRS = ['id', 'name', 'start_time', 'end_time',
                    'time_paused', 'time_worked',

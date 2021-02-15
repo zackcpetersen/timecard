@@ -80,4 +80,5 @@ class EntryUpdateSerializer(EntrySerializer):
     class Meta:
         model = Entry
         fields = ['id', 'start_time', 'end_time', 'start_pause', 'end_pause', 'end_time',
-                  'project', 'project_name', 'time_paused_secs', 'entry_images']
+                  'project', 'project_name', 'loc_latitude', 'loc_longitude', 'loc_errors',
+                  'time_paused_secs', 'entry_images']
