@@ -22,15 +22,19 @@ from projects.models import Project
 
 
 @receiver(pre_save, sender='entries.Entry')
-def manual_pause_time(sender, instance, **kwargs):
+def manual_entry_changes(sender, instance, **kwargs):
     if instance.end_time:
+        if instance.start_time > instance.end_time:
+            raise exceptions.EndTimeException()
         expected_time_worked = instance.end_time - instance.start_time - instance.time_paused
+        if instance.time_paused > instance.end_time - instance.start_time:
+            raise exceptions.TimeWorkedException()
         if expected_time_worked != instance.time_worked:
             instance.start_pause, instance.end_pause = None, None
             instance.calculate_worked()
 
 
-pre_save.connect(manual_pause_time, sender='entries.Entry')
+pre_save.connect(manual_entry_changes, sender='entries.Entry')
 
 
 class Entry(models.Model):

@@ -19,4 +19,18 @@ class ProjectRequiredException(APIException):
     status_code = 409
 
     def __init__(self):
-        self.detail = 'Project is required to end entry!'
+        self.detail = 'Project is required to end entry'
+
+
+class EndTimeException(APIException):
+    status_code = 409
+
+    def __init__(self):
+        self.detail = 'End time cannot be before start time'
+
+
+class TimeWorkedException(APIException):
+    status_code = 409
+
+    def __init__(self):
+        self.detail = 'Time paused cannot be longer than time worked'
