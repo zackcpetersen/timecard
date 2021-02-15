@@ -32,6 +32,8 @@ def manual_entry_changes(sender, instance, **kwargs):
         if expected_time_worked != instance.time_worked:
             instance.start_pause, instance.end_pause = None, None
             instance.calculate_worked()
+    if instance.end_time and instance.status == constants.ACTIVE:
+        instance.status = constants.NEEDS_APPROVAL
 
 
 pre_save.connect(manual_entry_changes, sender='entries.Entry')
