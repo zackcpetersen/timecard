@@ -63,6 +63,7 @@ class EntryCsvForm(EntryDateForm):
                                        start_time__range=(self.cleaned_data['start_date'],
                                                           self.cleaned_data['end_date']))
         entries = self.project_filter(entries)
+        # TODO ***optimize***
         self.cleaned_data['user_totals'] = self.user_totals(entries)
         self.cleaned_data['project_totals'] = self.project_totals(entries)
         self.cleaned_data['entries'] = entries
@@ -88,9 +89,7 @@ class EntryCsvForm(EntryDateForm):
 
     @staticmethod
     def format_timedelta(time_delta):
-        hours = time_delta.seconds//3600
-        minutes = (time_delta.seconds//60) % 60
-        return '{}:{}'.format(hours, minutes)
+        return str(time_delta).split('.')[0] if time_delta else '0:00:00'
 
     def project_filter(self, entries):
         null_projects = self.cleaned_data.get('null_projects')

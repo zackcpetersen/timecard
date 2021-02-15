@@ -62,8 +62,7 @@ class StartTimeView(AuthenticatedApiView):
     API endpoint to create and start an entry
     """
     def post(self, request):
-        if not request.data.get('user'):
-            request.data['user'] = request.user
+        request.data['user'] = request.user
         form = StartTimeForm(request.data)
         if form.is_valid():
             user = form.cleaned_data['user']

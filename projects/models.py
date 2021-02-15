@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.db.models.constraints import UniqueConstraint
 
 from projects import constants as project_constants
 
@@ -31,7 +32,7 @@ class Project(models.Model):
 
 
 class ProjectImage(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     description = models.CharField(max_length=255, blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.PROTECT,
                                 related_name='project_images')
@@ -42,6 +43,9 @@ class ProjectImage(models.Model):
     image = models.ImageField(upload_to='project-images')
     created_at = models.DateTimeField(auto_now_add=True)
     featured = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [UniqueConstraint(fields=['name', 'project'], name='unique_proj_img')]
 
     def __str__(self):
         return self.name
