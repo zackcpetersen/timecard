@@ -4,7 +4,6 @@ from accounts.models import User
 
 
 class StartTimeForm(Form):
-    # TODO this can probably be removed
     user = ModelChoiceField(queryset=User.objects.all(), required=False)
 
     def clean_user(self):

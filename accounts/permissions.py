@@ -39,7 +39,6 @@ class AdminOrReadOnly(permissions.BasePermission):
 
 class CustomAdminUser(permissions.BasePermission):
     def has_permission(self, request, view):
-        # TODO the is_admin may have to change names
         return bool(request.user and request.user.is_admin)
 
 

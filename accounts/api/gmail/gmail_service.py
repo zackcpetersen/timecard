@@ -38,7 +38,6 @@ class GmailAPI:
         message['to'] = self.user.email
         # TODO will need to update message['from'] - possibly model attr?
         message['from'] = account_constants.FROM_ACCOUNT
-        # TODO update subject based on account creation / forgot pass
         message['subject'] = self.subject
         # message['subject'] = account_constants.SUBJECT.format(self.user.first_name, self.user.last_name)
         encoded = base64.urlsafe_b64encode(message.as_bytes())

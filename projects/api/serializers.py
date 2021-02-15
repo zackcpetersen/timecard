@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
+
 from projects.models import Project, ProjectImage, ProjectType
 
 
@@ -6,6 +8,11 @@ class ProjectImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectImage
         fields = '__all__'
+        validators = [
+            UniqueTogetherValidator(
+                queryset=ProjectImage.objects.all(),
+                fields=['project', 'name'])
+        ]
 
 
 class ProjectSerializer(serializers.ModelSerializer):
