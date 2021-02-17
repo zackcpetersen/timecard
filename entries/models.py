@@ -11,14 +11,14 @@ from entries import exceptions
 from projects.models import Project
 
 
-# @receiver(pre_save, sender='entries.Entry')
-# def check_project(sender, instance, **kwargs):
-#     if instance.start_time and instance.end_time:
-#         if not instance.project:
-#             raise exceptions.ProjectRequiredException()
-#
-#
-# pre_save.connect(check_project, sender='entries.Entry')
+@receiver(pre_save, sender='entries.Entry')
+def check_project(sender, instance, **kwargs):
+    if instance.start_time and instance.end_time:
+        if not instance.project:
+            raise exceptions.ProjectRequiredException()
+
+
+pre_save.connect(check_project, sender='entries.Entry')
 
 
 @receiver(pre_save, sender='entries.Entry')

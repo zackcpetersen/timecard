@@ -19,7 +19,7 @@ class ProjectRequiredException(APIException):
     status_code = 409
 
     def __init__(self):
-        self.detail = 'Project is required to end entry'
+        self.detail = 'Please select a project before you clock out'
 
 
 class EndTimeException(APIException):
