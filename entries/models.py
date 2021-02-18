@@ -11,14 +11,14 @@ from entries import exceptions
 from projects.models import Project
 
 
-# @receiver(pre_save, sender='entries.Entry')
-# def check_project(sender, instance, **kwargs):
-#     if instance.start_time and instance.end_time:
-#         if not instance.project:
-#             raise exceptions.ProjectRequiredException()
-#
-#
-# pre_save.connect(check_project, sender='entries.Entry')
+@receiver(pre_save, sender='entries.Entry')
+def check_project(sender, instance, **kwargs):
+    if instance.start_time and instance.end_time:
+        if not instance.project:
+            raise exceptions.ProjectRequiredException()
+
+
+pre_save.connect(check_project, sender='entries.Entry')
 
 
 @receiver(pre_save, sender='entries.Entry')
@@ -52,8 +52,9 @@ class Entry(models.Model):
                                 related_name='entries',
                                 null=True,
                                 blank=True)
-    # location = models.ForeignKey(Location, related_name='entries)
-    # entry_group = models.ForeignKey(EntryGroup) ???
+    loc_latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    loc_longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    loc_errors = models.CharField(max_length=255, blank=True, null=True)
 
     status = models.CharField(max_length=24,
                               choices=constants.ENTRY_STATUSES,
@@ -65,8 +66,9 @@ class Entry(models.Model):
     class Meta:
         verbose_name_plural = 'Entries'
 
-    # def __str__(self):
-    #     return '{} on {}'.format(self.user, self.project)
+    def __str__(self):
+        return '{} {} on {}'.format(
+            self.user.first_name, self.user.last_name, self.start_time)
 
     def open_start(self, date_time=None):
         self.start_time = date_time if date_time else self.get_datetime()
