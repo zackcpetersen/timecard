@@ -8,10 +8,10 @@ from accounts import constants as account_constants
 from accounts.forms import ForgotPasswordForm, UserResetPasswordForm
 from accounts.models import User
 from accounts import permissions
-from timecard.viewsets import AuthenticatedAPIView
+from timecard.viewsets import AuthenticatedAPIViewSet
 
 
-class UserMainViewSet(AuthenticatedAPIView):
+class UserMainViewSet(AuthenticatedAPIViewSet):
     """
     API Endpoint for User CRUD
     """
@@ -21,7 +21,7 @@ class UserMainViewSet(AuthenticatedAPIView):
     serializer_class = UserCreationSerializer
 
 
-class UserUpdateViewSet(AuthenticatedAPIView):
+class UserUpdateViewSet(AuthenticatedAPIViewSet):
     permission_classes = [IsAuthenticated, permissions.ObjectOwnerOrSuperuserUpdate]
 
     queryset = User.objects.all().order_by('-pk')

@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from accounts.api.serializers import UserCreationSerializer
 from entries import constants as entry_constants
-from entries.models import Entry
+from entries.models import Entry, EntryLocation
 from projects.api.serializers import ProjectImageSerializer
 from projects.models import Project
 
@@ -60,12 +60,19 @@ class EntryCSVSerializer(EntryBaseSerializer):
                   'created_at', 'updated_at']
 
 
+class EntryLocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EntryLocation
+        fields = '__all__'
+
+
 class EntrySerializer(EntryBaseSerializer):
     user = UserCreationSerializer(read_only=True)
     entry_images = ProjectImageSerializer(many=True, read_only=True)
     time_paused_secs = serializers.SerializerMethodField()
     time_worked_secs = serializers.SerializerMethodField()
     project_name = serializers.SerializerMethodField()
+    locations = EntryLocationSerializer(many=True, read_only=True)
 
     class Meta:
         model = Entry
@@ -76,9 +83,9 @@ class EntryUpdateSerializer(EntrySerializer):
     time_paused_secs = serializers.SerializerMethodField()
     project_name = serializers.SerializerMethodField()
     entry_images = ProjectImageSerializer(many=True, read_only=True)
+    location = EntryLocationSerializer(read_only=True)
 
     class Meta:
         model = Entry
         fields = ['id', 'start_time', 'end_time', 'start_pause', 'end_pause', 'end_time',
-                  'project', 'project_name', 'loc_latitude', 'loc_longitude', 'loc_errors',
-                  'time_paused_secs', 'entry_images']
+                  'project', 'project_name', 'location', 'time_paused_secs', 'entry_images']

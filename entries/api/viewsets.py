@@ -8,15 +8,16 @@ from rest_framework.response import Response
 
 from accounts.forms import StartTimeForm, UserForm
 from accounts import permissions
-from entries.api.serializers import EntryCSVSerializer, EntrySerializer, EntryUpdateSerializer
+from entries.api.serializers import EntryCSVSerializer, EntryLocationSerializer, \
+    EntrySerializer, EntryUpdateSerializer
 from entries import constants as entry_constants
 from entries.exceptions import FieldRequiredException, NullRequiredException
 from entries.forms import EntryDateForm, EntryCsvForm, EntryStatusForm
-from entries.models import Entry
-from timecard.viewsets import AuthenticatedAPIView
+from entries.models import Entry, EntryLocation
+from timecard.viewsets import AuthenticatedAPIViewSet
 
 
-class EntryViewSet(AuthenticatedAPIView):
+class EntryViewSet(AuthenticatedAPIViewSet):
     """
     API Endpoint for Entry CRUD
     """
@@ -39,6 +40,11 @@ class EntryUpdateViewSet(EntryViewSet):
 class AuthenticatedApiView(views.APIView):
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
+
+
+class EntryLocationViewSet(AuthenticatedAPIViewSet):
+    queryset = EntryLocation.objects.all()
+    serializer_class = EntryLocationSerializer
 
 
 class EntryStatusView(AuthenticatedApiView):

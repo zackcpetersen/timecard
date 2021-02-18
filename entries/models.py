@@ -52,10 +52,6 @@ class Entry(models.Model):
                                 related_name='entries',
                                 null=True,
                                 blank=True)
-    loc_latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    loc_longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    loc_errors = models.CharField(max_length=255, blank=True, null=True)
-
     status = models.CharField(max_length=24,
                               choices=constants.ENTRY_STATUSES,
                               default=constants.ACTIVE)
@@ -127,3 +123,11 @@ class Entry(models.Model):
     @staticmethod
     def get_datetime():
         return datetime.datetime.now(tz=pytz.UTC)
+
+
+class EntryLocation(models.Model):
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name='locations')
+    loc_latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    loc_longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    loc_errors = models.CharField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)

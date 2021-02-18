@@ -7,6 +7,7 @@ router = routers.DefaultRouter()
 
 router.register(r'entries', entry_views.EntryViewSet)
 router.register(r'update-entry', entry_views.EntryUpdateViewSet)
+router.register(r'entry-location', entry_views.EntryLocationViewSet)
 
 urlpatterns = [
     path('start-time/', entry_views.StartTimeView.as_view()),

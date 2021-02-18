@@ -3,10 +3,10 @@ from rest_framework.permissions import IsAuthenticated
 from accounts import permissions
 from projects.api.serializers import ProjectImageSerializer, ProjectSerializer, ProjectTypeSerializer
 from projects.models import Project, ProjectImage, ProjectType
-from timecard.viewsets import AuthenticatedAPIView
+from timecard.viewsets import AuthenticatedAPIViewSet
 
 
-class ProjectViewSet(AuthenticatedAPIView):
+class ProjectViewSet(AuthenticatedAPIViewSet):
     """
     API Endpoint for project CRUD
     """
@@ -16,7 +16,7 @@ class ProjectViewSet(AuthenticatedAPIView):
     serializer_class = ProjectSerializer
 
 
-class ProjectImageViewSet(AuthenticatedAPIView):
+class ProjectImageViewSet(AuthenticatedAPIViewSet):
     """
     API Endpoint for project image CRUD
     """
@@ -25,7 +25,7 @@ class ProjectImageViewSet(AuthenticatedAPIView):
     serializer_class = ProjectImageSerializer
 
 
-class ProjectTypeViewSet(AuthenticatedAPIView):
+class ProjectTypeViewSet(AuthenticatedAPIViewSet):
     """
     API Endpoint for project type crud
     """
