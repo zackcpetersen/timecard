@@ -77,15 +77,3 @@ class EntrySerializer(EntryBaseSerializer):
     class Meta:
         model = Entry
         fields = entry_constants.ENTRY_ATTRS
-
-
-class EntryUpdateSerializer(EntrySerializer):
-    time_paused_secs = serializers.SerializerMethodField()
-    project_name = serializers.SerializerMethodField()
-    entry_images = ProjectImageSerializer(many=True, read_only=True)
-    location = EntryLocationSerializer(read_only=True)
-
-    class Meta:
-        model = Entry
-        fields = ['id', 'start_time', 'end_time', 'start_pause', 'end_pause', 'end_time',
-                  'project', 'project_name', 'location', 'time_paused_secs', 'entry_images']

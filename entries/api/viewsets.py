@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from accounts.forms import StartTimeForm, UserForm
 from accounts import permissions
 from entries.api.serializers import EntryCSVSerializer, EntryLocationSerializer, \
-    EntrySerializer, EntryUpdateSerializer
+    EntrySerializer
 from entries import constants as entry_constants
 from entries.exceptions import FieldRequiredException, NullRequiredException
 from entries.forms import EntryDateForm, EntryCsvForm, EntryStatusForm
@@ -34,7 +34,7 @@ class EntryViewSet(AuthenticatedAPIViewSet):
 
 class EntryUpdateViewSet(EntryViewSet):
     permission_classes = [IsAuthenticated, permissions.ObjectOwnerOrAdminUpdate]
-    serializer_class = EntryUpdateSerializer
+    serializer_class = EntrySerializer
 
 
 class AuthenticatedApiView(views.APIView):
