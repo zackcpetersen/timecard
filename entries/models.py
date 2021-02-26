@@ -117,8 +117,8 @@ class Entry(models.Model):
 
             self.end_time = end_time
             self.status = constants.FLAGGED
-            self.comments = 'Entry auto closed by system, please confirm associated project is correct'
             if not self.project:
+                self.comments = 'Entry auto closed by system, please confirm associated project is correct'
                 misc_proj = Project.objects.filter(name__icontains='misc').first()
                 self.project = misc_proj if misc_proj else Project.objects.filter(status=STATUS_ACTIVE).last()
             self.save()
