@@ -31,6 +31,7 @@ class UserCreationSerializer(UserBaseSerializer):
 class UserUpdateSerializer(UserBaseSerializer):
     is_admin = serializers.BooleanField(read_only=True, default=False)
     is_superuser = serializers.BooleanField(read_only=True, default=False)
+    pass_valid = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = User

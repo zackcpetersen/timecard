@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from accounts.models import User
 from entries import constants
 from entries import exceptions
+from projects.constants import STATUS_ACTIVE
 from projects.models import Project
 
 
@@ -116,6 +117,10 @@ class Entry(models.Model):
 
             self.end_time = end_time
             self.status = constants.FLAGGED
+            self.comments = 'Entry auto closed by system, please confirm associated project is correct'
+            if not self.project:
+                misc_proj = Project.objects.filter(name__icontains='misc').first()
+                self.project = misc_proj if misc_proj else Project.objects.filter(status=STATUS_ACTIVE).last()
             self.save()
         else:
             raise exceptions.NullRequiredException('end_time')
