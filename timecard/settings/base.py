@@ -25,7 +25,7 @@ else:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['timecard-dev.us-west-2.elasticbeanstalk.com']
+ALLOWED_HOSTS = ['staging-timecard-dev.us-west-2.elasticbeanstalk.com']
 
 # Auth User Model
 AUTH_USER_MODEL = 'accounts.User'
