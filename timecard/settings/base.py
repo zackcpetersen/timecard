@@ -153,6 +153,16 @@ USE_L10N = True
 
 USE_TZ = True
 
+CORS_ORIGIN_WHITELIST = [
+    'http://timecard-frontend.s3-website-us-west-2.amazonaws.com/'
+]
+
+# DEFAULT_PARSER_CLASSES = [
+#     'rest_framework.parsers.JSONParser',
+#     'rest_framework.parsers.FormParser',
+#     'rest_framework.parsers.MultiPartParser'
+# ]
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
