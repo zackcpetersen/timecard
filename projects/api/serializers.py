@@ -11,7 +11,8 @@ class ProjectImageSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=ProjectImage.objects.all(),
-                fields=['project', 'name'])
+                fields=['project', 'name'],
+                message='Image name must be unique for each project'),
         ]
 
 

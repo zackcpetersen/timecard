@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from accounts.models import User
 from entries import constants
 from entries import exceptions
+from projects.constants import STATUS_ACTIVE
 from projects.models import Project
 
 
@@ -52,10 +53,6 @@ class Entry(models.Model):
                                 related_name='entries',
                                 null=True,
                                 blank=True)
-    loc_latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    loc_longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    loc_errors = models.CharField(max_length=255, blank=True, null=True)
-
     status = models.CharField(max_length=24,
                               choices=constants.ENTRY_STATUSES,
                               default=constants.ACTIVE)
@@ -120,6 +117,10 @@ class Entry(models.Model):
 
             self.end_time = end_time
             self.status = constants.FLAGGED
+            if not self.project:
+                self.comments = 'Entry auto closed by system, please confirm associated project is correct'
+                misc_proj = Project.objects.filter(name__icontains='misc').first()
+                self.project = misc_proj if misc_proj else Project.objects.filter(status=STATUS_ACTIVE).last()
             self.save()
         else:
             raise exceptions.NullRequiredException('end_time')
@@ -127,3 +128,11 @@ class Entry(models.Model):
     @staticmethod
     def get_datetime():
         return datetime.datetime.now(tz=pytz.UTC)
+
+
+class EntryLocation(models.Model):
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name='locations')
+    loc_latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    loc_longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    loc_errors = models.CharField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -14,6 +14,6 @@ class DeletionView(viewsets.ModelViewSet):
             raise DeletionException(e)
 
 
-class AuthenticatedAPIView(DeletionView):
+class AuthenticatedAPIViewSet(DeletionView):
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]

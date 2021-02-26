@@ -47,7 +47,6 @@ class EntryCsvForm(EntryDateForm):
     users = ModelMultipleChoiceField(queryset=User.objects.all(), required=False)
     projects = ModelMultipleChoiceField(queryset=Project.objects.all(), required=False)
     statuses = MultipleChoiceField(choices=constants.ENTRY_STATUSES, required=False)
-    null_projects = BooleanField(required=False)
     all_projects = BooleanField(required=False)
 
     def clean(self):
@@ -61,9 +60,8 @@ class EntryCsvForm(EntryDateForm):
         entries = Entry.objects.filter(user__in=self.cleaned_data['users'],
                                        status__in=self.cleaned_data['statuses'],
                                        start_time__range=(self.cleaned_data['start_date'],
-                                                          self.cleaned_data['end_date']))
-        entries = self.project_filter(entries)
-        # TODO ***optimize***
+                                                          self.cleaned_data['end_date']),
+                                       project__in=self.cleaned_data['projects'])
         self.cleaned_data['user_totals'] = self.user_totals(entries)
         self.cleaned_data['project_totals'] = self.project_totals(entries)
         self.cleaned_data['entries'] = entries
@@ -90,18 +88,6 @@ class EntryCsvForm(EntryDateForm):
     @staticmethod
     def format_timedelta(time_delta):
         return str(time_delta).split('.')[0] if time_delta else '0:00:00'
-
-    def project_filter(self, entries):
-        null_projects = self.cleaned_data.get('null_projects')
-        specific_projects = self.cleaned_data.get('projects')
-        if null_projects and specific_projects:
-            return entries.filter(Q(project__in=self.cleaned_data.get(
-                'projects')) | Q(project__isnull=null_projects))
-        if null_projects:
-            entries = entries.filter(project__isnull=null_projects)
-        if specific_projects:
-            entries = entries.filter(project__in=specific_projects)
-        return entries
 
 
 class EntryStatusForm(Form):
