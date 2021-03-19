@@ -23,7 +23,7 @@ else:
     SECRET_KEY = 'iT97&Fm7&L*wy6@xReJk#4DEfcq&HhnqZvjJ59yi3SDe4qEsnY'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['production-timecard.us-west-2.elasticbeanstalk.com']
 
