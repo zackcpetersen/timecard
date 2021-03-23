@@ -173,7 +173,7 @@ USE_L10N = True
 USE_TZ = True
 
 CORS_ORIGIN_WHITELIST = [
-    'http://timecard-frontend.s3-website-us-west-2.amazonaws.com'
+    'http://timecard-frontend-prod.s3-website-us-west-2.amazonaws.com'
 ]
 
 # DEFAULT_PARSER_CLASSES = [
