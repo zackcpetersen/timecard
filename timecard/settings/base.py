@@ -25,7 +25,7 @@ else:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['production-timecard.us-west-2.elasticbeanstalk.com']
+ALLOWED_HOSTS = ['backend.projecttimecard.com']
 
 # Auth User Model
 AUTH_USER_MODEL = 'accounts.User'
@@ -173,7 +173,7 @@ USE_L10N = True
 USE_TZ = True
 
 CORS_ORIGIN_WHITELIST = [
-    'http://timecard-frontend-prod.s3-website-us-west-2.amazonaws.com'
+    'https://www.projecttimecard.com'
 ]
 
 # DEFAULT_PARSER_CLASSES = [
