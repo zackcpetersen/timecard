@@ -25,7 +25,8 @@ else:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['backend.projecttimecard.com']
+ALLOWED_HOSTS = ['backend.projecttimecard.com',
+                 'production-timecard.us-west-2.elasticbeanstalk.com']
 SECURE_SSL_REDIRECT = True
 
 # Auth User Model
