@@ -26,6 +26,7 @@ else:
 DEBUG = False
 
 ALLOWED_HOSTS = ['backend.projecttimecard.com']
+SECURE_SSL_REDIRECT = True
 
 # Auth User Model
 AUTH_USER_MODEL = 'accounts.User'
