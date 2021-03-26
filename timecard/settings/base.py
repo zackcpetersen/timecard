@@ -27,7 +27,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['backend.projecttimecard.com',
                  'timecard-prod-env.us-west-2.elasticbeanstalk.com']
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False
 
 # Auth User Model
 AUTH_USER_MODEL = 'accounts.User'
