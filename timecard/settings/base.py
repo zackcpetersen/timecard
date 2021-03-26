@@ -26,7 +26,7 @@ else:
 DEBUG = False
 
 ALLOWED_HOSTS = ['backend.projecttimecard.com',
-                 'prod-timecard.us-west-2.elasticbeanstalk.com']
+                 'timecard-prod-env.us-west-2.elasticbeanstalk.com']
 SECURE_SSL_REDIRECT = True
 
 # Auth User Model
