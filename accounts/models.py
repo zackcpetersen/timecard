@@ -36,13 +36,13 @@ class CustomUserManager(BaseUserManager):
         return ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(length))
 
     def email_random_pass(self, user, subject):
-        password = self.create_random_pass()
-        user.set_password(password)
+        rand_pass = self.create_random_pass()
+        user.set_password(rand_pass)
         user.pass_valid = False
         user.save()
         # TODO credentials.json will need to be setup with new gmail account
         #  - https://developers.google.com/gmail/api/quickstart/python - Enable the Gmail API button
-        email = GmailAPI(user, password, subject)
+        email = GmailAPI(user, rand_pass, subject)
         email.send_pass_details()
 
     def create_superuser(self, email, first_name, last_name, password):

@@ -37,6 +37,11 @@ class EntryUpdateViewSet(EntryViewSet):
     serializer_class = EntrySerializer
 
 
+class EntryOwnerViewSet(EntryUpdateViewSet):
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+
 class AuthenticatedApiView(views.APIView):
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]

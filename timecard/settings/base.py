@@ -25,7 +25,9 @@ else:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['timecard-dev.us-west-2.elasticbeanstalk.com']
+ALLOWED_HOSTS = ['backend.projecttimecard.com',
+                 'timecard-prod-env.us-west-2.elasticbeanstalk.com']
+SECURE_SSL_REDIRECT = True
 
 # Auth User Model
 AUTH_USER_MODEL = 'accounts.User'
@@ -93,6 +95,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'timecard.wsgi.application'
 
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'file': {
+#             'level': 'DEBUG',
+#             'class': 'logging.handlers.RotatingFileHandler',
+#             'filename': '/var/log/app-logs/django.log',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }
+
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -152,6 +173,16 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+CORS_ORIGIN_WHITELIST = [
+    'https://www.projecttimecard.com'
+]
+
+# DEFAULT_PARSER_CLASSES = [
+#     'rest_framework.parsers.JSONParser',
+#     'rest_framework.parsers.FormParser',
+#     'rest_framework.parsers.MultiPartParser'
+# ]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
