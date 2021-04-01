@@ -1,9 +1,17 @@
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.db.models.constraints import UniqueConstraint
+from PIL import ImageOps, Image
 
 from projects import constants as project_constants
+
+@receiver(pre_save, sender='projects.ProjectImage')
+def fix_image_orientation(sender, instance, **kwargs):
+    if not instance.pk:
+        with Image.open(instance.image) as image:
+            image = ImageOps.exif_transpose(image)
+            image.save(instance.image)
 
 
 @receiver(post_save, sender='projects.ProjectImage')
