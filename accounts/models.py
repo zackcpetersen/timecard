@@ -12,7 +12,7 @@ from accounts import constants as account_constants
 
 @receiver(models.signals.pre_save, sender='accounts.User')
 def fix_image_orientation(sender, instance, **kwargs):
-    if instance.image and instance.pk:
+    if instance.pk and instance.image:
         with Image.open(instance.image) as image:
             image = ImageOps.exif_transpose(image)
             image.save(instance.image)
