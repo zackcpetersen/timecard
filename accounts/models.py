@@ -13,9 +13,12 @@ from accounts import constants as account_constants
 @receiver(models.signals.pre_save, sender='accounts.User')
 def fix_image_orientation(sender, instance, **kwargs):
     if instance.pk and instance.image:
-        with Image.open(instance.image) as image:
-            image = ImageOps.exif_transpose(image)
-            image.save(instance.image)
+        try:
+            with Image.open(instance.image) as image:
+                image = ImageOps.exif_transpose(image)
+                image.save(instance.image)
+        except OSError as e:
+            print(e)
 
 
 class CustomUserManager(BaseUserManager):
