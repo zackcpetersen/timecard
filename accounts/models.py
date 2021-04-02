@@ -2,11 +2,25 @@ import secrets
 import string
 
 from django.db import models
+from django.dispatch import receiver
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from PIL import ImageOps, Image
 
 from accounts.api.gmail.gmail_service import GmailAPI
 from accounts import constants as account_constants
+
+
+@receiver(models.signals.pre_save, sender='accounts.User')
+def fix_image_orientation(sender, instance, **kwargs):
+    if instance.image:
+        old_obj = instance.__class__.objects.get(pk=instance.pk)
+        if (not old_obj.image and instance.image) or (old_obj.image and old_obj.image != instance.image):
+            with Image.open(instance.image) as image:
+                image = ImageOps.exif_transpose(image)
+                image.save(instance.image)
+
+
+models.signals.pre_save.connect(fix_image_orientation, sender='accounts.User')
 
 
 class CustomUserManager(BaseUserManager):
@@ -76,15 +90,3 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     pass_valid = models.BooleanField(default=True)
-
-    def save(self, *args, **kwargs):
-        if self.pk and self.image:
-            old_obj = self.__class__.objects.get(pk=self.pk)
-            if (not old_obj.image and self.image) or (old_obj.image and old_obj.image != self.image):
-                try:
-                    with Image.open(self.image) as image:
-                        image = ImageOps.exif_transpose(image)
-                        image.save(self.image)
-                except OSError:
-                    pass
-        super(User, self).save(*args, **kwargs)
