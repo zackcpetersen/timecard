@@ -15,13 +15,12 @@ class UserBaseSerializer(serializers.ModelSerializer):
 
 class UserCreationSerializer(UserBaseSerializer):
     image = serializers.ImageField(read_only=True)
-    password = serializers.CharField(required=False)
+    password = serializers.CharField(required=False, write_only=True)
 
     class Meta:
         model = User
         fields = ['id', 'first_name', 'last_name', 'initials', 'full_name',
                   'email', 'is_admin', 'is_superuser', 'image', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
