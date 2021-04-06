@@ -23,3 +23,10 @@ ENTRY_CSV_ATTRS = ['id', 'name', 'start_time', 'end_time',
                    'time_paused', 'time_worked',
                    'project_name', 'status', 'comments',
                    'created_at', 'updated_at']
+
+FLAGGED_ENTRY_COMMENT = '\nEntry auto closed by system, please confirm project is correct (it probably isn\'t)'
+FLAGGED_ENTRY_SUBJECT = 'Timecard Flagged Entry Summary'
+UNCLOSED_ENTRY_FORMAT = 'User: {}, Start Time: {}'
+UNCLOSED_ENTRY_CONTENT = 'The following entries were unclosed and flagged (end time ' \
+                         'was automatically set one hour after start time): \n{}' \
+                         '\n\n Check out {}/entries to see flagged entries'

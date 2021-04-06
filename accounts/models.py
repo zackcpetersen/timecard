@@ -1,6 +1,7 @@
 import secrets
 import string
 
+from django.conf import settings
 from django.db import models
 from django.dispatch import receiver
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -54,10 +55,16 @@ class CustomUserManager(BaseUserManager):
         user.set_password(rand_pass)
         user.pass_valid = False
         user.save()
-        # TODO credentials.json will need to be setup with new gmail account
         #  - https://developers.google.com/gmail/api/quickstart/python - Enable the Gmail API button
-        email = GmailAPI(user, rand_pass, subject)
-        email.send_pass_details()
+        email = GmailAPI()
+        content = self.create_email_pass_content(user, rand_pass)
+        message = email.create_email(user.email, settings.DEFAULT_FROM_EMAIL, subject, content)
+        email.send_email(message)
+
+    @staticmethod
+    def create_email_pass_content(user, password):
+        return account_constants.ACCOUNT_CREATION_MESSAGE.format(
+            user.first_name, user.last_name, user.email, password)
 
     def create_superuser(self, email, first_name, last_name, password):
         user = User(
@@ -90,3 +97,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     pass_valid = models.BooleanField(default=True)
+
+    def __str__(self):
+        return '{} {}'.format(self.first_name, self.last_name)

@@ -77,9 +77,6 @@ class StartTimeView(AuthenticatedApiView):
         form = StartTimeForm(request.data)
         if form.is_valid():
             user = form.cleaned_data['user']
-            last_entry = form.cleaned_data.get('last_entry')
-            if last_entry and not last_entry.end_time:
-                last_entry.auto_end_entry()
             entry = Entry.objects.create(user=user)
             entry.open_start()
             serializer = EntrySerializer(entry)
@@ -146,6 +143,7 @@ class EntryFilterView(AuthenticatedApiView):
     def post(self, request):
         form = EntryDateForm(request.data, user=request.user)
         if form.is_valid():
+            Entry.email_unclosed()
             entries = form.cleaned_data.get('entries')
 
             serializer = EntrySerializer(entries, many=True)
