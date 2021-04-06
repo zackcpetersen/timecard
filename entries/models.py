@@ -1,10 +1,12 @@
 import datetime
 import pytz
 
+from django.conf import settings
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
+from accounts.api.gmail.gmail_service import GmailAPI
 from accounts.models import User
 from entries import constants
 from entries import exceptions
@@ -64,8 +66,39 @@ class Entry(models.Model):
         verbose_name_plural = 'Entries'
 
     def __str__(self):
-        return '{} {} on {}'.format(
-            self.user.first_name, self.user.last_name, self.start_time)
+        return '{} on {}'.format(
+            self.user, self.start_time)
+
+    @staticmethod
+    def email_unclosed():
+        today = datetime.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+        unclosed = Entry.objects.filter(end_time__isnull=True, start_time__lt=today)
+
+        for entry in unclosed:
+            entry.status = constants.FLAGGED
+            entry.end_time = entry.start_time + datetime.timedelta(hours=1)
+            if not entry.project:
+                misc_proj = Project.objects.filter(name__icontains='misc').first()
+                last_active_proj = Project.objects.filter(status=STATUS_ACTIVE).last()
+                entry.project = misc_proj if misc_proj else last_active_proj
+                if entry.comments:
+                    entry.comments += constants.FLAGGED_ENTRY_COMMENT
+                else:
+                    entry.comments = constants.FLAGGED_ENTRY_COMMENT
+            entry.save()
+            email = GmailAPI()
+            content = Entry.unclosed_entry_email_content(Entry.format_unclosed_entries(unclosed))
+            message = email.create_email(settings.DEFAULT_FROM_EMAIL, settings.DEFAULT_FROM_EMAIL,
+                                         constants.FLAGGED_ENTRY_SUBJECT, content)
+            # email.send_email(message)
+
+    @staticmethod
+    def format_unclosed_entries(entries):
+        return [constants.UNCLOSED_ENTRY_FORMAT.format(entry.user, entry.start_time) for entry in entries]
+
+    @staticmethod
+    def unclosed_entry_email_content(entries):
+        return constants.UNCLOSED_ENTRY_CONTENT.format(entries, settings.DEFAULT_DOMAIN)
 
     def open_start(self, date_time=None):
         self.start_time = date_time if date_time else self.get_datetime()
@@ -100,30 +133,10 @@ class Entry(models.Model):
         if self.end_time:
             self.end_time = self.start_pause if not self.end_pause and self.start_pause else self.end_time
             self.time_worked = self.end_time - self.time_paused - self.start_time
-            self.status = constants.NEEDS_APPROVAL
+            self.status = constants.NEEDS_APPROVAL if self.status != constants.FLAGGED else self.status
             self.save()
         else:
             raise exceptions.FieldRequiredException('end_time')
-
-    def auto_end_entry(self):
-        if not self.end_time:
-            today = self.get_datetime().strftime(constants.DATE_ONLY_FORMAT)
-            entry_start_day = self.start_time.strftime(constants.DATE_ONLY_FORMAT)
-
-            if entry_start_day == today:
-                end_time = self.get_datetime()
-            else:
-                end_time = None
-
-            self.end_time = end_time
-            self.status = constants.FLAGGED
-            if not self.project:
-                self.comments = 'Entry auto closed by system, please confirm associated project is correct'
-                misc_proj = Project.objects.filter(name__icontains='misc').first()
-                self.project = misc_proj if misc_proj else Project.objects.filter(status=STATUS_ACTIVE).last()
-            self.save()
-        else:
-            raise exceptions.NullRequiredException('end_time')
 
     @staticmethod
     def get_datetime():

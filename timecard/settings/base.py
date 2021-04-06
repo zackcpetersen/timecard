@@ -16,6 +16,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
+DEFAULT_FROM_EMAIL = 'info@castlerockis.com'
+DEFAULT_DOMAIN = 'www.projecttimecard.com'
+
 # SECURITY WARNING: keep the secret key used in production secret!
 if 'DJANGO_SECRET_KEY' in os.environ:
     SECRET_KEY = os.environ['DJANGO_SECRET_KEY']

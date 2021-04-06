@@ -10,37 +10,27 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
-from accounts import constants as account_constants
-
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/gmail.compose']
 
 
 class GmailAPI:
-    def __init__(self, user, password, subject):
-        self.user = user
-        self.password = password
-        self.subject = subject
-
-    def send_pass_details(self):
-        email_message = self.create_pass_message()
+    def send_email(self, message):
         service = self.get_service()
         try:
-            message = service.users().messages().send(userId='me', body=email_message).execute()
+            message = service.users().messages().send(userId='me', body=message).execute()
             print('Message Id: %s' % message['id'])
             return message
         except errors.HttpError as e:
             print('An error occurred: {}'.format(e))
 
-    def create_pass_message(self):
-        message = MIMEText(account_constants.ACCOUNT_CREATION_MESSAGE.format(
-            self.user.first_name, self.user.last_name, self.user.email, self.password))
-        message['to'] = self.user.email
-        # TODO will need to update message['from'] - possibly model attr?
-        message['from'] = account_constants.FROM_ACCOUNT
-        message['subject'] = self.subject
-        # message['subject'] = account_constants.SUBJECT.format(self.user.first_name, self.user.last_name)
-        encoded = base64.urlsafe_b64encode(message.as_bytes())
+    @staticmethod
+    def create_email(to_addr, from_addr, subject, content):
+        message_raw = MIMEText(content)
+        message_raw['to'] = to_addr
+        message_raw['from'] = from_addr
+        message_raw['subject'] = subject
+        encoded = base64.urlsafe_b64encode(message_raw.as_bytes())
         return {'raw': encoded.decode()}
 
     @staticmethod
