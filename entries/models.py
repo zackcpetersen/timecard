@@ -90,7 +90,7 @@ class Entry(models.Model):
             content = Entry.unclosed_entry_email_content(Entry.format_unclosed_entries(unclosed))
             message = email.create_email(settings.DEFAULT_FROM_EMAIL, settings.DEFAULT_FROM_EMAIL,
                                          constants.FLAGGED_ENTRY_SUBJECT, content)
-            # email.send_email(message)
+            email.send_email(message)
 
     @staticmethod
     def format_unclosed_entries(entries):
