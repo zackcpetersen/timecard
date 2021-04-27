@@ -47,7 +47,7 @@ class EntryCsvForm(Form):
     entries = ModelMultipleChoiceField(queryset=Entry.objects.all())
 
     def clean(self):
-        entries = self.cleaned_data['entries']
+        entries = self.cleaned_data['entries'].exclude(status=constants.ACTIVE)
         self.cleaned_data['users'] = User.objects.filter(pk__in=entries.values_list('user__pk', flat=True))
         self.cleaned_data['projects'] = Project.objects.filter(pk__in=entries.values_list('project__pk', flat=True))
         self.cleaned_data['user_totals'] = self.user_totals(entries)
