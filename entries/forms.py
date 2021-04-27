@@ -1,7 +1,7 @@
 import datetime
 
 from django.db.models import Sum, Q
-from django.forms import BooleanField, ChoiceField, DateField, Form, ModelMultipleChoiceField, MultipleChoiceField
+from django.forms import ChoiceField, DateField, Form, ModelMultipleChoiceField
 
 from accounts.models import User
 from entries import constants
@@ -12,6 +12,12 @@ from projects.models import Project
 class EntryDateForm(Form):
     start_date = DateField(required=False)
     end_date = DateField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        if kwargs.get('user'):
+            self.request_user = kwargs.get('user')
+            kwargs.pop('user')
+        super(EntryDateForm, self).__init__(*args, **kwargs)
 
     def clean(self):
         if not self.cleaned_data.get('start_date'):
@@ -30,12 +36,6 @@ class EntryDateForm(Form):
             entries = entries.filter(user=user)
         self.cleaned_data['entries'] = entries
 
-    def __init__(self, *args, **kwargs):
-        if kwargs.get('user'):
-            self.request_user = kwargs.get('user')
-            kwargs.pop('user')
-        super(EntryDateForm, self).__init__(*args, **kwargs)
-
     def clean_end_date(self):
         if self.cleaned_data['end_date']:
             if self.cleaned_data['end_date'] < self.cleaned_data['start_date']:
@@ -43,28 +43,19 @@ class EntryDateForm(Form):
             return self.cleaned_data['end_date'] + datetime.timedelta(days=1)
 
 
-class EntryCsvForm(EntryDateForm):
-    users = ModelMultipleChoiceField(queryset=User.objects.all(), required=False)
-    projects = ModelMultipleChoiceField(queryset=Project.objects.all(), required=False)
-    statuses = MultipleChoiceField(choices=constants.ENTRY_STATUSES, required=False)
-    all_projects = BooleanField(required=False)
+class EntryCsvForm(Form):
+    entries = ModelMultipleChoiceField(queryset=Entry.objects.all())
+
+    def clean_entries(self):
+        return self.cleaned_data['entries'].exclude(status=constants.ACTIVE)
 
     def clean(self):
-        if not self.cleaned_data.get('users'):
-            self.cleaned_data['users'] = User.objects.all()
-        if self.cleaned_data.get('all_projects'):
-            self.cleaned_data['projects'] = Project.objects.all()
-        if not self.cleaned_data.get('statuses'):
-            self.cleaned_data['statuses'] = [status[0] for status in constants.ENTRY_STATUSES]
-
-        entries = Entry.objects.filter(user__in=self.cleaned_data['users'],
-                                       status__in=self.cleaned_data['statuses'],
-                                       start_time__range=(self.cleaned_data['start_date'],
-                                                          self.cleaned_data['end_date']),
-                                       project__in=self.cleaned_data['projects'])
+        entries = self.cleaned_data['entries']
+        self.cleaned_data['users'] = User.objects.filter(pk__in=entries.values_list('user__pk', flat=True))
+        self.cleaned_data['projects'] = Project.objects.filter(pk__in=entries.values_list('project__pk', flat=True))
         self.cleaned_data['user_totals'] = self.user_totals(entries)
         self.cleaned_data['project_totals'] = self.project_totals(entries)
-        self.cleaned_data['entries'] = entries
+        self.cleaned_data['now'] = datetime.datetime.now()
 
     def user_totals(self, entries):
         user_totals = [['User', 'Hours Worked']]

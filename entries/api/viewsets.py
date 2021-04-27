@@ -158,8 +158,7 @@ class EntryCSVDownloadView(views.APIView):
     def post(self, request):
         form = EntryCsvForm(request.data)
         if form.is_valid():
-            filename = 'entries_{}-{}'.format(form.cleaned_data['start_date'],
-                                              form.cleaned_data['end_date'])
+            filename = 'entry_export_'.format(form.cleaned_data['now'])
             entries = EntryCSVSerializer(form.cleaned_data['entries'], many=True)
             rows = form.cleaned_data['user_totals']
             rows += form.cleaned_data['project_totals']
