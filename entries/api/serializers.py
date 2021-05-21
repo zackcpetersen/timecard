@@ -5,6 +5,7 @@ from rest_framework import serializers
 from accounts.api.serializers import UserCreationSerializer
 from entries import constants as entry_constants
 from entries.models import Entry, EntryLocation
+from entries.utils import format_timedelta
 from projects.api.serializers import ProjectImageSerializer
 from projects.models import Project
 
@@ -51,6 +52,8 @@ class EntryCSVSerializer(EntryBaseSerializer):
     end_time = serializers.SerializerMethodField()
     created_at = serializers.SerializerMethodField()
     updated_at = serializers.SerializerMethodField()
+    time_worked = serializers.SerializerMethodField()
+    time_paused = serializers.SerializerMethodField()
 
     class Meta:
         model = Entry
@@ -58,6 +61,14 @@ class EntryCSVSerializer(EntryBaseSerializer):
                   'time_paused', 'time_worked',
                   'project_name', 'status', 'comments',
                   'created_at', 'updated_at']
+
+    @staticmethod
+    def get_time_worked(entry):
+        return format_timedelta(entry.time_worked)
+
+    @staticmethod
+    def get_time_paused(entry):
+        return format_timedelta(entry.time_paused)
 
 
 class EntryLocationSerializer(serializers.ModelSerializer):
