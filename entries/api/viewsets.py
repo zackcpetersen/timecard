@@ -160,8 +160,11 @@ class EntryCSVDownloadView(views.APIView):
         if form.is_valid():
             filename = 'entry_export_'.format(form.cleaned_data['now'])
             entries = EntryCSVSerializer(form.cleaned_data['entries'], many=True)
-            rows = form.cleaned_data['user_totals']
+            rows = form.cleaned_data['date_range']
+            rows += form.cleaned_data['user_totals']
+            rows += [['']]
             rows += form.cleaned_data['project_totals']
+            rows += [['']]
             rows += [entry_constants.ENTRY_CSV_ATTRS]
             rows += [entry.values() for entry in entries.data]
             return self.create_csv(entry_constants.ENTRY_CSV_ATTRS, rows, filename)

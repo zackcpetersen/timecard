@@ -44,6 +44,8 @@ class EntryDateForm(Form):
 
 
 class EntryCsvForm(Form):
+    start_date = DateField()
+    end_date = DateField()
     entries = ModelMultipleChoiceField(queryset=Entry.objects.all())
 
     def clean_entries(self):
@@ -53,6 +55,8 @@ class EntryCsvForm(Form):
         entries = self.cleaned_data['entries']
         self.cleaned_data['users'] = User.objects.filter(pk__in=entries.values_list('user__pk', flat=True))
         self.cleaned_data['projects'] = Project.objects.filter(pk__in=entries.values_list('project__pk', flat=True))
+        self.cleaned_data['date_range'] = [['Entries for {} - {}'.format(self.cleaned_data['start_date'],
+                                                                         self.cleaned_data['end_date'])]]
         self.cleaned_data['user_totals'] = self.user_totals(entries)
         self.cleaned_data['project_totals'] = self.project_totals(entries)
         self.cleaned_data['now'] = datetime.datetime.now()
