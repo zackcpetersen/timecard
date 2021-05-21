@@ -6,6 +6,7 @@ from django.forms import ChoiceField, DateField, Form, ModelMultipleChoiceField
 from accounts.models import User
 from entries import constants
 from entries.models import Entry
+from entries.utils import format_timedelta
 from projects.models import Project
 
 
@@ -67,7 +68,7 @@ class EntryCsvForm(Form):
             hours_total = entries.aggregate(hours_total=Sum(
                 'time_worked', filter=Q(user=user))).get('hours_total')
             user_name = '{} {}'.format(user.first_name, user.last_name)
-            user_totals.append([user_name, self.format_timedelta(hours_total)])
+            user_totals.append([user_name, format_timedelta(hours_total)])
 
         return user_totals
 
@@ -76,13 +77,9 @@ class EntryCsvForm(Form):
         for proj in self.cleaned_data['projects']:
             hours_total = entries.aggregate(hours_total=Sum(
                 'time_worked', filter=Q(project=proj))).get('hours_total')
-            proj_totals.append([proj.name, self.format_timedelta(hours_total)])
+            proj_totals.append([proj.name, format_timedelta(hours_total)])
 
         return proj_totals
-
-    @staticmethod
-    def format_timedelta(time_delta):
-        return str(time_delta).split('.')[0] if time_delta else '0:00:00'
 
 
 class EntryStatusForm(Form):
