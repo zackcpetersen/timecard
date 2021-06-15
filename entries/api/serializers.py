@@ -19,7 +19,7 @@ class EntryBaseSerializer(serializers.ModelSerializer):
 
     def get_project_name(self, entry):
         if entry.project:
-            return Project.objects.get(pk=entry.project.pk).name
+            return entry.project.name
 
     def get_name(self, entry):
         return '{} {}'.format(entry.user.first_name, entry.user.last_name)

@@ -32,7 +32,8 @@ class EntryDateForm(Form):
         user = self.request_user
 
         entries = Entry.objects.filter(start_time__range=(
-            start_date, end_date)).order_by('-start_time')
+            start_date, end_date)).order_by('-start_time').select_related(
+            'user', 'project').prefetch_related('locations', 'entry_images')
         if not user.is_admin:
             entries = entries.filter(user=user)
         self.cleaned_data['entries'] = entries

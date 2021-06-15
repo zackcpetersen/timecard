@@ -1,5 +1,6 @@
 import csv
 
+from django.conf import settings
 from django.http import HttpResponse
 from rest_framework import views
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
@@ -23,7 +24,8 @@ class EntryViewSet(AuthenticatedAPIViewSet):
     """
     permission_classes = [IsAuthenticated, permissions.ObjectOwnerReadOnlyAdminEdit]
 
-    queryset = Entry.objects.all().order_by('-start_time')
+    queryset = Entry.objects.all().order_by('-start_time').select_related(
+        'user', 'project').prefetch_related('locations', 'entry_images')
     serializer_class = EntrySerializer
 
     def get_queryset(self):
@@ -143,7 +145,8 @@ class EntryFilterView(AuthenticatedApiView):
     def post(self, request):
         form = EntryDateForm(request.data, user=request.user)
         if form.is_valid():
-            Entry.email_unclosed()
+            if not settings.DEBUG:
+                Entry.email_unclosed()
             entries = form.cleaned_data.get('entries')
 
             serializer = EntrySerializer(entries, many=True)
