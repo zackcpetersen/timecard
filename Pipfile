@@ -6,6 +6,7 @@ verify_ssl = true
 [dev-packages]
 ipython = "*"
 awsebcli = "*"
+django-debug-toolbar = "*"
 
 [packages]
 django = "*"
