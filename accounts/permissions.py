@@ -1,10 +1,15 @@
 from rest_framework import permissions
 
 from accounts.models import User
+from entries.models import Entry
 
 
 class ObjectOwnerReadOnlyAdminEdit(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
+        if isinstance(obj, Entry) and not request.user.is_admin \
+                and obj.user == request.user:
+            if obj.comments != request.data.get('comments'):
+                return True
         return bool(request.method in permissions.SAFE_METHODS
                     and obj.user == request.user) or request.user.is_admin
 
