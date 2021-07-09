@@ -71,12 +71,15 @@ class Entry(models.Model):
 
     @staticmethod
     def email_unclosed():
-        today = datetime.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+        local_tz = pytz.timezone('America/Denver')
+        today_timezone = datetime.datetime.today().replace(tzinfo=pytz.utc).astimezone(local_tz)
+        today = today_timezone.replace(hour=0, minute=0, second=0, microsecond=0)
         unclosed = Entry.objects.filter(end_time__isnull=True, start_time__lt=today)
 
         for entry in unclosed:
             entry.status = constants.FLAGGED
             entry.end_time = entry.start_time + datetime.timedelta(hours=1)
+            entry.time_paused = datetime.timedelta()
             if not entry.project:
                 misc_proj = Project.objects.filter(name__icontains='misc').first()
                 last_active_proj = Project.objects.filter(status=STATUS_ACTIVE).last()
