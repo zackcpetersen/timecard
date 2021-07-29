@@ -105,7 +105,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/var/log/app-logs/django.log',
+            'filename': '/var/log/django.log',
         },
     },
     'loggers': {
