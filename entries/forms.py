@@ -1,7 +1,8 @@
 import datetime
+import pytz
 
 from django.db.models import Sum, Q
-from django.forms import ChoiceField, DateField, Form, ModelMultipleChoiceField
+from django.forms import CharField, ChoiceField, DateField, DateTimeField, Form, ModelMultipleChoiceField
 
 from accounts.models import User
 from entries import constants
@@ -11,8 +12,9 @@ from projects.models import Project
 
 
 class EntryDateForm(Form):
-    start_date = DateField(required=False)
-    end_date = DateField(required=False)
+    start_date = DateTimeField(required=False)
+    end_date = DateTimeField(required=False)
+    timezone = CharField(max_length=255)
 
     def __init__(self, *args, **kwargs):
         if kwargs.get('user'):
@@ -21,28 +23,40 @@ class EntryDateForm(Form):
         super(EntryDateForm, self).__init__(*args, **kwargs)
 
     def clean(self):
-        if not self.cleaned_data.get('start_date'):
-            self.cleaned_data['start_date'] = datetime.date.today() - \
-                                              datetime.timedelta(days=14)
-        if not self.cleaned_data.get('end_date'):
-            self.cleaned_data['end_date'] = datetime.date.today() + datetime.timedelta(days=1)
+        if not self.errors:
+            today = datetime.datetime.now(tz=self.cleaned_data.get('timezone'))
 
-        start_date = self.cleaned_data['start_date']
-        end_date = self.cleaned_data['end_date']
-        user = self.request_user
+            if not self.cleaned_data.get('start_date'):
+                self.cleaned_data['start_date'] = today - datetime.timedelta(days=14)
+            if not self.cleaned_data.get('end_date'):
+                self.cleaned_data['end_date'] = today + datetime.timedelta(days=1)
 
-        entries = Entry.objects.filter(start_time__range=(
-            start_date, end_date)).order_by('-start_time').select_related(
-            'user', 'project').prefetch_related('locations', 'entry_images')
-        if not user.is_admin:
-            entries = entries.filter(user=user)
-        self.cleaned_data['entries'] = entries
+            start_date = self.cleaned_data['start_date'].replace(
+                hour=23, minute=59, second=59, tzinfo=self.cleaned_data.get('timezone'))
+            end_date = self.cleaned_data['end_date'].replace(
+                hour=23, minute=59, second=59, tzinfo=self.cleaned_data.get('timezone'))
+
+            entries = Entry.objects.filter(start_time__range=(
+                start_date, end_date)).order_by('-start_time').select_related(
+                'user', 'project').prefetch_related('locations', 'entry_images')
+            if not self.request_user.is_admin:
+                entries = entries.filter(user=self.request_user)
+            self.cleaned_data['entries'] = entries
 
     def clean_end_date(self):
-        if self.cleaned_data['end_date']:
-            if self.cleaned_data['end_date'] < self.cleaned_data['start_date']:
-                self.add_error(error='Start Date must be before End Date!', field='end_date')
-            return self.cleaned_data['end_date'] + datetime.timedelta(days=1)
+        if not self.errors:
+            if self.cleaned_data.get('start_date'):
+                if self.cleaned_data['end_date'] < self.cleaned_data['start_date']:
+                    self.add_error(error='Start Date must be before End Date!', field='end_date')
+                return self.cleaned_data.get('end_date') + datetime.timedelta(days=1)
+
+    def clean_timezone(self):
+        tz = None
+        try:
+            tz = pytz.timezone(self.cleaned_data.get('timezone'))
+        except pytz.exceptions.UnknownTimeZoneError:
+            self.add_error('timezone', '{} is an invalid timezone'.format(self.cleaned_data['timezone']))
+        return tz
 
 
 class EntryCsvForm(Form):
