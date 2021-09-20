@@ -58,7 +58,7 @@ class Entry(models.Model):
     status = models.CharField(max_length=24,
                               choices=constants.ENTRY_STATUSES,
                               default=constants.ACTIVE)
-    comments = models.CharField(max_length=255, blank=True, null=True)
+    comments = models.CharField(max_length=5000, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
