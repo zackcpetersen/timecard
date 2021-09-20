@@ -140,7 +140,7 @@ else:
             'USER': 'timecard',
             'PASSWORD': 'timecard',
             'HOST': 'localhost',
-            'PORT': '5432',
+            'PORT': '5431',
         }
     }
 
