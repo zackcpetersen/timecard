@@ -7,9 +7,10 @@ verify_ssl = true
 ipython = "*"
 awsebcli = "*"
 django-debug-toolbar = "*"
+coverage = "==7.*"
 
 [packages]
-django = "*"
+django = "==3.*"
 djangorestframework = "*"
 django-rest-auth = "*"
 requests = "*"

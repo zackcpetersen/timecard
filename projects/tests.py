@@ -5,7 +5,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 
 from accounts.models import User
-from projects.models import Project, ProjectImage
+from projects.models import Project, ProjectImage, ProjectType
 
 
 class ProjectTests(TestCase):
@@ -13,7 +13,9 @@ class ProjectTests(TestCase):
         # Create User
         self.user1 = User.objects.create(first_name='Tester',
                                          last_name='Testerson',
-                                         email='testworkshard@gmail.com')
+                                         email='testworkshard@gmail.com',
+                                         is_admin=True)
+        self.project_type = ProjectType.objects.create(name='Testing Type')
         self.project_name = 'Home Remodel'
         self.project_desc = 'Images of before and after home remodel project'
         self.proj_image_name = 'Before - Outside'
@@ -27,7 +29,8 @@ class ProjectTests(TestCase):
         # Create Project
         data = {
             'name': self.project_name,
-            'description': self.project_desc
+            'description': self.project_desc,
+            'type': self.project_type.pk,
         }
         request = self.c.post(self.projects_endpoint, data=data)
         self.assertEqual(request.json()['name'], data['name'])
@@ -50,7 +53,8 @@ class ProjectTests(TestCase):
     def test_project_image_api(self):
         # Create Project for image
         proj = Project.objects.create(name=self.project_name,
-                                      description=self.project_desc)
+                                      description=self.project_desc,
+                                      type=self.project_type)
 
         filepath = os.path.join(settings.BASE_DIR.parent, 'media/test_media/before_pic_test.jpg')
         with open(filepath, 'rb') as pic:
@@ -84,7 +88,8 @@ class ProjectTests(TestCase):
     def test_multiple_proj_images(self):
         # Create Project
         proj = Project.objects.create(name=self.project_name,
-                                      description=self.project_desc)
+                                      description=self.project_desc,
+                                      type=self.project_type)
 
         # Create Images for proj
         filepath = os.path.join(settings.BASE_DIR.parent, 'media/test_media/before_pic_test.jpg')
@@ -108,7 +113,8 @@ class ProjectTests(TestCase):
     def test_single_featured_img(self):
         # Create Project
         proj = Project.objects.create(name=self.project_name,
-                                      description=self.project_desc)
+                                      description=self.project_desc,
+                                      type=self.project_type)
 
         # Create Images for proj
         filepath = os.path.join(settings.BASE_DIR.parent, 'media/test_media/before_pic_test.jpg')

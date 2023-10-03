@@ -132,12 +132,13 @@ class Entry(models.Model):
         else:
             raise exceptions.FieldRequiredException('[start_time, end_time]')
 
-    def calculate_worked(self):
+    def calculate_worked(self, save=True):
         if self.end_time:
             self.end_time = self.start_pause if not self.end_pause and self.start_pause else self.end_time
             self.time_worked = self.end_time - self.time_paused - self.start_time
             self.status = constants.NEEDS_APPROVAL if self.status != constants.FLAGGED else self.status
-            self.save()
+            if save:
+                self.save()
         else:
             raise exceptions.FieldRequiredException('end_time')
 
