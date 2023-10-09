@@ -165,7 +165,7 @@ class EntryTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'text/csv')
 
-        expected_content = """Entries for 2020-11-10 - 2020-11-15\r\nUser,Hours Worked\r\nTester Testerson,00:00:00\r\n""\r\nProject,Hours Worked\r\nproject1,00:00:00\r\n""\r\nid,name,start_time,end_time,time_paused,time_worked,project_name,status,comments,created_at,updated_at\r\n1,Tester Testerson,2020-11-10 05:00:00,2020-11-10 10:00:00,00:00:00,00:00:00,project1,needs_approval,,2020-11-15 02:00:00,2020-11-15 02:00:00\r\n2,Tester Testerson,2020-11-11 05:00:00,2020-11-11 10:00:00,00:00:00,00:00:00,project1,needs_approval,,2020-11-15 02:00:00,2020-11-15 02:00:00\r\n3,Tester Testerson,2020-11-12 05:00:00,2020-11-12 10:00:00,00:00:00,00:00:00,project1,needs_approval,,2020-11-15 02:00:00,2020-11-15 02:00:00\r\n4,Tester Testerson,2020-11-13 05:00:00,2020-11-13 10:00:00,00:00:00,00:00:00,project1,needs_approval,,2020-11-15 02:00:00,2020-11-15 02:00:00\r\n5,Tester Testerson,2020-11-15 05:00:00,2020-11-15 10:00:00,00:00:00,00:00:00,project1,needs_approval,,2020-11-15 02:00:00,2020-11-15 02:00:00\r\n"""
+        expected_content = """Entries for 2020-11-10 - 2020-11-15\r\nUser,Hours Worked\r\nTester Testerson,00:00:00\r\n""\r\nProject,Hours Worked\r\nproject1,00:00:00\r\n""\r\nid,name,start_time,end_time,time_paused,time_worked,project_name,status,comments,created_at,updated_at\r\n1,Tester Testerson,2020-11-10 05:00:00,2020-11-10 10:00:00,00:00:00,00:00:00,project1,needs_approval,,2020-11-15 02:00:00,2020-11-15 02:00:00\r\n2,Tester Testerson,2020-11-11 05:00:00,2020-11-11 10:00:00,00:00:00,00:00:00,project1,needs_approval,,2020-11-15 02:00:00,2020-11-15 02:00:00\r\n3,Tester Testerson,2020-11-12 05:00:00,2020-11-12 10:00:00,00:00:00,00:00:00,project1,needs_approval,,2020-11-15 02:00:00,2020-11-15 02:00:00\r\n4,Tester Testerson,2020-11-13 05:00:00,2020-11-13 10:00:00,00:00:00,00:00:00,project1,needs_approval,,2020-11-15 02:00:00,2020-11-15 02:00:00\r\n5,Tester Testerson,2020-11-15 05:00:00,2020-11-15 10:00:00,00:00:00,00:00:00,project1,needs_approval,,2020-11-15 02:00:00,2020-11-15 02:00:00\r\n"""  # noqa: E501
         expected_content_bytes = expected_content.encode('utf-8')
         self.assertEqual(expected_content_bytes, response.content)
 
@@ -214,8 +214,6 @@ class EntryTests(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_entry_filter_view(self):
-        project2 = Project.objects.create(name="project2", status=proj_constants.STATUS_ACTIVE, type=self.proj_type_test)
-
         # Test admin can pull all entries
         _ = self.create_entries("2023-9-8 9:00:00", self.default_entry_data)
         data = {"start_date": "2020-11-9", "end_date": "2020-11-15", "timezone": "America/Denver"}

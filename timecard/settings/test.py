@@ -1,4 +1,4 @@
-from .base import *
+from .base import *  # noqa: F403
 
 DEBUG = False
 
@@ -6,7 +6,7 @@ INTERNAL_IPS = ['127.0.0.1']
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-ALLOWED_HOSTS.append('127.0.0.1')
+ALLOWED_HOSTS.append('127.0.0.1')  # noqa: F405
 SECURE_SSL_REDIRECT = False
 
 LOGGING = {}

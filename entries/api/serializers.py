@@ -7,7 +7,6 @@ from entries import constants as entry_constants
 from entries.models import Entry, EntryLocation
 from entries.utils import format_timedelta
 from projects.api.serializers import ProjectImageSerializer
-from projects.models import Project
 
 
 class EntryBaseSerializer(serializers.ModelSerializer):
