@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - master
-  workflow_dispatch:
 
 jobs:
   test:
@@ -31,21 +30,8 @@ jobs:
       with:
         python-version: 3.8
 
-
-    - name: Install Pipenv
-      run: pip install pipenv
-
-    - name: Cache Pipenv virtual environment
-      uses: actions/cache@v3
-      with:
-        path: ~/.local/share/virtualenvs
-        key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-pipenv-
-
-    - name: Install Dependencies (Including dev packages)
-      run: |
-        pipenv sync --dev
+    - name: Setup Pipenv
+      uses: ./.github/actions/setup-pipenv
 
     - name: Run Django Tests
       run: pipenv run python manage.py test -v 2 --settings timecard.settings.test
@@ -61,11 +47,8 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Install pipenv
-        run: pip install pipenv
-
-      - name: Sync dependencies from Pipfile.lock
-        run: pipenv sync --dev
+      - name: Setup Pipenv
+        uses: ./.github/actions/setup-pipenv
 
       - name: Lint with flake8
         run: |
@@ -83,11 +66,8 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Install pipenv
-        run: pip install pipenv
-
-      - name: Sync dependencies from Pipfile.lock
-        run: pipenv sync --dev
+      - name: Setup Pipenv
+        uses: ./.github/actions/setup-pipenv
 
       - name: Static Code Analysis with bandit
         run: pipenv run bandit -r .
@@ -103,11 +83,8 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Install pipenv
-        run: pip install pipenv
-
-      - name: Sync dependencies from Pipfile.lock
-        run: pipenv sync --dev
+      - name: Setup Pipenv
+        uses: ./.github/actions/setup-pipenv
 
       - name: Check Dependencies with pipenv
         run: pipenv check
