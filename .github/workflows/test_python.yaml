@@ -1,0 +1,51 @@
+name: Django Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:12.14
+        env:
+          POSTGRES_USER: timecard
+          POSTGRES_PASSWORD: timecard
+          POSTGRES_DB: timecard
+        ports:
+          - 5431:5432
+        volumes:
+          - postgres-data:/var/lib/postgresql/data/
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+
+    - name: Install Pipenv
+      run: pip install pipenv
+
+    - name: Cache Pipenv virtual environment
+      uses: actions/cache@v2
+      with:
+        path: ~/.local/share/virtualenvs
+        key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pipenv-
+
+    - name: Install Dependencies (Including dev packages)
+      run: |
+        pipenv sync --dev
+
+    - name: Run Django Tests
+      run: pipenv run python manage.py test -v 2 --settings timecard.settings.test
