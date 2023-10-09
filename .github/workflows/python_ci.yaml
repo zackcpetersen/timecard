@@ -61,10 +61,11 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8
+      - name: Install pipenv
+        run: pip install pipenv
+
+      - name: Sync dependencies from Pipfile.lock
+        run: pipenv sync --dev
 
       - name: Lint with flake8
         run: |
@@ -82,10 +83,11 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install bandit
+      - name: Install pipenv
+        run: pip install pipenv
+
+      - name: Sync dependencies from Pipfile.lock
+        run: pipenv sync --dev
 
       - name: Static Code Analysis with bandit
         run: pipenv run bandit -r .
@@ -101,10 +103,11 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install safety
+      - name: Install pipenv
+        run: pip install pipenv
 
-      - name: Check Dependencies with safety
-        run: safety check --full-report
+      - name: Sync dependencies from Pipfile.lock
+        run: pipenv sync --dev
+
+      - name: Check Dependencies with pipenv
+        run: pipenv check
