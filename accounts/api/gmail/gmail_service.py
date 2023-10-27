@@ -1,28 +1,61 @@
-from __future__ import print_function
+import os
+import json
 import base64
-import pickle
-import os.path
+import logging
+import tempfile
 
-from apiclient import errors
 from django.conf import settings
 from email.mime.text import MIMEText
-from googleapiclient.discovery import build
+from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
-# If modifying these scopes, delete the file token.pickle.
-SCOPES = ['https://www.googleapis.com/auth/gmail.compose']
+from accounts.api.gmail.exceptions import SendEmailException
+
+# Define the Gmail API version and the OAuth2 scopes
+SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+
+# Initialize the logger
+logger = logging.getLogger(__name__)
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 
 class GmailAPI:
-    def send_email(self, message):
-        service = self.get_service()
-        try:
-            message = service.users().messages().send(userId='me', body=message).execute()
-            print('Message Id: %s' % message['id'])
-            return message
-        except errors.HttpError as e:
-            print('An error occurred: {}'.format(e))
+    def __init__(self):
+        self.gmail_base_dir = os.path.join(
+            os.environ.get('GMAIL_TOKEN_PATH', settings.BASE_DIR.parent), 'accounts/api/gmail')
+        self.service = self.get_service()
+
+    def get_service(self):
+        creds = None
+        token_path = os.path.join(self.gmail_base_dir, 'token.json')
+        credentials_info = self.get_credentials()
+
+        # Load existing credentials from JSON file
+        if os.path.exists(token_path):
+            with open(token_path, 'r') as token_file:
+                creds = Credentials.from_authorized_user_info(json.load(token_file), SCOPES)
+
+        # Refresh or create new credentials
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                with tempfile.NamedTemporaryFile('w+', delete=False) as temp:
+                    json.dump(credentials_info, temp)
+                    temp.seek(0)
+                    flow = InstalledAppFlow.from_client_secrets_file(temp.name, SCOPES)
+                os.unlink(temp.name)  # delete the temporary file
+                creds = flow.run_local_server(port=0)
+
+            # Save the credentials to a JSON file
+            with open(token_path, 'w') as token_file:
+                token_file.write(creds.to_json())
+
+        return build('gmail', 'v1', credentials=creds)
 
     @staticmethod
     def create_email(to_addr, from_addr, subject, content):
@@ -33,28 +66,25 @@ class GmailAPI:
         encoded = base64.urlsafe_b64encode(message_raw.as_bytes())
         return {'raw': encoded.decode()}
 
-    @staticmethod
-    def get_service():
-        creds = None
-        # The file token.pickle stores the user's access and refresh tokens, and is
-        # created automatically when the authorization flow completes for the first
-        # time.
-        pickle_path = os.path.join(settings.BASE_DIR.parent, 'accounts/api/gmail/token.pickle')
-        if os.path.exists(pickle_path):
-            with open(pickle_path, 'rb') as token:
-                creds = pickle.load(token)
-        # If there are no (valid) credentials available, let the user log in.
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    os.path.join(settings.BASE_DIR.parent, 'accounts/api/gmail/credentials.json'),
-                    SCOPES)
-                creds = flow.run_local_server(port=0)
-            # Save the credentials for the next run
-            with open(pickle_path, 'wb') as token:
-                pickle.dump(creds, token)
+    def send_email(self, message):
+        try:
+            message = self.service.users().messages().send(userId='me', body=message).execute()
+            logger.info(f"Message sent: ID {message['id']}")
+            return message
+        except HttpError as e:
+            logger.error(f"A 'send_email' error occurred: {e}")
+            raise SendEmailException(e)
 
-        service = build('gmail', 'v1', credentials=creds)
-        return service
+    @staticmethod
+    def get_credentials():
+        return {
+            "installed": {
+                "client_id": settings.GMAIL_CLIENT_ID,
+                "project_id": settings.GMAIL_PROJECT_ID,
+                "auth_uri": settings.GMAIL_AUTH_URI,
+                "token_uri": settings.GMAIL_TOKEN_URI,
+                "auth_provider_x509_cert_url": settings.GMAIL_AUTH_PROVIDER,
+                "client_secret": settings.GMAIL_CLIENT_SECRET,
+                "redirect_uris": settings.GMAIL_REDIRECT_URIS,
+            }
+        }

@@ -64,7 +64,7 @@ class CustomUserManager(BaseUserManager):
     @staticmethod
     def create_email_pass_content(user, password):
         return account_constants.ACCOUNT_CREATION_MESSAGE.format(
-            user.first_name, user.last_name, user.email, password)
+            settings.FRONTEND_URL, user.first_name, user.last_name, user.email, password)
 
     def create_superuser(self, email, first_name, last_name, password):
         user = User(

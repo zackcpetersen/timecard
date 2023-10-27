@@ -22,19 +22,30 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.8
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
 
-    - name: Setup Pipenv
-      uses: ./.github/actions/setup-pipenv
+      - name: Setup Pipenv
+        uses: ./.github/actions/setup-pipenv
 
-    - name: Run Django Tests
-      run: pipenv run python manage.py test -v 2 --settings timecard.settings.test
+      - name: Run Tests with Coverage and Enforce 80% Threshold
+        env:
+          GMAIL_CLIENT_ID: ${{ vars.GMAIL_CLIENT_ID }}
+          GMAIL_PROJECT_ID: ${{ vars.GMAIL_PROJECT_ID }}
+          GMAIL_CLIENT_SECRET: ${{ secrets.GMAIL_CLIENT_SECRET }}
+        run: |
+          pipenv run coverage run --source='.' manage.py test --settings timecard.settings.test
+          pipenv run coverage report -m
+          COVERAGE=$(pipenv run coverage report -m | tail -n 1 | awk '{print $6}' | sed 's/%//')
+          if (( $(echo "$COVERAGE < 80" |bc -l) )); then
+            echo "Code coverage is below 80%"
+            exit 1
+          fi
 
   lint:
     runs-on: ubuntu-latest

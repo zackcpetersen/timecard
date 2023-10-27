@@ -24,10 +24,10 @@ django-storages = "*"
 psycopg2-binary = "*"
 django-cors-headers = "*"
 ipython = "*"
-google-api-python-client = "*"
-google-auth-httplib2 = "*"
-google-auth-oauthlib = "*"
 setuptools = ">=65.5.1"
+google-auth-oauthlib = ">=1.1.0"
+google = ">=3.0.0"
+google-api-python-client = ">=2.105.0"
 
 [requires]
 python_version = "3.8"
