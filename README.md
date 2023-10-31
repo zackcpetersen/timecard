@@ -1,6 +1,7 @@
 # Timecard app
 
 ## Local Settings
+### This app runs on Python 3.11 and Django 3.2.22  
 `docker compose up -d` - to run db and background images
 
 `export DJANGO_SETTINGS_MODULE=timecard.settings.dev` - use dev settings

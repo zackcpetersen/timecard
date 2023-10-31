@@ -30,4 +30,4 @@ google = ">=3.0.0"
 google-api-python-client = ">=2.105.0"
 
 [requires]
-python_version = "3.8"
+python_version = "3.11"
