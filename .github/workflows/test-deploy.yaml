@@ -1,0 +1,81 @@
+name: Python CI and Django Tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Collect static files
+        env:
+          DJANGO_SETTINGS_MODULE: timecard.settings.base
+          AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_STORAGE_BUCKET_NAME: ${{ vars.AWS_STORAGE_BUCKET_NAME }}
+          AWS_S3_REGION_NAME: ${{ vars.AWS_S3_REGION_NAME }}
+        run: |
+          python manage.py collectstatic --noinputx
+
+      - name: Zip application files
+        run: zip -r deploy.zip . -x '*.git*'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_S3_REGION_NAME }}
+
+      - name: Update Elastic Beanstalk environment variables
+        env:
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          AWS_EB_ENVIRONMENT_NAME: ${{ vars.AWS_EB_ENVIRONMENT_NAME }}
+          AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          SUPERUSER_AUTH_PASS: ${{ secrets.SUPERUSER_AUTH_PASS }}
+          AWS_STORAGE_BUCKET_NAME: ${{ vars.AWS_STORAGE_BUCKET_NAME }}
+          AWS_S3_REGION_NAME: ${{ vars.AWS_S3_REGION_NAME }}
+          RDS_PORT: ${{ vars.RDS_PORT }}
+          RDS_DB_NAME: ${{ vars.RDS_DB_NAME }}
+          RDS_HOSTNAME: ${{ vars.RDS_HOSTNAME }}
+          RDS_USERNAME: ${{ vars.RDS_USERNAME }}
+          RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
+        run: |
+          aws elasticbeanstalk update-environment --environment-name ${AWS_EB_ENVIRONMENT_NAME} \
+          --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=DJANGO_SECRET_KEY,Value=&{DJANGO_SECRET_KEY} \
+          --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=AWS_ACCESS_KEY_ID,Value=&{AWS_ACCESS_KEY_ID} \
+          --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=AWS_SECRET_ACCESS_KEY,Value=&{AWS_SECRET_ACCESS_KEY} \
+          --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=SUPERUSER_AUTH_PASS,Value=&{SUPERUSER_AUTH_PASS} \
+          --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=AWS_STORAGE_BUCKET_NAME,Value=&{AWS_STORAGE_BUCKET_NAME} \
+          --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=AWS_S3_REGION_NAME,Value=&{AWS_S3_REGION_NAME} \
+          --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=RDS_PORT,Value=&{RDS_PORT} \
+          --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=RDS_DB_NAME,Value=&{RDS_DB_NAME} \
+          --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=RDS_HOSTNAME,Value=&{RDS_HOSTNAME} \
+          --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=RDS_USERNAME,Value=&{RDS_USERNAME} \
+          --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=RDS_PASSWORD,Value=&{RDS_PASSWORD} \
+
+      - name: Deploy to AWS Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_access_key: ${{ vars.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: ${{ vars.AWS_S3_REGION_NAME }}
+          application_name: ${{ vars.AWS_EB_APPLICATION_NAME }}
+          environment_name: ${{ vars.AWS_EB_ENVIRONMENT_NAME }}
+          version_label: ${{ github.sha }}
+          deployment_package: deploy.zip
