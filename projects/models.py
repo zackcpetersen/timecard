@@ -6,6 +6,7 @@ from PIL import ImageOps, Image
 
 from projects import constants as project_constants
 
+
 @receiver(pre_save, sender='projects.ProjectImage')
 def fix_image_orientation(sender, instance, **kwargs):
     if not instance.pk:

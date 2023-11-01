@@ -55,17 +55,19 @@ class EntryLocationViewSet(AuthenticatedAPIViewSet):
 
 
 class EntryStatusView(AuthenticatedApiView):
+    """
+    API endpoint to update entry status
+    """
+    permission_classes = [IsAuthenticated, permissions.CustomAdminUser]
+
     def post(self, request):
         user = request.user
         form = EntryStatusForm(request.data, user=user)
         if form.is_valid():
             entries = form.cleaned_data['entries']
             status = form.cleaned_data['status']
-            for entry in entries:
-                if entry.status != 'active':
-                    entry.status = status
-                    entry.save()
-            serializer = EntrySerializer(entries, many=True)
+            entries.update(status=status)
+            serializer = EntrySerializer(entries.all(), many=True)
             return Response(status=200, data=serializer.data)
         return Response(status=400, data=form.errors)
 
@@ -75,7 +77,8 @@ class StartTimeView(AuthenticatedApiView):
     API endpoint to create and start an entry
     """
     def post(self, request):
-        request.data['user'] = request.user
+        if request.user and not request.data.get('user'):
+            request.data['user'] = request.user
         form = StartTimeForm(request.data)
         if form.is_valid():
             user = form.cleaned_data['user']
@@ -161,7 +164,7 @@ class EntryCSVDownloadView(views.APIView):
     def post(self, request):
         form = EntryCsvForm(request.data)
         if form.is_valid():
-            filename = 'entry_export_'.format(form.cleaned_data['now'])
+            filename = 'entry_export_{}'.format(form.cleaned_data['now'])
             entries = EntryCSVSerializer(form.cleaned_data['entries'], many=True)
             rows = form.cleaned_data['date_range']
             rows += form.cleaned_data['user_totals']

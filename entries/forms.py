@@ -98,7 +98,7 @@ class EntryCsvForm(Form):
 
 
 class EntryStatusForm(Form):
-    entries = ModelMultipleChoiceField(queryset=Entry.objects.all())
+    entries = ModelMultipleChoiceField(queryset=Entry.objects.exclude(status=constants.ACTIVE))
     status = ChoiceField(choices=constants.ENTRY_STATUSES)
 
     def __init__(self, *args, **kwargs):

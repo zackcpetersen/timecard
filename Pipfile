@@ -7,9 +7,12 @@ verify_ssl = true
 ipython = "*"
 awsebcli = "*"
 django-debug-toolbar = "*"
+coverage = "==7.*"
+bandit = "*"
+flake8 = "*"
 
 [packages]
-django = "*"
+django = "==3.*"
 djangorestframework = "*"
 django-rest-auth = "*"
 requests = "*"
@@ -21,9 +24,10 @@ django-storages = "*"
 psycopg2-binary = "*"
 django-cors-headers = "*"
 ipython = "*"
-google-api-python-client = "*"
-google-auth-httplib2 = "*"
-google-auth-oauthlib = "*"
+setuptools = ">=65.5.1"
+google-auth-oauthlib = ">=1.1.0"
+google = ">=3.0.0"
+google-api-python-client = ">=2.105.0"
 
 [requires]
-python_version = "3.7"
+python_version = "3.11"

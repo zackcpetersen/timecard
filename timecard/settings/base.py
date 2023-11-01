@@ -8,6 +8,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
 
+from django.core.management.utils import get_random_secret_key
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,7 +24,7 @@ DEFAULT_DOMAIN = 'www.projecttimecard.com'
 if 'DJANGO_SECRET_KEY' in os.environ:
     SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 else:
-    SECRET_KEY = 'iT97&Fm7&L*wy6@xReJk#4DEfcq&HhnqZvjJ59yi3SDe4qEsnY'
+    SECRET_KEY = get_random_secret_key()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -117,6 +118,27 @@ LOGGING = {
     },
 }
 
+
+# Gmail Credentials - Emails will not send without these variables
+if not os.environ.get(
+        'GMAIL_CLIENT_ID') or not os.environ.get(
+        'GMAIL_PROJECT_ID') or not os.environ.get(
+        'GMAIL_CLIENT_SECRET'):
+    raise Exception('Gmail Credentials not set')
+
+GMAIL_CLIENT_ID = os.environ.get('GMAIL_CLIENT_ID')
+GMAIL_PROJECT_ID = os.environ.get('GMAIL_PROJECT_ID')
+GMAIL_AUTH_URI = "https://accounts.google.com/o/oauth2/auth" # nosec
+GMAIL_TOKEN_URI = "https://oauth2.googleapis.com/token" # nosec
+GMAIL_AUTH_PROVIDER = "https://www.googleapis.com/oauth2/v1/certs" # nosec
+GMAIL_CLIENT_SECRET = os.environ.get('GMAIL_CLIENT_SECRET')
+GMAIL_REDIRECT_URIS = ["urn:ietf:wg:oauth:2.0:oob", "http://localhost"]
+
+# Live URL Settings
+if 'FRONTEND_URL' in os.environ:
+    FRONTEND_URL = os.environ['FRONTEND_URL']
+else:
+    FRONTEND_URL = 'https://www.projecttimecard.com'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases

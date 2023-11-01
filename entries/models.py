@@ -33,8 +33,8 @@ def manual_entry_changes(sender, instance, **kwargs):
         if instance.time_paused > instance.end_time - instance.start_time:
             raise exceptions.TimeWorkedException()
         if expected_time_worked != instance.time_worked:
-            instance.start_pause, instance.end_pause = None, None
-            instance.calculate_worked()
+            # instance.start_pause, instance.end_pause = None, None # TODO I'm not sure why this was setting the pause times to None  # noqa: E501
+            instance.calculate_worked(save=False)
     if instance.end_time and instance.status == constants.ACTIVE:
         instance.status = constants.NEEDS_APPROVAL
 
@@ -132,12 +132,13 @@ class Entry(models.Model):
         else:
             raise exceptions.FieldRequiredException('[start_time, end_time]')
 
-    def calculate_worked(self):
+    def calculate_worked(self, save=True):
         if self.end_time:
             self.end_time = self.start_pause if not self.end_pause and self.start_pause else self.end_time
             self.time_worked = self.end_time - self.time_paused - self.start_time
             self.status = constants.NEEDS_APPROVAL if self.status != constants.FLAGGED else self.status
-            self.save()
+            if save:
+                self.save()
         else:
             raise exceptions.FieldRequiredException('end_time')
 

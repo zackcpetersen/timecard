@@ -1,0 +1,101 @@
+name: Python CI and Django Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:12.14
+        env:
+          POSTGRES_USER: timecard
+          POSTGRES_PASSWORD: timecard
+          POSTGRES_DB: timecard
+        ports:
+          - 5431:5432
+        volumes:
+          - postgres-data:/var/lib/postgresql/data/
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Setup Pipenv
+        uses: ./.github/actions/setup-pipenv
+
+      - name: Run Tests with Coverage and Enforce 80% Threshold
+        env:
+          GMAIL_CLIENT_ID: ${{ vars.GMAIL_CLIENT_ID }}
+          GMAIL_PROJECT_ID: ${{ vars.GMAIL_PROJECT_ID }}
+          GMAIL_CLIENT_SECRET: ${{ secrets.GMAIL_CLIENT_SECRET }}
+        run: |
+          pipenv run coverage run --source='.' manage.py test --settings timecard.settings.test
+          pipenv run coverage report -m
+          COVERAGE=$(pipenv run coverage report -m | tail -n 1 | awk '{print $6}' | sed 's/%//')
+          if (( $(echo "$COVERAGE < 80" |bc -l) )); then
+            echo "Code coverage is below 80%"
+            exit 1
+          fi
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Setup Pipenv
+        uses: ./.github/actions/setup-pipenv
+
+      - name: Lint with flake8
+        run: |
+          pipenv run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          pipenv run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=migrations
+
+  static-code-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Setup Pipenv
+        uses: ./.github/actions/setup-pipenv
+
+      - name: Static Code Analysis with bandit
+        run: pipenv run bandit -r .
+
+  dependency-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Setup Pipenv
+        uses: ./.github/actions/setup-pipenv
+
+      - name: Check Dependencies with pipenv
+        run: pipenv check
