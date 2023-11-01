@@ -1,4 +1,4 @@
-name: Python CI and Django Tests
+name: Manual Deploy To EB
 
 on:
   workflow_dispatch:
