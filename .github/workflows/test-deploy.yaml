@@ -26,6 +26,9 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_STORAGE_BUCKET_NAME: ${{ vars.AWS_STORAGE_BUCKET_NAME }}
           AWS_S3_REGION_NAME: ${{ vars.AWS_S3_REGION_NAME }}
+          GMAIL_CLIENT_ID: ${{ vars.GMAIL_CLIENT_ID }}
+          GMAIL_PROJECT_ID: ${{ vars.GMAIL_PROJECT_ID }}
+          GMAIL_CLIENT_SECRET: ${{ secrets.GMAIL_CLIENT_SECRET }}
         run: |
           pipenv run python manage.py collectstatic --noinputx
 
