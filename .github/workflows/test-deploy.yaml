@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Setup Pipenv && Install Dependencies (Including dev packages)
+      - name: Setup Pipenv && Install Dependencies (Including dev packages) # TODO don't need dev here
         uses: ./.github/actions/setup-pipenv
 
       - name: Collect static files
@@ -27,7 +27,7 @@ jobs:
           AWS_STORAGE_BUCKET_NAME: ${{ vars.AWS_STORAGE_BUCKET_NAME }}
           AWS_S3_REGION_NAME: ${{ vars.AWS_S3_REGION_NAME }}
         run: |
-          python manage.py collectstatic --noinputx
+          pipenv run python manage.py collectstatic --noinputx
 
       - name: Zip application files
         run: zip -r deploy.zip . -x '*.git*'
@@ -54,7 +54,7 @@ jobs:
           RDS_USERNAME: ${{ vars.RDS_USERNAME }}
           RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
         run: |
-          aws elasticbeanstalk update-environment --environment-name ${AWS_EB_ENVIRONMENT_NAME} \
+          pipenv run aws elasticbeanstalk update-environment --environment-name ${AWS_EB_ENVIRONMENT_NAME} \
           --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=DJANGO_SECRET_KEY,Value=&{DJANGO_SECRET_KEY} \
           --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=AWS_ACCESS_KEY_ID,Value=&{AWS_ACCESS_KEY_ID} \
           --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=AWS_SECRET_ACCESS_KEY,Value=&{AWS_SECRET_ACCESS_KEY} \
@@ -65,7 +65,7 @@ jobs:
           --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=RDS_DB_NAME,Value=&{RDS_DB_NAME} \
           --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=RDS_HOSTNAME,Value=&{RDS_HOSTNAME} \
           --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=RDS_USERNAME,Value=&{RDS_USERNAME} \
-          --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=RDS_PASSWORD,Value=&{RDS_PASSWORD} \
+          --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=RDS_PASSWORD,Value=&{RDS_PASSWORD}
 
       - name: Deploy to AWS Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21
