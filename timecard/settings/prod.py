@@ -84,11 +84,11 @@ CORS_ALLOWED_ORIGINS = [
 
 if (not os.environ.get('AWS_ACCESS_KEY_ID')
         or not os.environ.get('AWS_SECRET_ACCESS_KEY')
-        or not os.environ.get('AWS_STORAGE_BUCKET_NAME')
+        or not os.environ.get('AWS_STATIC_BUCKET')
         or not os.environ.get('AWS_S3_REGION_NAME')):
     raise Exception('AWS Credentials not set')
 
 AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
 AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
-AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
+AWS_STATIC_BUCKET = os.environ['AWS_STATIC_BUCKET']
 AWS_S3_REGION_NAME = os.environ['AWS_S3_REGION_NAME']
