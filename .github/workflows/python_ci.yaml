@@ -32,6 +32,8 @@ jobs:
 
       - name: Setup Pipenv
         uses: ./.github/actions/setup-pipenv
+        with:
+          dev: true
 
       - name: Run Tests with Coverage and Enforce 80% Threshold
         env:
@@ -60,6 +62,8 @@ jobs:
 
       - name: Setup Pipenv
         uses: ./.github/actions/setup-pipenv
+        with:
+          dev: true
 
       - name: Lint with flake8
         run: |
@@ -79,6 +83,8 @@ jobs:
 
       - name: Setup Pipenv
         uses: ./.github/actions/setup-pipenv
+        with:
+          dev: true
 
       - name: Static Code Analysis with bandit
         run: pipenv run bandit -r .
@@ -96,6 +102,8 @@ jobs:
 
       - name: Setup Pipenv
         uses: ./.github/actions/setup-pipenv
+        with:
+          dev: true
 
       - name: Check Dependencies with pipenv
         run: pipenv check

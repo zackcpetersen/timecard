@@ -1,5 +1,11 @@
 name: 'Setup Pipenv'
 description: 'Set up Pipenv for Python projects'
+inputs:
+  dev:
+    description: 'Install development dependencies'
+    required: false
+    default: 'false'
+
 runs:
   using: 'composite'
   steps:
@@ -17,7 +23,11 @@ runs:
         restore-keys: |
           ${{ runner.os }}-pipenv-
 
-    - name: Install Dependencies (Including dev packages)
+    - name: Install Dependencies
       shell: bash
       run: |
-        pipenv sync --dev
+        if [ "${{ inputs.dev }}" = "true" ]; then
+          pipenv sync --dev
+        else
+          pipenv sync
+        fi

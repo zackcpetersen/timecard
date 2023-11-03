@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Setup Pipenv && Install Dependencies (Including dev packages) # TODO don't need dev here
+      - name: Setup Pipenv && Install Dependencies
         uses: ./.github/actions/setup-pipenv
 
       - name: Collect static files
@@ -30,7 +30,7 @@ jobs:
           GMAIL_PROJECT_ID: ${{ vars.GMAIL_PROJECT_ID }}
           GMAIL_CLIENT_SECRET: ${{ secrets.GMAIL_CLIENT_SECRET }}
         run: |
-          pipenv run python manage.py collectstatic --noinputx
+          pipenv run python manage.py collectstatic --noinput --settings timecard.settings.base
 
       - name: Zip application files
         run: zip -r deploy.zip . -x '*.git*'
