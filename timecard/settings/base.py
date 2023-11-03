@@ -21,17 +21,10 @@ DEFAULT_FROM_EMAIL = 'info@castlerockis.com'
 DEFAULT_DOMAIN = 'www.projecttimecard.com'
 
 # SECURITY WARNING: keep the secret key used in production secret!
-if 'DJANGO_SECRET_KEY' in os.environ:
-    SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
-else:
-    SECRET_KEY = get_random_secret_key()
+SECRET_KEY = get_random_secret_key()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
-
-ALLOWED_HOSTS = ['backend.projecttimecard.com',
-                 '.us-west-2.elasticbeanstalk.com']
-SECURE_SSL_REDIRECT = True
 
 # Auth User Model
 AUTH_USER_MODEL = 'accounts.User'
@@ -99,33 +92,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'timecard.wsgi.application'
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/var/log/app-logs/django.log',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}
-
 
 # Gmail Credentials - Emails will not send without these variables
-if not os.environ.get(
-        'GMAIL_CLIENT_ID') or not os.environ.get(
-        'GMAIL_PROJECT_ID') or not os.environ.get(
-        'GMAIL_CLIENT_SECRET'):
-    raise Exception('Gmail Credentials not set')
-
 GMAIL_CLIENT_ID = os.environ.get('GMAIL_CLIENT_ID')
 GMAIL_PROJECT_ID = os.environ.get('GMAIL_PROJECT_ID')
 GMAIL_AUTH_URI = "https://accounts.google.com/o/oauth2/auth" # nosec
@@ -135,36 +103,21 @@ GMAIL_CLIENT_SECRET = os.environ.get('GMAIL_CLIENT_SECRET')
 GMAIL_REDIRECT_URIS = ["urn:ietf:wg:oauth:2.0:oob", "http://localhost"]
 
 # Live URL Settings
-if 'FRONTEND_URL' in os.environ:
-    FRONTEND_URL = os.environ['FRONTEND_URL']
-else:
-    FRONTEND_URL = 'https://www.projecttimecard.com'
+FRONTEND_URL = '127.0.1:3000'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-if 'RDS_DB_NAME' in os.environ:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.environ['RDS_DB_NAME'],
-            'USER': os.environ['RDS_USERNAME'],
-            'PASSWORD': os.environ['RDS_PASSWORD'],
-            'HOST': os.environ['RDS_HOSTNAME'],
-            'PORT': os.environ['RDS_PORT'],
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'timecard',
+        'USER': 'timecard',
+        'PASSWORD': 'timecard',
+        'HOST': 'localhost',
+        'PORT': '5431',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'timecard',
-            'USER': 'timecard',
-            'PASSWORD': 'timecard',
-            'HOST': 'localhost',
-            'PORT': '5431',
-        }
-    }
+}
 
 
 # Password validation
@@ -199,10 +152,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-CORS_ALLOWED_ORIGINS = [
-    'https://www.projecttimecard.com',
-    'http://timecard-frontend-prod.s3-website-us-west-2.amazonaws.com'
-]
+CORS_ALLOW_ALL_ORIGINS = False
 
 # DEFAULT_PARSER_CLASSES = [
 #     'rest_framework.parsers.JSONParser',
@@ -213,11 +163,10 @@ CORS_ALLOWED_ORIGINS = [
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-if 'AWS_ACCESS_KEY_ID' in os.environ:
-    AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
-    AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
-    AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
-    AWS_S3_REGION_NAME = os.environ['AWS_S3_REGION_NAME']
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME')
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "..", "static")

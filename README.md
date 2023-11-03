@@ -5,7 +5,7 @@
 `docker compose up -d` - to run db and background images
 
 `export DJANGO_SETTINGS_MODULE=timecard.settings.dev` - use dev settings
-`export DJANGO_SETTINGS_MODULE=timecard.settings.test` - use test settings
+`export DJANGO_SETTINGS_MODULE=timecard.settings.base` - use base settings
 
 `python manage.py`
 - `makemigrations`

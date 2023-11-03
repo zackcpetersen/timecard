@@ -110,8 +110,7 @@ db.sqlite3
 
 .idea/
 media/*
-timecard/settings/dev.py
-timecard/settings/test.py
 static/
+*env/
 *.env
 .elasticbeanstalk/
