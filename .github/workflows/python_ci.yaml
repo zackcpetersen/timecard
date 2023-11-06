@@ -30,7 +30,7 @@ jobs:
         with:
           python-version: 3.11
 
-      - name: Setup Pipenv
+      - name: Setup Pipenv && Install Dependencies (Including dev packages)
         uses: ./.github/actions/setup-pipenv
         with:
           dev: true
@@ -41,7 +41,7 @@ jobs:
           GMAIL_PROJECT_ID: ${{ vars.GMAIL_PROJECT_ID }}
           GMAIL_CLIENT_SECRET: ${{ secrets.GMAIL_CLIENT_SECRET }}
         run: |
-          pipenv run coverage run --source='.' manage.py test --settings timecard.settings.test
+          pipenv run coverage run --source='.' manage.py test --settings timecard.settings.dev
           pipenv run coverage report -m
           COVERAGE=$(pipenv run coverage report -m | tail -n 1 | awk '{print $6}' | sed 's/%//')
           if (( $(echo "$COVERAGE < 80" |bc -l) )); then
