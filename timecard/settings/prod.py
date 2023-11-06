@@ -14,8 +14,7 @@ SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 #
 # # Deserialize the string into a list
 # items_list = items_str.split(',') if items_str else []
-ALLOWED_HOSTS = ['backend.projecttimecard.com',
-                 '.us-west-2.elasticbeanstalk.com']
+ALLOWED_HOSTS = ['backend.projecttimecard.com']
 SECURE_SSL_REDIRECT = True
 
 LOGGING = {

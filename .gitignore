@@ -113,4 +113,3 @@ media/*
 static/
 *env/
 *.env
-.elasticbeanstalk/
