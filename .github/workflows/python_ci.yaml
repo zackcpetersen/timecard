@@ -16,7 +16,7 @@ jobs:
           POSTGRES_PASSWORD: timecard
           POSTGRES_DB: timecard
         ports:
-          - 5431:5432
+          - 5432:5432
         volumes:
           - postgres-data:/var/lib/postgresql/data/
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5

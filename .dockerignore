@@ -1,0 +1,13 @@
+*.env
+Pipfile
+Pipfile.lock
+.coveragerc
+.coveragerc-template
+static/
+media/
+examples
+.github
+.gitignore
+terraform/
+docker-compose.yml
+.python-version
