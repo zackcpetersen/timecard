@@ -1,4 +1,7 @@
+import ast
+
 from django.core.exceptions import ImproperlyConfigured
+
 from timecard.settings.base import *
 
 
@@ -11,7 +14,7 @@ def get_env_variable(var_name):
 
 
 """
-Any settings that are wrapped in eval() should be set as boolean values.
+Any settings that are wrapped in ast.literal_eval() should be set as boolean values.
 They are returned as strings from the env, and anything other than an 
 empty string will result in True, including 'False'
 
@@ -20,12 +23,12 @@ For example: 'CORS_ORIGIN_WHITELIST=localhost 127.0.0.1'
 """
 
 # Django settings
-DEBUG = eval(get_env_variable('DEBUG'))
+DEBUG = ast.literal_eval(get_env_variable('DEBUG'))
 SECRET_KEY = get_env_variable('SECRET_KEY')
-CORS_ALLOW_ALL_ORIGINS = eval(get_env_variable('CORS_ALLOW_ALL_ORIGINS'))
+CORS_ALLOW_ALL_ORIGINS = ast.literal_eval(get_env_variable('CORS_ALLOW_ALL_ORIGINS'))
 CORS_ALLOWED_ORIGIN_REGEXES.append(get_env_variable('CORS_ALLOWED_ORIGIN_REGEXES'))
 ALLOWED_HOSTS.append(get_env_variable('ALLOWED_HOSTS'))
-SECURE_SSL_REDIRECT = eval(get_env_variable('SECURE_SSL_REDIRECT'))
+SECURE_SSL_REDIRECT = ast.literal_eval(get_env_variable('SECURE_SSL_REDIRECT'))
 DEFAULT_DOMAIN = get_env_variable('DEFAULT_DOMAIN')
 FRONTEND_URL = get_env_variable('FRONTEND_URL')
 
@@ -50,7 +53,7 @@ AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
 # s3 static settings
 
-USE_S3 = eval(get_env_variable('USE_S3'))
+USE_S3 = ast.literal_eval(get_env_variable('USE_S3'))
 if USE_S3:
     STATIC_LOCATION = '/static/'
     STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
@@ -64,7 +67,7 @@ if USE_S3:
 EMAIL_HOST = get_env_variable('EMAIL_HOST')
 EMAIL_PORT = get_env_variable('EMAIL_PORT')
 EMAIL_HOST_USER = get_env_variable('EMAIL_HOST_USER')
-EMAIL_USE_TLS = eval(get_env_variable('EMAIL_USE_TLS'))
+EMAIL_USE_TLS = ast.literal_eval(get_env_variable('EMAIL_USE_TLS'))
 DEFAULT_FROM_EMAIL = get_env_variable('DEFAULT_FROM_EMAIL')
 EMAIL_HOST_PASSWORD = get_env_variable('EMAIL_HOST_PASSWORD')
 

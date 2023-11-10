@@ -7,9 +7,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
+from pathlib import Path
 
 from django.core.management.utils import get_random_secret_key
-from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -173,7 +173,7 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
     r'^https?:\/\/[a-zA-Z0-9\-\_]+\.s3-website-us-west-2.amazonaws.com$'
 ]
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0', '.projecttimecard.com']
+ALLOWED_HOSTS = ['.projecttimecard.com']
 
 # DEFAULT_PARSER_CLASSES = [
 #     'rest_framework.parsers.JSONParser',
