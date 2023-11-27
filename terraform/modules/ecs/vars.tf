@@ -8,6 +8,10 @@ variable "aws_region" {
   type = string
 }
 
+variable "aws_access_key_id" {
+  type = string
+}
+
 variable "name" {
   type = string
 }
@@ -60,14 +64,6 @@ variable "db_port" {
   type = number
 }
 
-variable "redis_primary_endpoint" {
-  type = string
-}
-
-variable "redis_port" {
-  type = number
-}
-
 #variable "opensearch_endpoint" {
 #  type = string
 #}
@@ -80,29 +76,25 @@ variable "django_secret_key" {
   type = string
 }
 
-variable "email_host_password" {
-  type = string
-}
-
-variable "email_host" {
-  type = string
-}
-
-variable "email_port" {
-  type = number
-}
-
-variable "email_host_user" {
-  type = string
-}
-
-variable "email_use_tls" {
-  type = string
-}
-
-variable "default_from_email" {
-  type = string
-}
+#variable "email_host_password" {
+#  type = string
+#}
+#
+#variable "email_host" {
+#  type = string
+#}
+#
+#variable "email_port" {
+#  type = number
+#}
+#
+#variable "email_host_user" {
+#  type = string
+#}
+#
+#variable "email_use_tls" {
+#  type = string
+#}
 
 variable "ssl_redirect" {
   type = string
@@ -116,6 +108,26 @@ variable "allowed_hosts" {
   type = string
 }
 
-variable "use_elastic" {
+variable "cors_allow_all_origins" {
+  type = bool
+}
+
+variable "frontend_url" {
+  type = string
+}
+
+variable "default_domain" {
+  type = string
+}
+
+variable "gmail_project_id" {
+  type = string
+}
+
+variable "gmail_client_id" {
+  type = string
+}
+
+variable "gmail_client_secret" {
   type = string
 }

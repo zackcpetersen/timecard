@@ -3,11 +3,12 @@ resource "aws_s3_bucket" "django_ecs_static" {
   bucket = "${var.env}-${var.name}-media"
   tags   = var.tags
 }
-# Add public acl policy
-resource "aws_s3_bucket_acl" "static_public" {
-  bucket = aws_s3_bucket.django_ecs_static.id
-  acl    = "public-read"
-}
+# TODO why is this not working?
+## Add public acl policy
+#resource "aws_s3_bucket_acl" "static_public" {
+#  bucket = aws_s3_bucket.django_ecs_static.id
+#  acl    = "public-read"
+#}
 
 # create s3 bucket for static website hosting
 resource "aws_s3_bucket" "frontend_static_site" {
@@ -33,19 +34,21 @@ resource "aws_s3_bucket_website_configuration" "static_site_config" {
     key = "index.html" # TODO double check this
   }
 }
-# add custom bucket policy
-resource "aws_s3_bucket_policy" "public_read_access" {
-  bucket = aws_s3_bucket.frontend_static_site.id
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Sid" : "PublicReadGetObject",
-        "Effect" : "Allow",
-        "Principal" : "*",
-        "Action" : "s3:GetObject",
-        "Resource" : "${aws_s3_bucket.frontend_static_site.arn}/*"
-      }
-    ]
-  })
-}
+
+# TODO why is this not working?
+## add custom bucket policy
+#resource "aws_s3_bucket_policy" "public_read_access" {
+#  bucket = aws_s3_bucket.frontend_static_site.id
+#  policy = jsonencode({
+#    "Version" : "2012-10-17",
+#    "Statement" : [
+#      {
+#        "Sid" : "PublicReadGetObject",
+#        "Effect" : "Allow",
+#        "Principal" : "*",
+#        "Action" : "s3:GetObject",
+#        "Resource" : "${aws_s3_bucket.frontend_static_site.arn}/*"
+#      }
+#    ]
+#  })
+#}

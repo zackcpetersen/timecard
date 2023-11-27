@@ -113,3 +113,5 @@ media/*
 static/
 *env/
 *.env
+
+.terraform/

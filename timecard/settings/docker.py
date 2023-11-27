@@ -63,13 +63,14 @@ if USE_S3:
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
     DEFAULT_FILE_STORAGE = get_env_variable('DEFAULT_FILE_STORAGE')
 
+# TODO maybe update to use emails this way?
 # Email Settings
-EMAIL_HOST = get_env_variable('EMAIL_HOST')
-EMAIL_PORT = get_env_variable('EMAIL_PORT')
-EMAIL_HOST_USER = get_env_variable('EMAIL_HOST_USER')
-EMAIL_USE_TLS = ast.literal_eval(get_env_variable('EMAIL_USE_TLS'))
-DEFAULT_FROM_EMAIL = get_env_variable('DEFAULT_FROM_EMAIL')
-EMAIL_HOST_PASSWORD = get_env_variable('EMAIL_HOST_PASSWORD')
+# EMAIL_HOST = get_env_variable('EMAIL_HOST')
+# EMAIL_PORT = get_env_variable('EMAIL_PORT')
+# EMAIL_HOST_USER = get_env_variable('EMAIL_HOST_USER')
+# EMAIL_USE_TLS = ast.literal_eval(get_env_variable('EMAIL_USE_TLS'))
+# DEFAULT_FROM_EMAIL = get_env_variable('DEFAULT_FROM_EMAIL')
+# EMAIL_HOST_PASSWORD = get_env_variable('EMAIL_HOST_PASSWORD')
 
 # Gmail Settings
 # Gmail Credentials - Emails will not send without these variables

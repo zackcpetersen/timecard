@@ -22,12 +22,13 @@ resource "aws_ecr_repository" "nginx" {
 
 # Create API Service 
 module "services" {
-  source                            = "services"
+  source                            = "./services"
   cluster_id                        = aws_ecs_cluster.cluster.id
   cluster_name                      = aws_ecs_cluster.cluster.name
   env                               = var.env
   debug                             = var.debug
   aws_region                        = var.aws_region
+  aws_access_key_id                 = var.aws_access_key_id
   name                              = var.name
   github_repo                       = var.github_repo
   ecs_task_execution_role           = var.ecs_task_execution_role
@@ -45,13 +46,13 @@ module "services" {
   db_host                           = var.db_host
   db_port                           = var.db_port
   django_secret_key                 = var.django_secret_key
-  email_host_password               = var.email_host_password
-  email_host                        = var.email_host
-  email_port                        = var.email_port
-  email_host_user                   = var.email_host_user
-  email_use_tls                     = var.email_use_tls
-  default_from_email                = var.default_from_email
   ssl_redirect                      = var.ssl_redirect
   cors_allowed_regexes              = var.cors_allowed_regexes
   allowed_hosts                     = var.allowed_hosts
+  cors_allow_all_origins            = false
+  default_domain                    = var.default_domain
+  frontend_url                      = var.frontend_url
+  gmail_client_id                   = var.gmail_client_id
+  gmail_client_secret               = var.gmail_client_secret
+  gmail_project_id                  = var.gmail_project_id
 }

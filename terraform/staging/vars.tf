@@ -22,11 +22,6 @@ variable "product_name" {
   default     = "timecard"
 }
 
-variable "debug" {
-  type        = string
-  description = "Turn on/off debug for apps"
-}
-
 variable "github_repo" {
   type        = string
   description = "Name of GitHub repository, used for ECS container definition ENV variables"
@@ -51,12 +46,6 @@ variable "db_max_storage" {
   default     = 100
 }
 
-variable "db_port" {
-  type        = number
-  description = "Port for database"
-  default     = 5432
-}
-
 variable "global_tags" {
   type        = map(string)
   description = "Map of tags to apply to all resources"
@@ -66,79 +55,95 @@ variable "global_tags" {
   }
 }
 
-variable "email_host" {
-  type        = string
-  description = "Host for sending emails"
-  default     = "smtp.gmail.com"
-}
-
-variable "email_port" {
-  type        = number
-  description = "Port for sending emails"
-  default     = 587
-}
-
-variable "email_host_user" {
-  type        = string
-  description = "Email username to authenticate as"
-  default     = "info@castlerockis.com"
-}
-
-variable "email_use_tls" {
-  type        = string
-  description = "Bool in string whether to use email TLS"
-  default     = "True"
-}
-
-variable "default_from_email" {
-  type        = string
-  description = "Default `FROM:` email"
-  default     = "info@castlerockis.com"
-}
-
-variable "django_secret_key" {
-  type        = string
-  description = "Django secret key used in settings file - SENSITIVE, defined in Cloud workspace as a variable"
-}
-
-variable "email_host_password" {
-  type        = string
-  description = "Password to login to email host - SENSITIVE, defined in Cloud workspace as variable"
-}
-
-variable "aws_access_key_id" {
-  type        = string
-  description = "AWS account access id to login via IAM"
-}
-
-variable "aws_secret_access_key" {
-  type        = string
-  description = "AWS login password"
-}
-
-variable "ssl_redirect" {
-  type    = string
-  default = "False"
-}
-
-variable "cors_allowed_origins_regexes" {
-  type        = string
-  description = "Add additional cors origins here - check settings.base.py CORS_ALLOWED_ORIGIN_REGEXES to see formatting"
-  default     = ""
-}
-
-variable "allowed_hosts" {
-  type        = string
-  description = "Add additional cors origins here - check settings.base.py ALLOWED_HOSTS to see formatting"
-  default     = ""
-}
-
-variable "db_name" {
+variable "db_snapshot_name" {
   type        = string
   description = "Defined in Cloud workspace"
 }
 
-variable "db_user" {
+variable "db_port" {
+  type    = number
+  default = 5432
+}
+
+variable "DEBUG" {
+  type        = bool
+  description = "Turn on/off debug for apps"
+  default     = false
+}
+
+variable "SECRET_KEY" {
+  type        = string
+  description = "Django secret key used in settings file - SENSITIVE, defined in Cloud workspace as a variable"
+}
+
+variable "CORS_ALLOW_ALL_ORIGINS" {
+  type    = bool
+  default = false
+}
+
+variable "CORS_ALLOWED_ORIGIN_REGEXES" {
+  type        = string
+  description = "Defined in Cloud workspace"
+  default     = ""
+}
+
+variable "ALLOWED_HOSTS" {
+  type        = string
+  description = "Defined in Cloud workspace"
+  default     = ""
+}
+
+variable "SECURE_SSL_REDIRECT" {
+  type    = bool
+  default = false
+}
+
+variable "DEFAULT_DOMAIN" {
+  type        = string
+  description = "Defined in Cloud workspace"
+}
+
+variable "FRONTEND_URL" {
+  type        = string
+  description = "Defined in Cloud workspace"
+}
+
+variable "AWS_ACCESS_KEY_ID" {
+  type        = string
+  description = "AWS account access id to login via IAM"
+}
+
+variable "AWS_SECRET_ACCESS_KEY" {
+  type        = string
+  description = "AWS login password"
+}
+
+variable "USE_S3" {
+  type        = bool
+  description = "Use S3 for static files"
+}
+
+variable "STATICFILES_STORAGE" {
+  type        = string
+  description = "Defined in Cloud workspace"
+}
+
+variable "DEFAULT_FILE_STORAGE" {
+  type        = string
+  description = "Defined in Cloud workspace"
+}
+
+variable "GMAIL_CLIENT_ID" {
+  type        = string
+  description = "Defined in Cloud workspace"
+}
+
+variable "GMAIL_PROJECT_ID" {
+  type        = string
+  description = "Defined in Cloud workspace"
+}
+
+variable "GMAIL_CLIENT_SECRET" {
   type        = string
   description = "Defined in Cloud workspace"
 }

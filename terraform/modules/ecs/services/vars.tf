@@ -24,6 +24,10 @@ variable "aws_region" {
   type = string
 }
 
+variable "aws_access_key_id" {
+  type = string
+}
+
 variable "name" {
   type = string
 }
@@ -88,29 +92,25 @@ variable "s3_static_bucket_name" {
   type = string
 }
 
-variable "email_host_password" {
-  type = string
-}
-
-variable "email_host" {
-  type = string
-}
-
-variable "email_port" {
-  type = number
-}
-
-variable "email_host_user" {
-  type = string
-}
-
-variable "email_use_tls" {
-  type = string
-}
-
-variable "default_from_email" {
-  type = string
-}
+#variable "email_host_password" {
+#  type = string
+#}
+#
+#variable "email_host" {
+#  type = string
+#}
+#
+#variable "email_port" {
+#  type = number
+#}
+#
+#variable "email_host_user" {
+#  type = string
+#}
+#
+#variable "email_use_tls" {
+#  type = string
+#}
 
 variable "ssl_redirect" {
   type = string
@@ -121,5 +121,29 @@ variable "cors_allowed_regexes" {
 }
 
 variable "allowed_hosts" {
+  type = string
+}
+
+variable "cors_allow_all_origins" {
+  type = bool
+}
+
+variable "frontend_url" {
+  type = string
+}
+
+variable "default_domain" {
+  type = string
+}
+
+variable "gmail_project_id" {
+  type = string
+}
+
+variable "gmail_client_id" {
+  type = string
+}
+
+variable "gmail_client_secret" {
   type = string
 }

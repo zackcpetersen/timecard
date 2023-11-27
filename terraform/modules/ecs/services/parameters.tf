@@ -15,14 +15,6 @@ resource "aws_ssm_parameter" "django_secret_key" {
 
   tags = local.tags
 }
-resource "aws_ssm_parameter" "aws_access_key_id" {
-  name        = "/${var.name}/${var.env}/AWS_ACCESS_KEY_ID"
-  description = "Access key for AWS login"
-  type        = "SecureString"
-  value       = var.ecs_django_static_s3_access_creds["access_key"]
-
-  tags = local.tags
-}
 resource "aws_ssm_parameter" "aws_secret_access_key" {
   name        = "/${var.name}/${var.env}/AWS_SECRET_ACCESS_KEY"
   description = "Password for AWS login"
@@ -31,11 +23,17 @@ resource "aws_ssm_parameter" "aws_secret_access_key" {
 
   tags = local.tags
 }
-resource "aws_ssm_parameter" "email_host_password" {
-  name        = "/${var.name}/${var.env}/EMAIL_HOST_PASSWORD"
-  description = "Password for email host"
+#resource "aws_ssm_parameter" "email_host_password" {
+#  name        = "/${var.name}/${var.env}/EMAIL_HOST_PASSWORD"
+#  description = "Password for email host"
+#  type        = "SecureString"
+#  value       = var.email_host_password
+#
+#  tags = local.tags
+#}
+resource "aws_ssm_parameter" "gmail_client_secret" {
+  name        = "/${var.name}/${var.env}/GMAIL_CLIENT_SECRET"
+  description = "Gmail client secret"
   type        = "SecureString"
-  value       = var.email_host_password
-
-  tags = local.tags
+  value       = var.gmail_client_secret
 }

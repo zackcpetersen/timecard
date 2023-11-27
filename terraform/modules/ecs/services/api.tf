@@ -59,23 +59,18 @@ resource "aws_ecs_task_definition" "api" {
         }
       ],
       cpu : 768,
-      # TODO update env vars to match timecard
       environment : [
+        {
+          "name" : "DJANGO_SETTINGS_MODULE",
+          "value" : "timecard.settings.docker"
+        },
         {
           "name" : "DEBUG",
           "value" : var.debug
         },
         {
-          "name" : "ENV",
-          "value" : var.env
-        },
-        {
-          "name" : "DJANGO_SETTINGS_MODULE",
-          "value" : "${var.github_repo}.settings.docker"
-        },
-        {
-          "name" : "SECURE_SSL_REDIRECT",
-          "value" : var.ssl_redirect
+          "name" : "CORS_ALLOW_ALL_ORIGINS",
+          "value" : var.cors_allow_all_origins
         },
         {
           "name" : "CORS_ALLOWED_ORIGIN_REGEXES",
@@ -86,65 +81,61 @@ resource "aws_ecs_task_definition" "api" {
           "value" : var.allowed_hosts
         },
         {
-          "name" : "EMAIL_HOST",
-          "value" : var.email_host
+          "name" : "SECURE_SSL_REDIRECT",
+          "value" : var.ssl_redirect
         },
         {
-          "name" : "EMAIL_PORT",
-          "value" : tostring(var.email_port)
+          "name" : "DEFAULT_DOMAIN",
+          "value" : var.default_domain
         },
         {
-          "name" : "EMAIL_HOST_USER",
-          "value" : var.email_host_user
-        },
-        {
-          "name" : "EMAIL_USE_TLS",
-          "value" : var.email_use_tls
-        },
-        {
-          "name" : "DEFAULT_FROM_EMAIL",
-          "value" : var.default_from_email
-        },
-        {
-          "name" : "CELERY_TASK_ALWAYS_EAGER",
-          "value" : "True"
-        },
-        {
-          "name" : "DEFAULT_FILE_STORAGE",
-          "value" : "${var.github_repo}.storage_backends.PublicMediaStorage"
-        },
-        {
-          "name" : "STATICFILES_STORAGE",
-          "value" : "${var.github_repo}.storage_backends.StaticStorage"
-        },
-        {
-          "name" : "USE_S3",
-          "value" : "True"
-        },
-        {
-          "name" : "AWS_STORAGE_BUCKET_NAME",
-          "value" : var.s3_static_bucket_name
-        },
-        {
-          "name" : "AWS_QUERYSTRING_AUTH",
-          "value" : "False"
-        },
-        {
-          "name" : "DB_PORT",
-          "value" : tostring(var.db_port)
-        },
-        {
-          "name" : "DB_USER",
-          "value" : var.db_user
+          "name" : "FRONTEND_URL",
+          "value" : var.frontend_url
         },
         {
           "name" : "DB_NAME",
           "value" : var.db_name
         },
         {
+          "name" : "DB_USER",
+          "value" : var.db_user
+        },
+        {
           "name" : "DB_HOST",
           "value" : var.db_host
         },
+        {
+          "name" : "DB_PORT",
+          "value" : tostring(var.db_port)
+        },
+        {
+          "name" : "AWS_ACCESS_KEY_ID",
+          "value" : var.aws_access_key_id
+        },
+        {
+          "name" : "AWS_STORAGE_BUCKET_NAME",
+          "value" : var.s3_static_bucket_name
+        },
+        {
+          "name" : "USE_S3",
+          "value" : "True"
+        },
+        {
+          "name" : "STATICFILES_STORAGE",
+          "value" : "${var.github_repo}.storage_backends.StaticStorage"
+        },
+        {
+          "name" : "DEFAULT_FILE_STORAGE",
+          "value" : "${var.github_repo}.storage_backends.PublicMediaStorage"
+        },
+        {
+          "name" : "GMAIL_CLIENT_ID",
+          "value" : var.gmail_client_id
+        },
+        {
+          "name" : "GMAIL_PROJECT_ID",
+          "value" : var.gmail_project_id
+        }
       ],
       mountPoints : [],
       secrets : [
@@ -157,17 +148,9 @@ resource "aws_ecs_task_definition" "api" {
           "name" : reverse(split("/", data.aws_ssm_parameter.db_password.name))[0]
         },
         {
-          "valueFrom" : aws_ssm_parameter.aws_access_key_id.arn,
-          "name" : reverse(split("/", aws_ssm_parameter.aws_access_key_id.name))[0]
-        },
-        {
           "valueFrom" : aws_ssm_parameter.aws_secret_access_key.arn,
           "name" : reverse(split("/", aws_ssm_parameter.aws_secret_access_key.name))[0]
         },
-        {
-          "valueFrom" : aws_ssm_parameter.email_host_password.arn,
-          "name" : reverse(split("/", aws_ssm_parameter.email_host_password.name))[0]
-        }
       ],
       memoryReservation : 1792, # TODO maybe?
       volumesFrom : [],

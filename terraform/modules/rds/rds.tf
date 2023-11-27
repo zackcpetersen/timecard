@@ -26,14 +26,14 @@ resource "aws_db_instance" "main_db" {
   username                   = var.name
   password                   = random_password.db_password.result
   port                       = var.db_port
-  parameter_group_name       = "default.postgres12" # TODO upgrade to 13?
+  parameter_group_name       = "default.postgres15"
   auto_minor_version_upgrade = true
   backup_retention_period    = 30
   db_subnet_group_name       = aws_db_subnet_group.main.name
   vpc_security_group_ids     = [var.rds_sg_id]
   storage_encrypted          = true
-  deletion_protection        = true
-  skip_final_snapshot        = false
+  deletion_protection        = false # TODO probably want this to be true
+  skip_final_snapshot        = true  # TODO probably want this to be true and need to set `final_snapshot_identifier`
   apply_immediately          = false
   # TODO
   #   enabled_cloudwatch_logs_exports = true
