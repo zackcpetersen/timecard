@@ -5,7 +5,6 @@ verify_ssl = true
 
 [dev-packages]
 ipython = "*"
-awsebcli = "*"
 django-debug-toolbar = "*"
 coverage = "==7.*"
 bandit = "*"
@@ -23,7 +22,6 @@ boto3 = "*"
 django-storages = "*"
 psycopg2-binary = "*"
 django-cors-headers = "*"
-ipython = "*"
 setuptools = ">=65.5.1"
 google-auth-oauthlib = ">=1.1.0"
 google = ">=3.0.0"

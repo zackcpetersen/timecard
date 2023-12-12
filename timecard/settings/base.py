@@ -7,9 +7,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
+from pathlib import Path
 
 from django.core.management.utils import get_random_secret_key
-from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -92,18 +92,37 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'timecard.wsgi.application'
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'null': {
+            'class': 'logging.NullHandler',
+        },
+        'console': {
+            'class': 'logging.StreamHandler'
+        },
+    },
+    'loggers': {
+        'django.security.DisallowedHost': {
+            # Silence SuspiciousOperation.DisallowedHost exception ('Invalid
+            # HTTP_HOST' header messages). Set the handler to 'null' so we don't
+            # get those annoying emails.
+            'handlers': ['null'],
+            'propagate': False,
+        },
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    },
+}
 
-# Gmail Credentials - Emails will not send without these variables
-GMAIL_CLIENT_ID = os.environ.get('GMAIL_CLIENT_ID')
-GMAIL_PROJECT_ID = os.environ.get('GMAIL_PROJECT_ID')
+# Gmail settings
 GMAIL_AUTH_URI = "https://accounts.google.com/o/oauth2/auth" # nosec
 GMAIL_TOKEN_URI = "https://oauth2.googleapis.com/token" # nosec
 GMAIL_AUTH_PROVIDER = "https://www.googleapis.com/oauth2/v1/certs" # nosec
-GMAIL_CLIENT_SECRET = os.environ.get('GMAIL_CLIENT_SECRET')
 GMAIL_REDIRECT_URIS = ["urn:ietf:wg:oauth:2.0:oob", "http://localhost"]
-
-# Live URL Settings
-FRONTEND_URL = '127.0.1:3000'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -115,7 +134,7 @@ DATABASES = {
         'USER': 'timecard',
         'PASSWORD': 'timecard',
         'HOST': 'localhost',
-        'PORT': '5431',
+        'PORT': '5432',
     }
 }
 
@@ -153,6 +172,15 @@ USE_L10N = True
 USE_TZ = True
 
 CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    'http://localhost:8080',
+    'http://0.0.0.0:8080',
+    r'^https?:\/\/projecttimecard.com$',
+    r'^https?:\/\/[a-zA-Z0-9\-\_]+\.projecttimecard.com$',
+    r'^https?:\/\/[a-zA-Z0-9\-\_]+\.s3-website-us-west-2.amazonaws.com$'
+]
+
+ALLOWED_HOSTS = ['.projecttimecard.com']
 
 # DEFAULT_PARSER_CLASSES = [
 #     'rest_framework.parsers.JSONParser',
@@ -163,17 +191,12 @@ CORS_ALLOW_ALL_ORIGINS = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-AWS_STATIC_BUCKET = os.environ.get('AWS_STATIC_BUCKET')
-AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME')
-
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "..", "static")
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "..", 'media')
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

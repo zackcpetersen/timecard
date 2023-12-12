@@ -16,7 +16,7 @@ jobs:
           POSTGRES_PASSWORD: timecard
           POSTGRES_DB: timecard
         ports:
-          - 5431:5432
+          - 5432:5432
         volumes:
           - postgres-data:/var/lib/postgresql/data/
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -34,6 +34,16 @@ jobs:
         uses: ./.github/actions/setup-pipenv
         with:
           dev: true
+
+      - name: Generate requirements.txt
+        run: |
+          pipenv requirements --dev > ./docker/dev/dev_reqs.txt
+          pipenv requirements > ./docker/prod/requirements.txt
+
+      - name: Check for changes
+        run: |
+          git diff --exit-code ./docker/dev/dev_reqs.txt
+          git diff --exit-code ./docker/prod/requirements.txt
 
       - name: Run Tests with Coverage and Enforce 80% Threshold
         env:

@@ -113,4 +113,5 @@ media/*
 static/
 *env/
 *.env
-.elasticbeanstalk/
+
+.terraform/
