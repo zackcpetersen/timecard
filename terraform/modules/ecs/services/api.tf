@@ -109,6 +109,10 @@ resource "aws_ecs_task_definition" "api" {
           "value" : tostring(var.db_port)
         },
         {
+          "name" : "DB_PASSWORD",
+          "value" : var.db_password,
+        },
+        {
           "name" : "AWS_ACCESS_KEY_ID",
           "value" : var.aws_access_key_id
         },
@@ -142,10 +146,6 @@ resource "aws_ecs_task_definition" "api" {
         {
           "valueFrom" : aws_ssm_parameter.django_secret_key.arn,
           "name" : reverse(split("/", aws_ssm_parameter.django_secret_key.name))[0]
-        },
-        {
-          "valueFrom" : data.aws_ssm_parameter.db_password.arn,
-          "name" : reverse(split("/", data.aws_ssm_parameter.db_password.name))[0]
         },
         {
           "valueFrom" : aws_ssm_parameter.aws_secret_access_key.arn,

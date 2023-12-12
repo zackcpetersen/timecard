@@ -84,6 +84,11 @@ variable "db_port" {
   type = number
 }
 
+variable "db_password" {
+  type      = string
+  sensitive = true
+}
+
 variable "ecs_django_static_s3_access_creds" {
   type = map(string)
 }

@@ -64,9 +64,10 @@ variable "db_port" {
   type = number
 }
 
-#variable "opensearch_endpoint" {
-#  type = string
-#}
+variable "db_password" {
+  type      = string
+  sensitive = true
+}
 
 variable "tags" {
   type = map(string)

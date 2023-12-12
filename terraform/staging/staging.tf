@@ -60,6 +60,7 @@ module "ecs" {
   db_user                           = module.rds.db_user
   db_host                           = module.rds.db_host
   db_port                           = module.rds.db_port
+  db_password                       = module.rds.db_password
   django_secret_key                 = var.SECRET_KEY
   ssl_redirect                      = var.SECURE_SSL_REDIRECT
   cors_allowed_regexes              = var.CORS_ALLOWED_ORIGIN_REGEXES

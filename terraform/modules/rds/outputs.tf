@@ -13,3 +13,8 @@ output "db_name" {
 output "db_user" {
   value = aws_db_instance.main_db.username
 }
+
+output "db_password" {
+  value     = aws_db_instance.main_db.password
+  sensitive = true
+}

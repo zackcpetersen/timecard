@@ -37,7 +37,7 @@ variable "db_instance_class" {
 variable "db_allocated_storage" {
   type        = number
   description = "Number in GB for database initial size"
-  default     = 10
+  default     = 20
 }
 
 variable "db_max_storage" {
