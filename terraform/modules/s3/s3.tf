@@ -1,14 +1,9 @@
 # Create S3 bucket for static assets in Django ECS tasks
 resource "aws_s3_bucket" "django_ecs_static" {
-  bucket = "${var.env}-${var.name}-media"
-  tags   = var.tags
+  bucket        = "${var.env}-${var.name}-staticfiles"
+  force_destroy = var.force_destroy
+  tags          = var.tags
 }
-# TODO why is this not working?
-## Add public acl policy
-#resource "aws_s3_bucket_acl" "static_public" {
-#  bucket = aws_s3_bucket.django_ecs_static.id
-#  acl    = "public-read"
-#}
 
 # create s3 bucket for static website hosting
 resource "aws_s3_bucket" "frontend_static_site" {
@@ -27,16 +22,39 @@ resource "aws_s3_bucket_website_configuration" "static_site_config" {
   bucket = aws_s3_bucket.frontend_static_site.id
 
   index_document {
-    suffix = "index.html" # TODO double check this
+    suffix = "index.html"
   }
 
   error_document {
-    key = "index.html" # TODO double check this
+    key = "index.html"
   }
 }
+resource "aws_s3_bucket_ownership_controls" "frontend" {
+  bucket = aws_s3_bucket.frontend_static_site.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+resource "aws_s3_bucket_public_access_block" "frontend" {
+  bucket = aws_s3_bucket.frontend_static_site.id
 
-# TODO why is this not working?
-## add custom bucket policy
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_acl" "frontend" {
+  depends_on = [
+    aws_s3_bucket_ownership_controls.frontend,
+    aws_s3_bucket_public_access_block.frontend,
+  ]
+
+  bucket = aws_s3_bucket.frontend_static_site.id
+  acl    = "public-read"
+}
+
+# add custom bucket policy
 #resource "aws_s3_bucket_policy" "public_read_access" {
 #  bucket = aws_s3_bucket.frontend_static_site.id
 #  policy = jsonencode({

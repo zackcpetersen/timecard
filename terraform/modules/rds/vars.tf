@@ -43,3 +43,15 @@ variable "rds_sg_id" {
 variable "db_snapshot_name" {
   type = string
 }
+
+variable "deletion_protection" {
+  type = bool
+}
+
+variable "skip_final_snapshot" {
+  type = bool
+}
+
+variable "apply_immediately" {
+  type = bool
+}

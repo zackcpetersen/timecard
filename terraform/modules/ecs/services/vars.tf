@@ -24,10 +24,6 @@ variable "aws_region" {
   type = string
 }
 
-variable "aws_access_key_id" {
-  type = string
-}
-
 variable "name" {
   type = string
 }
@@ -36,7 +32,11 @@ variable "github_repo" {
   type = string
 }
 
-variable "ecs_task_execution_role" {
+variable "ecs_execution_role" {
+  type = string
+}
+
+variable "ecs_task_role" {
   type = string
 }
 
@@ -52,20 +52,13 @@ variable "private_subnets" {
   type = list(string)
 }
 
-variable "ecr_web_repo_name" {
-  type = string
-}
-
-variable "ecr_nginx_repo_name" {
-  type = string
-}
-
 variable "latest_tag" {
   type = string
 }
 
 variable "django_secret_key" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "db_name" {
@@ -89,33 +82,9 @@ variable "db_password" {
   sensitive = true
 }
 
-variable "ecs_django_static_s3_access_creds" {
-  type = map(string)
-}
-
 variable "s3_static_bucket_name" {
   type = string
 }
-
-#variable "email_host_password" {
-#  type = string
-#}
-#
-#variable "email_host" {
-#  type = string
-#}
-#
-#variable "email_port" {
-#  type = number
-#}
-#
-#variable "email_host_user" {
-#  type = string
-#}
-#
-#variable "email_use_tls" {
-#  type = string
-#}
 
 variable "ssl_redirect" {
   type = string
@@ -130,7 +99,7 @@ variable "allowed_hosts" {
 }
 
 variable "cors_allow_all_origins" {
-  type = bool
+  type = string
 }
 
 variable "frontend_url" {
@@ -150,5 +119,24 @@ variable "gmail_client_id" {
 }
 
 variable "gmail_client_secret" {
+  type      = string
+  sensitive = true
+}
+
+variable "ghcr_base_url" {
+  type = string
+}
+
+variable "github_username" {
+  type = string
+}
+
+variable "github_token" {
+  description = "Token for GitHub Container Registry"
+  type        = string
+  sensitive   = true
+}
+
+variable "image_tag" {
   type = string
 }
