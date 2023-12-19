@@ -1,4 +1,4 @@
-name: Deploy Images to ECR
+name: Deploy Images to GitHub Container Registry
 
 on:
   push:
@@ -12,43 +12,35 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
       with:
-        aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-west-2
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build and push web Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
         file: ./docker/prod/Dockerfile
         push: true
-        tags: ${{ steps.login-ecr.outputs.registry }}/timecard_web:${{ github.sha }},${{ steps.login-ecr.outputs.registry }}/timecard_web:latest
-
+        tags: ghcr.io/zackcpetersen/timecard/web:${{ github.sha }},ghcr.io/zackcpetersen/timecard/web:latest
 
   build-and-push-nginx:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
       with:
-        aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-west-2
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build and push nginx Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
         file: ./docker/prod/nginx/Dockerfile
         push: true
-        tags: ${{ steps.login-ecr.outputs.registry }}/timecard_nginx:${{ github.sha }},${{ steps.login-ecr.outputs.registry }}/timecard_nginx:latest
-
+        tags: ghcr.io/zackcpetersen/timecard/nginx:${{ github.sha }},ghcr.io/zackcpetersen/timecard/nginx:latest
