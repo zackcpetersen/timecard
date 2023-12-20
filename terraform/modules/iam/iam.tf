@@ -12,7 +12,7 @@ resource "aws_iam_group" "admins" {
 # attach AWS managed AdministratorAccess policy to admin group
 #  WARNING - running `terraform destroy` will remove admin access 
 #   for ALL users/groups/roles, not just those managed in terraform
-resource "aws_iam_policy_attachment" "admins-attach" {
+resource "aws_iam_policy_attachment" "admins_attach" {
   name       = "admins-attach"
   groups     = [aws_iam_group.admins.name]
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
@@ -38,8 +38,8 @@ resource "aws_iam_group_membership" "admin_membership" {
 ### ECS ROLES ###
 # ------------- #
 # role for ecs task execution
-resource "aws_iam_role" "ECSTaskExecutionRole" {
-  name = "${var.name}ECSTaskExecutionRole"
+resource "aws_iam_role" "ecs_execution_role" {
+  name = "${var.name}-ecs-execution-role"
   tags = var.tags
 
   assume_role_policy = jsonencode({
@@ -76,29 +76,57 @@ resource "aws_iam_policy" "kms_decrypt" {
     }
   )
 }
+resource "aws_iam_policy" "secrets_manager_read_only" {
+  name        = "SecretsManagerReadOnly"
+  description = "Read-only access to AWS Secrets Manager"
 
-# attach policies to ECS role
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : "secretsmanager:GetSecretValue",
+        "Resource" : "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "secrets_manager_read_only_attachment" {
+  role       = aws_iam_role.ecs_execution_role.id
+  policy_arn = aws_iam_policy.secrets_manager_read_only.arn
+}
+
+# attach policies to Task Execution role
 resource "aws_iam_role_policy_attachment" "ecs_task_execution" {
-  role       = aws_iam_role.ECSTaskExecutionRole.id
+  role       = aws_iam_role.ecs_execution_role.id
   policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
-resource "aws_iam_role_policy_attachment" "ssm_read_only" {
-  role       = aws_iam_role.ECSTaskExecutionRole.id
-  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonSSMReadOnlyAccess"
-}
 resource "aws_iam_role_policy_attachment" "kms_decrypt" {
-  role       = aws_iam_role.ECSTaskExecutionRole.id
+  role       = aws_iam_role.ecs_execution_role.id
   policy_arn = aws_iam_policy.kms_decrypt.arn
 }
+resource "aws_iam_role_policy_attachment" "ecs_secrets_manager_read_only" {
+  role       = aws_iam_role.ecs_execution_role.id
+  policy_arn = aws_iam_policy.secrets_manager_read_only.arn
+}
 
-# ----------- #
-### S3 USER ###
-# ----------- #
-
-# User to access S3 buckets from inside ECS api app
-resource "aws_iam_user" "ecs_s3_access" {
-  name = "${var.name}-ecs-s3-access"
+resource "aws_iam_role" "ecs_s3_access_role" {
+  name = "${var.name}-ecs-task-role"
   tags = var.tags
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        },
+      },
+    ],
+  })
 }
 # custom S3 bucket policy for ecs_s3_access
 resource "aws_iam_policy" "ecs_s3_access" {
@@ -126,12 +154,7 @@ resource "aws_iam_policy" "ecs_s3_access" {
     ]
   })
 }
-# attach policy to user
-resource "aws_iam_user_policy_attachment" "ecs_s3_access" {
-  user       = aws_iam_user.ecs_s3_access.id
+resource "aws_iam_role_policy_attachment" "ecs_s3_access" {
+  role       = aws_iam_role.ecs_s3_access_role.id
   policy_arn = aws_iam_policy.ecs_s3_access.arn
-}
-# create access key and secret access key for IAM user to be used in ECS
-resource "aws_iam_access_key" "ecs_s3_access_key" {
-  user = aws_iam_user.ecs_s3_access.name
 }

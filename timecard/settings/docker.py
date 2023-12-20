@@ -45,32 +45,18 @@ DATABASES = {
 }
 
 # AWS settings
-AWS_ACCESS_KEY_ID = get_env_variable('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = get_env_variable('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = get_env_variable('AWS_STORAGE_BUCKET_NAME')
-AWS_DEFAULT_ACL = None
-AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+AWS_S3_REGION_NAME = "us-west-2"
 AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
-# s3 static settings
 
+# S3 static settings
 USE_S3 = ast.literal_eval(get_env_variable('USE_S3'))
 if USE_S3:
-    STATIC_LOCATION = '/static/'
-    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+    STATIC_URL = "/static/"
     STATICFILES_STORAGE = get_env_variable('STATICFILES_STORAGE')
     # s3 public media settings
-    PUBLIC_MEDIA_LOCATION = '/media/'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+    MEDIA_URL = "/media/"
     DEFAULT_FILE_STORAGE = get_env_variable('DEFAULT_FILE_STORAGE')
-
-# TODO maybe update to use emails this way?
-# Email Settings
-# EMAIL_HOST = get_env_variable('EMAIL_HOST')
-# EMAIL_PORT = get_env_variable('EMAIL_PORT')
-# EMAIL_HOST_USER = get_env_variable('EMAIL_HOST_USER')
-# EMAIL_USE_TLS = ast.literal_eval(get_env_variable('EMAIL_USE_TLS'))
-# DEFAULT_FROM_EMAIL = get_env_variable('DEFAULT_FROM_EMAIL')
-# EMAIL_HOST_PASSWORD = get_env_variable('EMAIL_HOST_PASSWORD')
 
 # Gmail Settings
 # Gmail Credentials - Emails will not send without these variables

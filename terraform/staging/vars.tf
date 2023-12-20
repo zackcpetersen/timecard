@@ -1,7 +1,9 @@
+### --- Variables in BOLD are required in the Django app, others are required for terraform --- ###
+
 variable "env" {
   type        = string
   description = "Environment currently working in"
-  default     = "staging"
+  default     = "staging" # prod
 }
 
 variable "aws_region" {
@@ -37,7 +39,7 @@ variable "db_instance_class" {
 variable "db_allocated_storage" {
   type        = number
   description = "Number in GB for database initial size"
-  default     = 20
+  default     = 10
 }
 
 variable "db_max_storage" {
@@ -57,6 +59,7 @@ variable "global_tags" {
 
 variable "db_snapshot_name" {
   type        = string
+  default     = ""
   description = "Defined in Cloud workspace"
 }
 
@@ -66,19 +69,20 @@ variable "db_port" {
 }
 
 variable "DEBUG" {
-  type        = bool
+  type        = string
   description = "Turn on/off debug for apps"
-  default     = false
+  default     = "False"
 }
 
 variable "SECRET_KEY" {
   type        = string
   description = "Django secret key used in settings file - SENSITIVE, defined in Cloud workspace as a variable"
+  sensitive   = true
 }
 
 variable "CORS_ALLOW_ALL_ORIGINS" {
-  type    = bool
-  default = false
+  type    = string
+  default = "False"
 }
 
 variable "CORS_ALLOWED_ORIGIN_REGEXES" {
@@ -94,8 +98,8 @@ variable "ALLOWED_HOSTS" {
 }
 
 variable "SECURE_SSL_REDIRECT" {
-  type    = bool
-  default = false
+  type    = string
+  default = "False"
 }
 
 variable "DEFAULT_DOMAIN" {
@@ -116,10 +120,11 @@ variable "AWS_ACCESS_KEY_ID" {
 variable "AWS_SECRET_ACCESS_KEY" {
   type        = string
   description = "AWS login password"
+  sensitive   = true
 }
 
 variable "USE_S3" {
-  type        = bool
+  type        = string
   description = "Use S3 for static files"
 }
 
@@ -146,4 +151,26 @@ variable "GMAIL_PROJECT_ID" {
 variable "GMAIL_CLIENT_SECRET" {
   type        = string
   description = "Defined in Cloud workspace"
+  sensitive   = true
 }
+
+variable "ghcr_base_url" {
+  type = string
+}
+
+variable "image_tag" {
+  type        = string
+  description = "Tag for images"
+}
+
+variable "github_token" {
+  description = "Token for GitHub Container Registry"
+  type        = string
+  sensitive   = true
+}
+
+variable "github_username" {
+  description = "Username for GitHub Container Registry"
+  type        = string
+}
+

@@ -1,0 +1,88 @@
+name: Deploy Images to GitHub Container Registry
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+
+jobs:
+  build-and-push-web:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and push web Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./docker/prod/Dockerfile
+        push: true
+        tags: | 
+          ghcr.io/zackcpetersen/timecard/web:${{ github.sha }},
+          ghcr.io/zackcpetersen/timecard/web:${{ github.ref_name }},
+          ghcr.io/zackcpetersen/timecard/web:latest
+
+  build-and-push-nginx:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and push nginx Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./docker/prod/nginx/Dockerfile
+        push: true
+        tags: |
+          ghcr.io/zackcpetersen/timecard/nginx:${{ github.sha }},
+          ghcr.io/zackcpetersen/timecard/nginx:${{ github.ref_name }},
+          ghcr.io/zackcpetersen/timecard/nginx:latest
+
+  terraform-plan:
+    needs: [build-and-push-web, build-and-push-nginx]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform cloud
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.5"
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Plan
+        run: terraform plan -var="image_tag=${{ github.ref_name }}"
+
+  terraform-apply:
+    needs: [ terraform-plan ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform cloud
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.5"
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Apply
+        run: terraform apply -var="image_tag=${{ github.ref_name }}" --auto-approve
+        env:
+          TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}

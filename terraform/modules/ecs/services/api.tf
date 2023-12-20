@@ -4,24 +4,6 @@ locals {
   ports                = [80, 443]
 }
 
-data "aws_ecr_image" "web" {
-  repository_name = var.ecr_web_repo_name
-  image_tag       = var.latest_tag
-}
-
-data "aws_ecr_image" "nginx" {
-  repository_name = var.ecr_nginx_repo_name
-  image_tag       = var.latest_tag
-}
-
-data "aws_ecr_repository" "web" {
-  name = var.ecr_web_repo_name
-}
-
-data "aws_ecr_repository" "nginx" {
-  name = var.ecr_nginx_repo_name
-}
-
 # Configure logging for service
 resource "aws_cloudwatch_log_group" "ecs_logs" {
   name              = "${var.name}_${var.env}"
@@ -30,16 +12,14 @@ resource "aws_cloudwatch_log_group" "ecs_logs" {
 }
 
 # create task definition
-# TODOS
-#  - update DEBUG to False
-#  - set SECURE_SSL_REDIRECT to True
 resource "aws_ecs_task_definition" "api" {
   family                   = "${var.name}-api"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 1024 # TODO maybe?
   memory                   = 2048 # TODO maybe?
-  execution_role_arn       = var.ecs_task_execution_role
+  execution_role_arn       = var.ecs_execution_role
+  task_role_arn            = var.ecs_task_role
   tags                     = var.tags
   container_definitions = jsonencode([
     {
@@ -109,14 +89,6 @@ resource "aws_ecs_task_definition" "api" {
           "value" : tostring(var.db_port)
         },
         {
-          "name" : "DB_PASSWORD",
-          "value" : var.db_password,
-        },
-        {
-          "name" : "AWS_ACCESS_KEY_ID",
-          "value" : var.aws_access_key_id
-        },
-        {
           "name" : "AWS_STORAGE_BUCKET_NAME",
           "value" : var.s3_static_bucket_name
         },
@@ -126,11 +98,11 @@ resource "aws_ecs_task_definition" "api" {
         },
         {
           "name" : "STATICFILES_STORAGE",
-          "value" : "${var.github_repo}.storage_backends.StaticStorage"
+          "value" : "storages.backends.s3boto3.S3Boto3Storage"
         },
         {
           "name" : "DEFAULT_FILE_STORAGE",
-          "value" : "${var.github_repo}.storage_backends.PublicMediaStorage"
+          "value" : "storages.backends.s3boto3.S3Boto3Storage"
         },
         {
           "name" : "GMAIL_CLIENT_ID",
@@ -144,17 +116,24 @@ resource "aws_ecs_task_definition" "api" {
       mountPoints : [],
       secrets : [
         {
-          "valueFrom" : aws_ssm_parameter.django_secret_key.arn,
-          "name" : reverse(split("/", aws_ssm_parameter.django_secret_key.name))[0]
+          "valueFrom" : aws_secretsmanager_secret_version.gmail_client_secret.arn,
+          "name" : "GMAIL_CLIENT_SECRET",
         },
         {
-          "valueFrom" : aws_ssm_parameter.aws_secret_access_key.arn,
-          "name" : reverse(split("/", aws_ssm_parameter.aws_secret_access_key.name))[0]
+          "valueFrom" : aws_secretsmanager_secret_version.django_secret_key.arn,
+          "name" : "SECRET_KEY",
         },
+        {
+          "valueFrom" : aws_secretsmanager_secret_version.db_password.arn,
+          "name" : "DB_PASSWORD",
+        }
       ],
       memoryReservation : 1792, # TODO maybe?
       volumesFrom : [],
-      image : "${data.aws_ecr_repository.web.repository_url}:${var.latest_tag}@${data.aws_ecr_image.web.image_digest}",
+      image : "${var.ghcr_base_url}/web:${var.image_tag}",
+      repositoryCredentials : {
+        "credentialsParameter" : aws_secretsmanager_secret_version.github_token.arn
+      },
       healthCheck : {
         "retries" : 3,
         "command" : [
@@ -196,7 +175,10 @@ resource "aws_ecs_task_definition" "api" {
       mountPoints : [],
       memoryReservation : 256,
       volumesFrom : [],
-      image : "${data.aws_ecr_repository.nginx.repository_url}:${var.latest_tag}@${data.aws_ecr_image.nginx.image_digest}",
+      image : "${var.ghcr_base_url}/nginx:${var.image_tag}}",
+      repositoryCredentials : {
+        "credentialsParameter" : aws_secretsmanager_secret_version.github_token.arn
+      },
       dependsOn : [
         {
           "containerName" : local.web_container_name,
@@ -217,7 +199,7 @@ resource "aws_ecs_service" "ecs_api" {
   cluster                            = var.cluster_id
   task_definition                    = aws_ecs_task_definition.api.arn
   desired_count                      = 1
-  depends_on                         = [var.ecs_task_execution_role, aws_lb_target_group.ecs_lb_api_target_group]
+  depends_on                         = [var.ecs_execution_role, var.ecs_task_role, aws_lb_target_group.ecs_lb_api_target_group]
   launch_type                        = "FARGATE"
   wait_for_steady_state              = true
   force_new_deployment               = true
@@ -300,7 +282,7 @@ resource "aws_lb_target_group" "ecs_lb_api_target_group" {
     healthy_threshold   = 2
     unhealthy_threshold = 4
     interval            = 60
-    matcher             = "200-499" # TODO "200,418" # 418 is custom status code returned by nginx for DisallowedHosts errors
+    matcher             = "200-499"
     path                = "/api/"
     port                = "traffic-port"
     protocol            = "HTTP"
@@ -322,21 +304,22 @@ resource "aws_lb_listener" "port_80" {
   tags = var.tags
 }
 
+# TODO: add listener for port 443 on loadbalancer
 # add listener for port 443 on load balancer
-resource "aws_lb_listener" "port_443" {
-  load_balancer_arn = aws_lb.ecs_api_lb.arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = "arn:aws:acm:us-west-2:253104389312:certificate/dc5098e7-e45a-41a9-ab5b-c0de03c27165"
+# resource "aws_lb_listener" "port_443" {
+#   load_balancer_arn = aws_lb.ecs_api_lb.arn
+#   port              = "443"
+#   protocol          = "HTTPS"
+#   ssl_policy        = "ELBSecurityPolicy-2016-08"
+#   certificate_arn   = "arn:aws:acm:us-west-2:253104389312:certificate/dc5098e7-e45a-41a9-ab5b-c0de03c27165"
 
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.ecs_lb_api_target_group.arn
-  }
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.ecs_lb_api_target_group.arn
+#   }
 
-  tags = var.tags
-}
+#   tags = var.tags
+# }
 
 # Add Application Autoscaling for ECS Service
 resource "aws_appautoscaling_target" "api_scaling_target" {
