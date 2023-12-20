@@ -1,4 +1,4 @@
-name: Python CI and Django Tests
+name: Check PR
 
 on:
   pull_request:
@@ -117,3 +117,54 @@ jobs:
 
       - name: Check Dependencies with pipenv
         run: pipenv check
+
+  paths-check-terraform:
+    runs-on: ubuntu-latest
+    outputs:
+      terraform_changed: ${{ steps.filter.outputs.terraform_changed }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Check for changes in Terraform directory
+        id: filter
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            terraform_changed:
+              - 'terraform/**'
+
+  terraform-lint:
+    runs-on: ubuntu-latest
+    needs: paths-check-terraform
+    if: ${{ needs.paths-check-terraform.outputs.terraform_changed == 'true' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform Lint
+        run: |
+          terraform fmt -check
+          terraform init
+          terraform validate
+
+  terraform-plan:
+    runs-on: ubuntu-latest
+    needs: [ paths-check-terraform, terraform-lint ]
+    if: ${{ needs.paths-check-terraform.outputs.terraform_changed == 'true' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform cloud
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.5"
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Plan
+        # TODO run in prod
+        run: |
+          cd terraform/staging && 
+          terraform init &&
+          terraform plan -var="image_tag=${{ github.ref_name }}"

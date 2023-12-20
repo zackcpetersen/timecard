@@ -161,6 +161,7 @@ variable "ghcr_base_url" {
 variable "image_tag" {
   type        = string
   description = "Tag for images"
+  default     = "latest"
 }
 
 variable "github_token" {

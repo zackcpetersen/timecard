@@ -1,0 +1,128 @@
+name: Build Images and Deploy to Staging
+
+on:
+  push:
+    branches:
+      - master
+  # TODO remove
+  workflow_dispatch:
+
+jobs:
+  paths-check:
+    runs-on: ubuntu-latest
+    outputs:
+      nginx_changed: ${{ steps.filter.outputs.nginx_changed }}
+      terraform_changed: ${{ steps.filter.outputs.terraform_changed }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Check for changes in specific directories
+        id: filter
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            terraform_changed:
+              - 'terraform/**'
+            nginx_changed:
+              - './docker/prod/nginx/**'
+
+  build-and-push-web:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and push web Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./docker/prod/Dockerfile
+        push: true
+        tags: |
+          ghcr.io/zackcpetersen/timecard/web:${{ github.sha }},
+          ghcr.io/zackcpetersen/timecard/web:${{ github.ref_name }},
+
+  build-and-push-nginx:
+    if: ${{ needs.paths-check.outputs.nginx_changed == 'true' }}
+    runs-on: ubuntu-latest
+    needs: paths-check
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push nginx Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/prod/nginx/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/zackcpetersen/timecard/nginx:${{ github.sha }},
+            ghcr.io/zackcpetersen/timecard/nginx:${{ github.ref_name }},
+
+  terraform-lint:
+    if: ${{ needs.paths-check.outputs.terraform_changed == 'true' }}
+    runs-on: ubuntu-latest
+    needs: paths-check-terraform
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform Lint
+        run: |
+          terraform fmt -check
+          terraform init
+          terraform validate
+
+  terraform-plan:
+    needs: [ terraform-lint, build-and-push-web, build-and-push-nginx ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform cloud
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.5"
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Plan
+        run: |
+          cd terraform/staging && 
+          terraform init &&
+          terraform plan -var="image_tag=${{ github.ref_name }} -out=plan.out"
+
+  terraform-apply:
+    needs: [ terraform-plan ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform cloud
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.5"
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Apply
+        run: |
+          cd terraform/staging && 
+          terraform init &&
+          terraform apply -var="image_tag=${{ github.ref_name }}" plan.out
+        env:
+          TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
