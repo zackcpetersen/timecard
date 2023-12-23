@@ -54,7 +54,7 @@ resource "aws_s3_bucket_acl" "frontend" {
   acl    = "public-read"
 }
 
-# add custom bucket policy
+# add custom bucket policy # TODO test frontend bucket
 #resource "aws_s3_bucket_policy" "public_read_access" {
 #  bucket = aws_s3_bucket.frontend_static_site.id
 #  policy = jsonencode({

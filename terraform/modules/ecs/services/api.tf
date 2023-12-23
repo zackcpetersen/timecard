@@ -16,8 +16,8 @@ resource "aws_ecs_task_definition" "api" {
   family                   = "${var.name}-api"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = 1024 # TODO maybe?
-  memory                   = 2048 # TODO maybe?
+  cpu                      = var.api_task_cpu
+  memory                   = var.api_task_memory
   execution_role_arn       = var.ecs_execution_role
   task_role_arn            = var.ecs_task_role
   tags                     = var.tags
@@ -38,7 +38,7 @@ resource "aws_ecs_task_definition" "api" {
           "containerPort" : 8000
         }
       ],
-      cpu : 768,
+      cpu : var.api_container_cpu,
       environment : [
         {
           "name" : "DJANGO_SETTINGS_MODULE",
@@ -128,7 +128,7 @@ resource "aws_ecs_task_definition" "api" {
           "name" : "DB_PASSWORD",
         }
       ],
-      memoryReservation : 1792, # TODO maybe?
+      memoryReservation : var.api_container_memory_reservation
       volumesFrom : [],
       image : "${var.ghcr_base_url}/web:${var.image_tag}",
       repositoryCredentials : {
@@ -252,15 +252,15 @@ resource "aws_security_group" "ecs_api_lb_sg" {
 
 # create load balancer
 resource "aws_lb" "ecs_api_lb" {
-  name               = "${var.env}-${var.name}-ecs-api-lb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.ecs_api_lb_sg.id]
-  subnets            = var.public_subnets
-  # enable_deletion_protection = true # TODO
+  name                       = "${var.env}-${var.name}-ecs-api-lb"
+  internal                   = false
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.ecs_api_lb_sg.id]
+  subnets                    = var.public_subnets
+  enable_deletion_protection = var.deletion_protection
 
   #   access_logs {
-  #     bucket = ""  # TODO create bucket for all ECS logs
+  #     bucket = ""
   #     prefix = "${var.env}-${var.name}-ecs-lb"
   #     enabled = true
   #   }

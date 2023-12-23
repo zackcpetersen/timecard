@@ -55,3 +55,15 @@ variable "skip_final_snapshot" {
 variable "apply_immediately" {
   type = bool
 }
+
+variable "rds_engine_version" {
+  type = string
+}
+
+variable "rds_parameter_group_name" {
+  type = string
+}
+
+variable "performance_insights_enabled" {
+  type = bool
+}
