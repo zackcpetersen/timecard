@@ -146,3 +146,7 @@ variable "api_container_cpu" {
 variable "api_container_memory_reservation" {
   type = number
 }
+
+variable "backend_certificate_arn" {
+  type = string
+}

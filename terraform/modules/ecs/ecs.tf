@@ -50,4 +50,5 @@ module "services" {
   api_task_cpu                     = var.api_task_cpu
   api_task_memory                  = var.api_task_memory
   api_container_memory_reservation = var.api_container_memory_reservation
+  backend_certificate_arn          = var.backend_certificate_arn
 }

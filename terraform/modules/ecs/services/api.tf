@@ -195,11 +195,15 @@ resource "aws_ecs_task_definition" "api" {
 
 # ECS service
 resource "aws_ecs_service" "ecs_api" {
-  name                               = "${var.name}_api"
-  cluster                            = var.cluster_id
-  task_definition                    = aws_ecs_task_definition.api.arn
-  desired_count                      = 1
-  depends_on                         = [var.ecs_execution_role, var.ecs_task_role, aws_lb_target_group.ecs_lb_api_target_group]
+  name            = "${var.name}_api"
+  cluster         = var.cluster_id
+  task_definition = aws_ecs_task_definition.api.arn
+  desired_count   = 1
+  depends_on = [
+    var.ecs_execution_role,
+    var.ecs_task_role,
+    aws_lb_target_group.ecs_lb_api_target_group_http,
+  ]
   launch_type                        = "FARGATE"
   wait_for_steady_state              = true
   force_new_deployment               = true
@@ -207,7 +211,7 @@ resource "aws_ecs_service" "ecs_api" {
   tags                               = var.tags
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.ecs_lb_api_target_group.arn
+    target_group_arn = aws_lb_target_group.ecs_lb_api_target_group_http.arn
     container_name   = local.nginx_container_name
     container_port   = 80
   }
@@ -268,9 +272,9 @@ resource "aws_lb" "ecs_api_lb" {
   tags = var.tags
 }
 
-# load balancer target group for ECS
-resource "aws_lb_target_group" "ecs_lb_api_target_group" {
-  name        = "ecs-${var.name}-api-${var.env}"
+# load balancer target group for ECS port 80
+resource "aws_lb_target_group" "ecs_lb_api_target_group_http" {
+  name        = "ecs-${var.name}-api-${var.env}-http"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
@@ -297,29 +301,32 @@ resource "aws_lb_listener" "port_80" {
   protocol          = "HTTP"
 
   default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+  tags = var.tags
+}
+
+# add listener for port 443 on load balancer
+resource "aws_lb_listener" "port_443" {
+  load_balancer_arn = aws_lb.ecs_api_lb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = var.backend_certificate_arn
+
+  default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.ecs_lb_api_target_group.arn
+    target_group_arn = aws_lb_target_group.ecs_lb_api_target_group_http.arn
   }
 
   tags = var.tags
 }
-
-# TODO: add listener for port 443 on loadbalancer
-# add listener for port 443 on load balancer
-# resource "aws_lb_listener" "port_443" {
-#   load_balancer_arn = aws_lb.ecs_api_lb.arn
-#   port              = "443"
-#   protocol          = "HTTPS"
-#   ssl_policy        = "ELBSecurityPolicy-2016-08"
-#   certificate_arn   = "arn:aws:acm:us-west-2:253104389312:certificate/dc5098e7-e45a-41a9-ab5b-c0de03c27165"
-
-#   default_action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.ecs_lb_api_target_group.arn
-#   }
-
-#   tags = var.tags
-# }
 
 # Add Application Autoscaling for ECS Service
 resource "aws_appautoscaling_target" "api_scaling_target" {

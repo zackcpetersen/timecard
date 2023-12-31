@@ -2,6 +2,10 @@ output "frontend_static_site_bucket_arn" {
   value = aws_s3_bucket.frontend_static_site.arn
 }
 
+output "frontend_regional_domain_name" {
+  value = aws_s3_bucket.frontend_static_site.bucket_regional_domain_name
+}
+
 output "django_ecs_static_bucket_arn" {
   value = aws_s3_bucket.django_ecs_static.arn
 }

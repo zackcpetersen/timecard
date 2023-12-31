@@ -1,5 +1,7 @@
 locals {
-  dev_env = true # false in production
+  dev_env              = true # TODO: false in production
+  frontend_domain_name = "frontend.${var.route53_domain_name}"
+  backend_domain_name  = "${var.env}-backend.${var.route53_domain_name}"
 }
 
 module "vpc" {
@@ -17,16 +19,48 @@ module "iam" {
   users                        = var.users
   tags                         = var.global_tags
   django_ecs_static_bucket_arn = module.s3.django_ecs_static_bucket_arn
-
-  depends_on = [module.s3]
 }
 
 module "s3" {
-  source        = "../modules/s3"
-  name          = var.product_name
-  env           = var.env
-  tags          = var.global_tags
-  force_destroy = local.dev_env
+  source             = "../modules/s3"
+  name               = var.product_name
+  env                = var.env
+  tags               = var.global_tags
+  dev_env            = local.dev_env
+  cloudfront_oai_arn = module.cloudfront.cloudfront_oai_arn
+}
+
+module "acm" {
+  source               = "../modules/acm"
+  frontend_domain_name = local.frontend_domain_name
+  backend_domain_name  = local.backend_domain_name
+}
+
+module "root_route53" {
+  source                                 = "../modules/route53"
+  aws_region                             = var.aws_region
+  frontend_acm_domain_validation_options = module.acm.frontend_domain_validation_options
+  backend_acm_domain_validation_options  = module.acm.backend_domain_validation_options
+  frontend_certificate_arn               = module.acm.frontend_certificate_arn
+  backend_certificate_arn                = module.acm.backend_certificate_arn
+  route53_name                           = var.route53_domain_name
+  backend_domain_name                    = local.backend_domain_name
+  ecs_lb_name                            = module.ecs.api_testing_lb_url
+  ROOT_AWS_ACCESS_KEY_ID                 = var.ROOT_AWS_ACCESS_KEY_ID
+  ROOT_AWS_SECRET_ACCESS_KEY             = var.ROOT_AWS_SECRET_ACCESS_KEY
+  frontend_cloudfront_domain             = module.cloudfront.cf_domain
+  frontend_domain_name                   = local.frontend_domain_name
+}
+
+module "cloudfront" {
+  source                     = "../modules/cloudfront"
+  frontend_certificate_arn   = module.acm.frontend_certificate_arn
+  dev_env                    = local.dev_env
+  website_bucket_domain_name = module.s3.frontend_regional_domain_name
+  website_bucket_origin_id   = "myS3Origin"
+  frontend_domain_name       = local.frontend_domain_name
+  env                        = var.env
+  name                       = var.product_name
 }
 
 module "rds" {
@@ -46,10 +80,8 @@ module "rds" {
   deletion_protection          = !local.dev_env
   skip_final_snapshot          = local.dev_env
   performance_insights_enabled = !local.dev_env
-  rds_engine_version           = "12.14"              # TODO update this to 15.4 after manually upgrading RDS version & pulling in state
-  rds_parameter_group_name     = "default.postgres12" # TODO update this to default.postgres15 after manually upgrading RDS version & pulling in state
-
-  depends_on = [module.vpc]
+  rds_engine_version           = "12.14"
+  rds_parameter_group_name     = "default.postgres12"
 }
 
 module "ecs" {
@@ -85,16 +117,10 @@ module "ecs" {
   github_username                  = var.github_username
   github_token                     = var.github_token
   image_tag                        = var.image_tag
+  backend_certificate_arn          = module.acm.backend_certificate_arn
   deletion_protection              = !local.dev_env
   api_container_cpu                = 768
   api_task_cpu                     = 1024
   api_task_memory                  = 2048
   api_container_memory_reservation = 1792
-
-  depends_on = [
-    module.iam,
-    module.vpc,
-    module.rds,
-    module.s3,
-  ]
 }
