@@ -1,4 +1,4 @@
-name: Copy S3 bucket from one account to another
+name: Sync S3 Buckets
 
 on:
   workflow_dispatch:
@@ -8,17 +8,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-west-2
 
-    - name: Setup Terraform
+    - name: Set up Terraform cloud
       uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.6.5"
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
     - name: Terraform Init and Apply
       run: |
@@ -31,6 +34,8 @@ jobs:
       run: |
         cd ./terraform/copyS3
         echo "::set-output name=role_arn::$(terraform output -raw destination_migration_role)"
+        echo "::set-output name=source_bucket::$(terraform output -raw source_bucket_name)"
+        echo "::set-output name=destination_bucket::$(terraform output -raw destination_bucket_name)"
 
     - name: Assume AWS Role and Sync Buckets
       run: |
@@ -38,7 +43,7 @@ jobs:
         export AWS_ACCESS_KEY_ID=$(echo $ASSUME_ROLE | jq -r .Credentials.AccessKeyId)
         export AWS_SECRET_ACCESS_KEY=$(echo $ASSUME_ROLE | jq -r .Credentials.SecretAccessKey)
         export AWS_SESSION_TOKEN=$(echo $ASSUME_ROLE | jq -r .Credentials.SessionToken)
-        aws s3 sync s3://source-bucket-name s3://destination-bucket-name
+        aws s3 sync s3://"${{ steps.tf-output.outputs.source_bucket }}" s3://"${{ steps.tf-output.outputs.destination_bucket }}"
 
   cleanup:
     needs: copy-s3-data
@@ -46,12 +51,16 @@ jobs:
     if: always()
     steps:
     - name: Checkout Repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
 
-    - name: Setup Terraform
+    - name: Set up Terraform cloud
       uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.6.5"
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
     - name: Terraform Destroy
       run: |
         cd ./terraform/copyS3
+        terraform init
         terraform destroy -auto-approve
