@@ -39,7 +39,7 @@ variable "db_instance_class" {
 variable "db_allocated_storage" {
   type        = number
   description = "Number in GB for database initial size"
-  default     = 10
+  default     = 20
 }
 
 variable "db_max_storage" {
@@ -123,6 +123,17 @@ variable "AWS_SECRET_ACCESS_KEY" {
   sensitive   = true
 }
 
+variable "ROOT_AWS_ACCESS_KEY_ID" {
+  type        = string
+  description = "AWS account access id for root account"
+}
+
+variable "ROOT_AWS_SECRET_ACCESS_KEY" {
+  type        = string
+  description = "AWS login password for root account"
+  sensitive   = true
+}
+
 variable "USE_S3" {
   type        = string
   description = "Use S3 for static files"
@@ -161,6 +172,7 @@ variable "ghcr_base_url" {
 variable "image_tag" {
   type        = string
   description = "Tag for images"
+  default     = "latest"
 }
 
 variable "github_token" {
@@ -172,5 +184,9 @@ variable "github_token" {
 variable "github_username" {
   description = "Username for GitHub Container Registry"
   type        = string
+}
+
+variable "route53_domain_name" {
+  type = string
 }
 

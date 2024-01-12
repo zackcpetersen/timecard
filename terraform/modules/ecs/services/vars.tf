@@ -48,10 +48,6 @@ variable "public_subnets" {
   type = list(string)
 }
 
-variable "private_subnets" {
-  type = list(string)
-}
-
 variable "latest_tag" {
   type = string
 }
@@ -138,5 +134,29 @@ variable "github_token" {
 }
 
 variable "image_tag" {
+  type = string
+}
+
+variable "deletion_protection" {
+  type = bool
+}
+
+variable "api_task_cpu" {
+  type = number
+}
+
+variable "api_task_memory" {
+  type = number
+}
+
+variable "api_container_cpu" {
+  type = number
+}
+
+variable "api_container_memory_reservation" {
+  type = number
+}
+
+variable "backend_certificate_arn" {
   type = string
 }

@@ -16,8 +16,8 @@ resource "aws_ecs_task_definition" "api" {
   family                   = "${var.name}-api"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = 1024 # TODO maybe?
-  memory                   = 2048 # TODO maybe?
+  cpu                      = var.api_task_cpu
+  memory                   = var.api_task_memory
   execution_role_arn       = var.ecs_execution_role
   task_role_arn            = var.ecs_task_role
   tags                     = var.tags
@@ -38,7 +38,7 @@ resource "aws_ecs_task_definition" "api" {
           "containerPort" : 8000
         }
       ],
-      cpu : 768,
+      cpu : var.api_container_cpu,
       environment : [
         {
           "name" : "DJANGO_SETTINGS_MODULE",
@@ -128,7 +128,7 @@ resource "aws_ecs_task_definition" "api" {
           "name" : "DB_PASSWORD",
         }
       ],
-      memoryReservation : 1792, # TODO maybe?
+      memoryReservation : var.api_container_memory_reservation
       volumesFrom : [],
       image : "${var.ghcr_base_url}/web:${var.image_tag}",
       repositoryCredentials : {
@@ -175,7 +175,7 @@ resource "aws_ecs_task_definition" "api" {
       mountPoints : [],
       memoryReservation : 256,
       volumesFrom : [],
-      image : "${var.ghcr_base_url}/nginx:${var.image_tag}}",
+      image : "${var.ghcr_base_url}/nginx:${var.image_tag}",
       repositoryCredentials : {
         "credentialsParameter" : aws_secretsmanager_secret_version.github_token.arn
       },
@@ -195,11 +195,15 @@ resource "aws_ecs_task_definition" "api" {
 
 # ECS service
 resource "aws_ecs_service" "ecs_api" {
-  name                               = "${var.name}_api"
-  cluster                            = var.cluster_id
-  task_definition                    = aws_ecs_task_definition.api.arn
-  desired_count                      = 1
-  depends_on                         = [var.ecs_execution_role, var.ecs_task_role, aws_lb_target_group.ecs_lb_api_target_group]
+  name            = "${var.name}_api"
+  cluster         = var.cluster_id
+  task_definition = aws_ecs_task_definition.api.arn
+  desired_count   = 1
+  depends_on = [
+    var.ecs_execution_role,
+    var.ecs_task_role,
+    aws_lb_target_group.ecs_lb_api_target_group_http,
+  ]
   launch_type                        = "FARGATE"
   wait_for_steady_state              = true
   force_new_deployment               = true
@@ -207,7 +211,7 @@ resource "aws_ecs_service" "ecs_api" {
   tags                               = var.tags
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.ecs_lb_api_target_group.arn
+    target_group_arn = aws_lb_target_group.ecs_lb_api_target_group_http.arn
     container_name   = local.nginx_container_name
     container_port   = 80
   }
@@ -252,15 +256,15 @@ resource "aws_security_group" "ecs_api_lb_sg" {
 
 # create load balancer
 resource "aws_lb" "ecs_api_lb" {
-  name               = "${var.env}-${var.name}-ecs-api-lb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.ecs_api_lb_sg.id]
-  subnets            = var.public_subnets
-  # enable_deletion_protection = true # TODO
+  name                       = "${var.env}-${var.name}-ecs-api-lb"
+  internal                   = false
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.ecs_api_lb_sg.id]
+  subnets                    = var.public_subnets
+  enable_deletion_protection = var.deletion_protection
 
   #   access_logs {
-  #     bucket = ""  # TODO create bucket for all ECS logs
+  #     bucket = ""
   #     prefix = "${var.env}-${var.name}-ecs-lb"
   #     enabled = true
   #   }
@@ -268,9 +272,9 @@ resource "aws_lb" "ecs_api_lb" {
   tags = var.tags
 }
 
-# load balancer target group for ECS
-resource "aws_lb_target_group" "ecs_lb_api_target_group" {
-  name        = "ecs-${var.name}-api-${var.env}"
+# load balancer target group for ECS port 80
+resource "aws_lb_target_group" "ecs_lb_api_target_group_http" {
+  name        = "ecs-${var.name}-api-${var.env}-http"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
@@ -297,29 +301,32 @@ resource "aws_lb_listener" "port_80" {
   protocol          = "HTTP"
 
   default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+  tags = var.tags
+}
+
+# add listener for port 443 on load balancer
+resource "aws_lb_listener" "port_443" {
+  load_balancer_arn = aws_lb.ecs_api_lb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = var.backend_certificate_arn
+
+  default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.ecs_lb_api_target_group.arn
+    target_group_arn = aws_lb_target_group.ecs_lb_api_target_group_http.arn
   }
 
   tags = var.tags
 }
-
-# TODO: add listener for port 443 on loadbalancer
-# add listener for port 443 on load balancer
-# resource "aws_lb_listener" "port_443" {
-#   load_balancer_arn = aws_lb.ecs_api_lb.arn
-#   port              = "443"
-#   protocol          = "HTTPS"
-#   ssl_policy        = "ELBSecurityPolicy-2016-08"
-#   certificate_arn   = "arn:aws:acm:us-west-2:253104389312:certificate/dc5098e7-e45a-41a9-ab5b-c0de03c27165"
-
-#   default_action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.ecs_lb_api_target_group.arn
-#   }
-
-#   tags = var.tags
-# }
 
 # Add Application Autoscaling for ECS Service
 resource "aws_appautoscaling_target" "api_scaling_target" {

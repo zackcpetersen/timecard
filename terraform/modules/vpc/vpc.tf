@@ -10,9 +10,6 @@ module "vpc" {
   public_subnets      = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
   elasticache_subnets = ["10.0.31.0/24", "10.0.32.0/24"]
 
-  #  enable_vpn_gateway = true  # TODO maybe?
-  #  enable_nat_gateway = true  # TODO maybe?
-
   tags = var.tags
 }
 
