@@ -13,3 +13,7 @@ output "django_ecs_static_bucket_arn" {
 output "s3_static_bucket_name" {
   value = split(".", aws_s3_bucket.django_ecs_static.bucket_domain_name)[0]
 }
+
+output "backend_bucket_name" {
+  value = aws_s3_bucket.django_ecs_static.bucket
+}

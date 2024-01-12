@@ -1,0 +1,57 @@
+name: Copy S3 bucket from one account to another
+
+on:
+  workflow_dispatch:
+
+jobs:
+  copy-s3-data:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform Init and Apply
+      run: |
+        cd ./terraform/copyS3
+        terraform init
+        terraform apply -auto-approve
+
+    - name: Get Terraform Output
+      id: tf-output
+      run: |
+        cd ./terraform/copyS3
+        echo "::set-output name=role_arn::$(terraform output -raw destination_migration_role)"
+
+    - name: Assume AWS Role and Sync Buckets
+      run: |
+        ASSUME_ROLE=$(aws sts assume-role --role-arn "${{ steps.tf-output.outputs.role_arn }}" --role-session-name "S3SyncSession")
+        export AWS_ACCESS_KEY_ID=$(echo $ASSUME_ROLE | jq -r .Credentials.AccessKeyId)
+        export AWS_SECRET_ACCESS_KEY=$(echo $ASSUME_ROLE | jq -r .Credentials.SecretAccessKey)
+        export AWS_SESSION_TOKEN=$(echo $ASSUME_ROLE | jq -r .Credentials.SessionToken)
+        aws s3 sync s3://source-bucket-name s3://destination-bucket-name
+
+  cleanup:
+    needs: copy-s3-data
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform Destroy
+      run: |
+        cd ./terraform/copyS3
+        terraform destroy -auto-approve

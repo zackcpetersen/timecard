@@ -22,7 +22,6 @@ module "services" {
   ecs_task_role                    = var.ecs_task_role
   vpc_id                           = var.vpc_id
   public_subnets                   = var.public_subnets
-  private_subnets                  = var.private_subnets
   tags                             = var.tags
   latest_tag                       = "latest"
   s3_static_bucket_name            = var.s3_static_bucket_name

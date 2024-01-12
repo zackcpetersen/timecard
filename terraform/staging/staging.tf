@@ -96,7 +96,6 @@ module "ecs" {
   ecs_task_role                    = module.iam.ecs_task_role
   vpc_id                           = module.vpc.vpc_id
   public_subnets                   = module.vpc.public_subnets
-  private_subnets                  = module.vpc.private_subnets
   s3_static_bucket_name            = module.s3.s3_static_bucket_name
   db_name                          = module.rds.db_name
   db_user                          = module.rds.db_user

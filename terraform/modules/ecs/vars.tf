@@ -36,10 +36,6 @@ variable "public_subnets" {
   type = list(string)
 }
 
-variable "private_subnets" {
-  type = list(string)
-}
-
 variable "s3_static_bucket_name" {
   type = string
 }

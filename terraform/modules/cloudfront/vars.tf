@@ -25,5 +25,3 @@ variable "name" {
 variable "env" {
   type = string
 }
-
-
