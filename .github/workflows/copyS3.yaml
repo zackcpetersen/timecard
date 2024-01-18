@@ -1,3 +1,4 @@
+# https://docs.aws.amazon.com/prescriptive-guidance/latest/patterns/copy-data-from-an-s3-bucket-to-another-account-and-region-by-using-the-aws-cli.html
 name: Sync S3 Buckets
 
 on:

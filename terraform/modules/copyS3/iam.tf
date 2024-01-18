@@ -1,6 +1,6 @@
 resource "aws_iam_role" "destination_migration" {
   provider = aws.destination_account
-  name = "S3MigrationRole"
+  name     = "S3MigrationRole"
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
@@ -18,7 +18,7 @@ resource "aws_iam_role" "destination_migration" {
 
 resource "aws_iam_policy" "destination_migration" {
   provider = aws.destination_account
-  name = "S3MigrationPolicy"
+  name     = "S3MigrationPolicy"
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [

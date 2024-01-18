@@ -46,10 +46,6 @@ jobs:
           git diff --exit-code ./docker/prod/requirements.txt
 
       - name: Run Tests with Coverage and Enforce 80% Threshold
-        env:
-          GMAIL_CLIENT_ID: ${{ vars.GMAIL_CLIENT_ID }}
-          GMAIL_PROJECT_ID: ${{ vars.GMAIL_PROJECT_ID }}
-          GMAIL_CLIENT_SECRET: ${{ secrets.GMAIL_CLIENT_SECRET }}
         run: |
           pipenv run coverage run --source='.' manage.py test --settings timecard.settings.dev
           pipenv run coverage report -m

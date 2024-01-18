@@ -1,6 +1,6 @@
 resource "aws_s3_bucket_policy" "source_policy" {
   provider = aws.source_account
-  bucket = data.aws_s3_bucket.source_bucket.id
+  bucket   = data.aws_s3_bucket.source_bucket.id
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [

@@ -99,7 +99,7 @@ variable "ALLOWED_HOSTS" {
 
 variable "SECURE_SSL_REDIRECT" {
   type    = string
-  default = "False"
+  default = "True"
 }
 
 variable "DEFAULT_DOMAIN" {
@@ -137,16 +137,19 @@ variable "ROOT_AWS_SECRET_ACCESS_KEY" {
 variable "USE_S3" {
   type        = string
   description = "Use S3 for static files"
+  default     = true
 }
 
 variable "STATICFILES_STORAGE" {
   type        = string
   description = "Defined in Cloud workspace"
+  default     = "storages.backends.s3boto3.S3StaticStorage"
 }
 
 variable "DEFAULT_FILE_STORAGE" {
   type        = string
   description = "Defined in Cloud workspace"
+  default     = "storages.backends.s3boto3.S3Boto3Storage"
 }
 
 variable "GMAIL_CLIENT_ID" {
@@ -184,6 +187,7 @@ variable "github_token" {
 variable "github_username" {
   description = "Username for GitHub Container Registry"
   type        = string
+  default     = "zackcpetersen"
 }
 
 variable "route53_domain_name" {
