@@ -34,9 +34,9 @@ jobs:
       id: tf-output
       run: |
         cd ./terraform/copyS3
-        echo "::set-output name=role_arn::$(terraform output -raw destination_migration_role)"
-        echo "::set-output name=source_bucket::$(terraform output -raw source_bucket_name)"
-        echo "::set-output name=destination_bucket::$(terraform output -raw destination_bucket_name)"
+        echo "role_arn=$(terraform output -raw destination_migration_role)" >> $GITHUB_OUTPUT
+        echo "source_bucket=$(terraform output -raw source_bucket_name)" >> $GITHUB_OUTPUT
+        echo "destination_bucket=$(terraform output -raw destination_bucket_name)" >> $GITHUB_OUTPUT
 
     - name: Assume AWS Role and Sync Buckets
       run: |

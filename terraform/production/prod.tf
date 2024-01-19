@@ -1,6 +1,6 @@
 locals {
   dev_env              = false
-  frontend_domain_name = var.route53_domain_name
+  frontend_domain_name = "www.${var.route53_domain_name}"
   backend_domain_name  = "backend.${var.route53_domain_name}"
 }
 
