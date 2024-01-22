@@ -118,7 +118,7 @@ LOGGING = {
     },
 }
 
-# Gmail settings
+# Gmail settings - https://console.cloud.google.com/apis/credentials?project=timecard-304918
 GMAIL_AUTH_URI = "https://accounts.google.com/o/oauth2/auth" # nosec
 GMAIL_TOKEN_URI = "https://oauth2.googleapis.com/token" # nosec
 GMAIL_AUTH_PROVIDER = "https://www.googleapis.com/oauth2/v1/certs" # nosec

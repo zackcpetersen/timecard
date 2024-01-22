@@ -3,7 +3,7 @@
 variable "env" {
   type        = string
   description = "Environment currently working in"
-  default     = "staging" # prod
+  default     = "production"
 }
 
 variable "aws_region" {
@@ -52,14 +52,13 @@ variable "global_tags" {
   type        = map(string)
   description = "Map of tags to apply to all resources"
   default = {
-    Environment = "staging"
+    Environment = "production"
     Terraform   = "true"
   }
 }
 
 variable "db_snapshot_name" {
   type        = string
-  default     = ""
   description = "Defined in Cloud workspace"
 }
 
@@ -88,13 +87,11 @@ variable "CORS_ALLOW_ALL_ORIGINS" {
 variable "CORS_ALLOWED_ORIGIN_REGEXES" {
   type        = string
   description = "Defined in Cloud workspace"
-  default     = ""
 }
 
 variable "ALLOWED_HOSTS" {
   type        = string
   description = "Defined in Cloud workspace"
-  default     = ""
 }
 
 variable "SECURE_SSL_REDIRECT" {
