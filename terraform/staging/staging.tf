@@ -1,5 +1,5 @@
 locals {
-  dev_env              = true # TODO: false in production
+  dev_env              = true
   frontend_domain_name = "frontend.${var.route53_domain_name}"
   backend_domain_name  = "${var.env}-backend.${var.route53_domain_name}"
 }
