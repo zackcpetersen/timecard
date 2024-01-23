@@ -54,6 +54,7 @@ resource "aws_acm_certificate_validation" "backend" {
 
 ## record to point main domain to backend lb
 resource "aws_route53_record" "alb_record" {
+  count    = var.env == "staging" || var.env == "development" ? 1 : 0
   provider = aws.root
   zone_id  = data.aws_route53_zone.primary.zone_id
   name     = var.backend_domain_name
@@ -64,6 +65,7 @@ resource "aws_route53_record" "alb_record" {
 
 ## record to point main domain to frontend
 resource "aws_route53_record" "frontend_record" {
+  count    = var.env == "staging" || var.env == "development" ? 1 : 0
   provider = aws.root
   zone_id  = data.aws_route53_zone.primary.zone_id
   name     = var.frontend_domain_name

@@ -3,7 +3,7 @@
 variable "env" {
   type        = string
   description = "Environment currently working in"
-  default     = "staging" # prod
+  default     = "staging"
 }
 
 variable "aws_region" {

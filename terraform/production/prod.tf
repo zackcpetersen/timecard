@@ -38,6 +38,7 @@ module "acm" {
 
 module "root_route53" {
   source                                 = "../modules/route53"
+  env                                    = var.env
   aws_region                             = var.aws_region
   frontend_acm_domain_validation_options = module.acm.frontend_domain_validation_options
   backend_acm_domain_validation_options  = module.acm.backend_domain_validation_options
