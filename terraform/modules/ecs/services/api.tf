@@ -111,6 +111,10 @@ resource "aws_ecs_task_definition" "api" {
         {
           "name" : "GMAIL_PROJECT_ID",
           "value" : var.gmail_project_id
+        },
+        {
+          "name" : "DEFAULT_ADMIN_EMAIL",
+          "value" : var.default_admin_email
         }
       ],
       mountPoints : [],

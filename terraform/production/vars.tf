@@ -104,6 +104,12 @@ variable "DEFAULT_DOMAIN" {
   description = "Defined in Cloud workspace"
 }
 
+variable "DEFAULT_ADMIN_EMAIL" {
+  type        = string
+  description = "Email to send admin stuff to"
+  default     = "info@castlerockis.com"
+}
+
 variable "FRONTEND_URL" {
   type        = string
   description = "Defined in Cloud workspace"

@@ -23,9 +23,7 @@ django-storages = "*"
 psycopg2-binary = "*"
 django-cors-headers = "*"
 setuptools = ">=65.5.1"
-google-auth-oauthlib = ">=1.1.0"
-google = ">=3.0.0"
-google-api-python-client = ">=2.105.0"
+django-ses = ">=3.5.2"
 
 [requires]
 python_version = "3.11"

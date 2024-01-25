@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
-from accounts.api.gmail.gmail_service import GmailAPI
+from accounts.api.email.email import EmailService
 from accounts.models import User
 from entries import constants
 from entries import exceptions
@@ -89,11 +89,9 @@ class Entry(models.Model):
                 else:
                     entry.comments = constants.FLAGGED_ENTRY_COMMENT
             entry.save()
-            email = GmailAPI()
+            email = EmailService()
             content = Entry.unclosed_entry_email_content(Entry.format_unclosed_entries(unclosed))
-            message = email.create_email(settings.DEFAULT_FROM_EMAIL, settings.DEFAULT_FROM_EMAIL,
-                                         constants.FLAGGED_ENTRY_SUBJECT, content)
-            email.send_email(message)
+            email.send_email(settings.DEFAULT_ADMIN_EMAIL, constants.FLAGGED_ENTRY_SUBJECT, content)
 
     @staticmethod
     def format_unclosed_entries(entries):

@@ -146,3 +146,7 @@ variable "api_container_memory_reservation" {
 variable "backend_certificate_arn" {
   type = string
 }
+
+variable "default_admin_email" {
+  type = string
+}

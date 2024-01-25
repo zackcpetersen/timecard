@@ -109,6 +109,7 @@ module "ecs" {
   allowed_hosts                    = var.ALLOWED_HOSTS
   cors_allow_all_origins           = var.CORS_ALLOW_ALL_ORIGINS
   default_domain                   = var.DEFAULT_DOMAIN
+  default_admin_email              = var.DEFAULT_ADMIN_EMAIL
   frontend_url                     = var.FRONTEND_URL
   gmail_client_id                  = var.GMAIL_CLIENT_ID
   gmail_client_secret              = var.GMAIL_CLIENT_SECRET
