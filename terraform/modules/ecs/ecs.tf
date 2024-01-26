@@ -41,7 +41,8 @@ module "services" {
   ghcr_base_url                    = var.ghcr_base_url
   github_username                  = var.github_username
   github_token                     = var.github_token
-  image_tag                        = var.image_tag
+  web_version                      = var.web_version
+  nginx_version                    = var.nginx_version
   deletion_protection              = var.deletion_protection
   api_container_cpu                = var.api_container_cpu
   api_task_cpu                     = var.api_task_cpu

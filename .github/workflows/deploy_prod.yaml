@@ -83,4 +83,4 @@ jobs:
         run: |
           cd terraform/production && 
           terraform init &&
-          terraform apply -var="image_tag=${{ github.ref_name }}" --auto-approve  
+          terraform apply -var="web_version=${{ github.ref_name }}" -var="nginx_version=${{ github.ref_name }}" --auto-approve  

@@ -130,7 +130,7 @@ resource "aws_ecs_task_definition" "api" {
       ],
       memoryReservation : var.api_container_memory_reservation
       volumesFrom : [],
-      image : "${var.ghcr_base_url}/web:${var.image_tag}",
+      image : "${var.ghcr_base_url}/web:${var.web_version}",
       repositoryCredentials : {
         "credentialsParameter" : aws_secretsmanager_secret_version.github_token.arn
       },
@@ -175,7 +175,7 @@ resource "aws_ecs_task_definition" "api" {
       mountPoints : [],
       memoryReservation : 256,
       volumesFrom : [],
-      image : "${var.ghcr_base_url}/nginx:${var.image_tag}",
+      image : "${var.ghcr_base_url}/nginx:${var.nginx_version}",
       repositoryCredentials : {
         "credentialsParameter" : aws_secretsmanager_secret_version.github_token.arn
       },
