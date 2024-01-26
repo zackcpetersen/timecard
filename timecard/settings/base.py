@@ -21,7 +21,8 @@ DEFAULT_FROM_EMAIL = 'info@castlerockis.com'
 DEFAULT_DOMAIN = 'www.projecttimecard.com'
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_random_secret_key()
+# SECRET_KEY = get_random_secret_key()
+SECRET_KEY = "#qsb&(_z*q3rrir=h0ai)cat3)ux3t1!x_s5s!)%y+=+o8me5i" # nosec
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False

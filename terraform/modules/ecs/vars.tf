@@ -12,10 +12,6 @@ variable "name" {
   type = string
 }
 
-variable "github_repo" {
-  type = string
-}
-
 variable "debug" {
   type = string
 }
@@ -61,6 +57,15 @@ variable "db_password" {
   sensitive = true
 }
 
+variable "root_aws_access_key_id" {
+  type = string
+}
+
+variable "root_aws_secret_access_key" {
+  type      = string
+  sensitive = true
+}
+
 variable "tags" {
   type = map(string)
 }
@@ -90,18 +95,6 @@ variable "frontend_url" {
 }
 
 variable "default_domain" {
-  type = string
-}
-
-variable "gmail_project_id" {
-  type = string
-}
-
-variable "gmail_client_id" {
-  type = string
-}
-
-variable "gmail_client_secret" {
   type = string
 }
 
@@ -144,5 +137,9 @@ variable "api_container_memory_reservation" {
 }
 
 variable "backend_certificate_arn" {
+  type = string
+}
+
+variable "default_admin_email" {
   type = string
 }

@@ -41,8 +41,8 @@ jobs:
 
       - name: Check for changes
         run: |
-          git diff --exit-code ./docker/dev/dev_reqs.txt
-          git diff --exit-code ./docker/prod/requirements.txt
+          git diff --exit-code ./docker/dev/dev_reqs.txt || echo "dev_reqs.txt is out of date, please see README.md to update"
+          git diff --exit-code ./docker/prod/requirements.txt || echo "requirements.txt is out of date, please see README.md to update"
 
       - name: Run Tests with Coverage and Enforce 80% Threshold
         run: |

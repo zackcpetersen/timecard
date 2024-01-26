@@ -1,0 +1,42 @@
+# Ignore local terraform state files
+*.tfstate
+*.tfstate.*
+
+# Ignore environment variable definitions
+.env
+
+# Ignore directories with dependencies
+node_modules/
+vendor/
+
+# Ignore IDE and editor directories
+.idea/
+.vscode/
+
+# Ignore any .tfvars files that may contain sensitive data
+*.tfvars
+
+# Ignore log files
+*.log
+
+# Ignore temporary files
+*.tmp
+*.bak
+
+
+# App code
+accounts/
+docker/
+entries/
+media/
+projects/
+static/
+timecard/
+.github/
+.dockerignore
+.gitignore
+docker-compose.yml
+manage.py
+Pipfile
+Pipfile.lock
+README.md

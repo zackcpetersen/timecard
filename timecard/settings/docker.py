@@ -45,6 +45,9 @@ DATABASES = {
 }
 
 # AWS settings
+# Access key and secret access key should be from ROOT account - used for emails
+AWS_ACCESS_KEY_ID = get_env_variable("ROOT_AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = get_env_variable("ROOT_AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = get_env_variable('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_REGION_NAME = "us-west-2"
 AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
@@ -58,9 +61,8 @@ if USE_S3:
     MEDIA_URL = "/media/"
     DEFAULT_FILE_STORAGE = get_env_variable('DEFAULT_FILE_STORAGE')
 
-# Gmail Settings
-# Gmail Credentials - Emails will not send without these variables
-GMAIL_CLIENT_ID = get_env_variable('GMAIL_CLIENT_ID')
-GMAIL_PROJECT_ID = get_env_variable('GMAIL_PROJECT_ID')
-GMAIL_CLIENT_SECRET = get_env_variable('GMAIL_CLIENT_SECRET')
-
+# Email Settings
+EMAIL_BACKEND = 'django_ses.SESBackend'
+EMAIL_DEFAULT_FROM_ADDRESS = "no-reply@projecttimecard.com"
+AWS_SES_REGION_NAME = "us-west-2"
+DEFAULT_ADMIN_EMAIL = get_env_variable('DEFAULT_ADMIN_EMAIL')

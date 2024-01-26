@@ -7,7 +7,7 @@ from django.dispatch import receiver
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from PIL import ImageOps, Image
 
-from accounts.api.gmail.gmail_service import GmailAPI
+from accounts.api.email.email import EmailService
 from accounts import constants as account_constants
 
 
@@ -55,11 +55,9 @@ class CustomUserManager(BaseUserManager):
         user.set_password(rand_pass)
         user.pass_valid = False
         user.save()
-        #  - https://developers.google.com/gmail/api/quickstart/python - Enable the Gmail API button
-        email = GmailAPI()
+        email = EmailService()
         content = self.create_email_pass_content(user, rand_pass)
-        message = email.create_email(user.email, settings.DEFAULT_FROM_EMAIL, subject, content)
-        email.send_email(message)
+        email.send_email(user.email, subject, content)
 
     @staticmethod
     def create_email_pass_content(user, password):

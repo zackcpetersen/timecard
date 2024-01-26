@@ -1,11 +1,5 @@
 ### --- Variables in BOLD are required in the Django app, others are required for terraform --- ###
 
-variable "env" {
-  type        = string
-  description = "Environment currently working in"
-  default     = "production"
-}
-
 variable "aws_region" {
   type        = string
   description = "Default AWS_REGION"
@@ -21,12 +15,6 @@ variable "users" {
 variable "product_name" {
   type        = string
   description = "Name of product that resources are being created for"
-  default     = "timecard"
-}
-
-variable "github_repo" {
-  type        = string
-  description = "Name of GitHub repository, used for ECS container definition ENV variables"
   default     = "timecard"
 }
 
@@ -67,21 +55,10 @@ variable "db_port" {
   default = 5432
 }
 
-variable "DEBUG" {
-  type        = string
-  description = "Turn on/off debug for apps"
-  default     = "False"
-}
-
 variable "SECRET_KEY" {
   type        = string
   description = "Django secret key used in settings file - SENSITIVE, defined in Cloud workspace as a variable"
   sensitive   = true
-}
-
-variable "CORS_ALLOW_ALL_ORIGINS" {
-  type    = string
-  default = "False"
 }
 
 variable "CORS_ALLOWED_ORIGIN_REGEXES" {
@@ -89,24 +66,9 @@ variable "CORS_ALLOWED_ORIGIN_REGEXES" {
   description = "Defined in Cloud workspace"
 }
 
-variable "ALLOWED_HOSTS" {
+variable "DEFAULT_ADMIN_EMAIL" {
   type        = string
-  description = "Defined in Cloud workspace"
-}
-
-variable "SECURE_SSL_REDIRECT" {
-  type    = string
-  default = "True"
-}
-
-variable "DEFAULT_DOMAIN" {
-  type        = string
-  description = "Defined in Cloud workspace"
-}
-
-variable "FRONTEND_URL" {
-  type        = string
-  description = "Defined in Cloud workspace"
+  description = "Email to send admin stuff to"
 }
 
 variable "AWS_ACCESS_KEY_ID" {
@@ -131,40 +93,6 @@ variable "ROOT_AWS_SECRET_ACCESS_KEY" {
   sensitive   = true
 }
 
-variable "USE_S3" {
-  type        = string
-  description = "Use S3 for static files"
-  default     = true
-}
-
-variable "STATICFILES_STORAGE" {
-  type        = string
-  description = "Defined in Cloud workspace"
-  default     = "storages.backends.s3boto3.S3StaticStorage"
-}
-
-variable "DEFAULT_FILE_STORAGE" {
-  type        = string
-  description = "Defined in Cloud workspace"
-  default     = "storages.backends.s3boto3.S3Boto3Storage"
-}
-
-variable "GMAIL_CLIENT_ID" {
-  type        = string
-  description = "Defined in Cloud workspace"
-}
-
-variable "GMAIL_PROJECT_ID" {
-  type        = string
-  description = "Defined in Cloud workspace"
-}
-
-variable "GMAIL_CLIENT_SECRET" {
-  type        = string
-  description = "Defined in Cloud workspace"
-  sensitive   = true
-}
-
 variable "ghcr_base_url" {
   type = string
 }
@@ -179,12 +107,6 @@ variable "github_token" {
   description = "Token for GitHub Container Registry"
   type        = string
   sensitive   = true
-}
-
-variable "github_username" {
-  description = "Username for GitHub Container Registry"
-  type        = string
-  default     = "zackcpetersen"
 }
 
 variable "route53_domain_name" {

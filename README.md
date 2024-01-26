@@ -20,6 +20,9 @@
 - `flush`
 - `test -v 2`
 
+## Updating requirements.txt
+`pipenv requirements > ./docker/prod/requirements.txt && pipenv requirements --dev > ./docker/dev/dev_reqs.txt`
+
 ## Virtual Environment
 This project uses pipenv to manage virtual environment and dependencies.  
 - Run any commands outside of the virtual environment with `pipenv run <command>`.  

@@ -13,14 +13,14 @@ resource "aws_secretsmanager_secret_version" "django_secret_key" {
   secret_string = var.django_secret_key
 }
 
-# Gmail Client Secret
-resource "aws_secretsmanager_secret" "gmail_client_secret" {
-  name_prefix             = "gmail_client_secret"
+# Root AWS Secret Access Key
+resource "aws_secretsmanager_secret" "root_aws_secret_access_key" {
+  name_prefix             = "root_aws_secret_access_key"
   recovery_window_in_days = var.deletion_protection ? 7 : 0
 }
-resource "aws_secretsmanager_secret_version" "gmail_client_secret" {
-  secret_id     = aws_secretsmanager_secret.gmail_client_secret.id
-  secret_string = var.gmail_client_secret
+resource "aws_secretsmanager_secret_version" "root_aws_secret_access_key" {
+  secret_id     = aws_secretsmanager_secret.root_aws_secret_access_key.id
+  secret_string = var.root_aws_secret_access_key
 }
 
 # DB Password
