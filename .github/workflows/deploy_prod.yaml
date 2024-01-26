@@ -70,28 +70,8 @@ jobs:
             ghcr.io/zackcpetersen/timecard/nginx:${{ github.ref_name }},
             ghcr.io/zackcpetersen/timecard/nginx:latest
 
-  terraform-plan:
-    needs: [ build-and-push-web, build-and-push-nginx ]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Terraform cloud
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.6.5"
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-
-      - name: Terraform Plan
-        run: |
-          cd terraform/production && 
-          terraform init &&
-          terraform plan -var="image_tag=${{ github.ref_name }} -out=plan.out"
-
   terraform-apply:
-    needs: [ terraform-plan ]
+    needs: [ build-and-push-web, build-and-push-nginx ]
     runs-on: ubuntu-latest
 
     steps:
@@ -108,4 +88,4 @@ jobs:
         run: |
           cd terraform/production && 
           terraform init &&
-          terraform apply -var="image_tag=${{ github.ref_name }}" plan.out
+          terraform apply -var="image_tag=${{ github.ref_name }}" --auto-approve
