@@ -125,7 +125,11 @@ variable "github_token" {
   sensitive   = true
 }
 
-variable "image_tag" {
+variable "web_version" {
+  type = string
+}
+
+variable "nginx_version" {
   type = string
 }
 

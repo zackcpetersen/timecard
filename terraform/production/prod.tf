@@ -120,7 +120,8 @@ module "ecs" {
   ghcr_base_url                    = var.ghcr_base_url
   github_username                  = local.github_username
   github_token                     = var.github_token
-  image_tag                        = var.image_tag
+  web_version                      = var.web_version
+  nginx_version                    = var.nginx_version
   backend_certificate_arn          = module.acm.backend_certificate_arn
   deletion_protection              = !local.dev_env
   api_container_cpu                = 768

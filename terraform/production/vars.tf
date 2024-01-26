@@ -97,10 +97,14 @@ variable "ghcr_base_url" {
   type = string
 }
 
-variable "image_tag" {
-  type        = string
-  description = "Tag for images"
-  default     = "latest"
+variable "web_version" {
+  type    = string
+  default = "latest"
+}
+
+variable "nginx_version" {
+  type    = string
+  default = "latest"
 }
 
 variable "github_token" {
