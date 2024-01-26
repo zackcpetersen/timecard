@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       nginx_changed: ${{ steps.filter.outputs.nginx_changed }}
-      terraform_changed: ${{ steps.filter.outputs.terraform_changed }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -19,8 +18,6 @@ jobs:
         uses: dorny/paths-filter@v2
         with:
           filters: |
-            terraform_changed:
-              - 'terraform/**'
             nginx_changed:
               - './docker/prod/nginx/**'
 
@@ -73,19 +70,17 @@ jobs:
   terraform-apply:
     needs: [ build-and-push-web, build-and-push-nginx ]
     runs-on: ubuntu-latest
-
+    if: ${{ always() && (needs.build-and-push-nginx.result == 'success' || needs.build-and-push-nginx.result == 'skipped') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Set up Terraform cloud
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.6.5"
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-
       - name: Terraform Apply
         run: |
           cd terraform/production && 
           terraform init &&
-          terraform apply -var="image_tag=${{ github.ref_name }}" --auto-approve
+          terraform apply -var="image_tag=${{ github.ref_name }}" --auto-approve  
