@@ -7,21 +7,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  paths-check:
-    runs-on: ubuntu-latest
-    outputs:
-      terraform_changed: ${{ steps.filter.outputs.terraform_changed }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Check for changes in specific directories
-        id: filter
-        uses: dorny/paths-filter@v2
-        with:
-          filters: |
-            terraform_changed:
-              - 'terraform/**'
-
   build-and-push-web:
     runs-on: ubuntu-latest
     steps:
