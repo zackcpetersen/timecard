@@ -6,7 +6,52 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
+  build-and-push-web:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and push web Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./docker/prod/Dockerfile
+        push: true
+        tags: |
+          ghcr.io/zackcpetersen/timecard/web:${{ github.sha }},
+          ghcr.io/zackcpetersen/timecard/web:${{ github.ref_name }},
+          ghcr.io/zackcpetersen/timecard/web:latest
+
+  build-and-push-nginx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push nginx Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/prod/nginx/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/zackcpetersen/timecard/nginx:${{ github.sha }},
+            ghcr.io/zackcpetersen/timecard/nginx:${{ github.ref_name }},
+            ghcr.io/zackcpetersen/timecard/nginx:latest
+
   terraform-apply:
+    needs: [ build-and-push-web, build-and-push-nginx ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
