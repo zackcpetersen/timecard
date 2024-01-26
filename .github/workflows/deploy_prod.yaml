@@ -73,7 +73,7 @@ jobs:
   terraform-lint:
     if: ${{ needs.paths-check.outputs.terraform_changed == 'true' }}
     runs-on: ubuntu-latest
-    needs: paths-check-terraform
+    needs: paths-check
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
