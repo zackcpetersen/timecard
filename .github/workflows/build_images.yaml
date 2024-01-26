@@ -31,7 +31,6 @@ jobs:
 
   build-and-push-nginx:
     runs-on: ubuntu-latest
-    needs: paths-check
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
