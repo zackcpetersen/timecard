@@ -1,13 +1,18 @@
 locals {
-  dev_env              = false
-  frontend_domain_name = "www.${var.route53_domain_name}"
-  backend_domain_name  = "backend.${var.route53_domain_name}"
+  dev_env                = false
+  cors_allow_all_origins = "False"
+  debug                  = "False"
+  secure_ssl_redirect    = "True"
+  github_username        = "zackcpetersen"
+  frontend_domain_name   = "other.${var.route53_domain_name}"
+  backend_domain_name    = "notfront.${var.route53_domain_name}"
+  env                    = "production"
 }
 
 module "vpc" {
   source     = "../modules/vpc"
   name       = var.product_name
-  env        = var.env
+  env        = local.env
   aws_region = var.aws_region
   tags       = var.global_tags
   db_port    = var.db_port
@@ -24,7 +29,7 @@ module "iam" {
 module "s3" {
   source             = "../modules/s3"
   name               = var.product_name
-  env                = var.env
+  env                = local.env
   tags               = var.global_tags
   dev_env            = local.dev_env
   cloudfront_oai_arn = module.cloudfront.cloudfront_oai_arn
@@ -38,7 +43,7 @@ module "acm" {
 
 module "root_route53" {
   source                                 = "../modules/route53"
-  env                                    = var.env
+  env                                    = local.env
   aws_region                             = var.aws_region
   frontend_acm_domain_validation_options = module.acm.frontend_domain_validation_options
   backend_acm_domain_validation_options  = module.acm.backend_domain_validation_options
@@ -60,13 +65,13 @@ module "cloudfront" {
   website_bucket_domain_name = module.s3.frontend_regional_domain_name
   website_bucket_origin_id   = "myS3Origin"
   frontend_domain_name       = local.frontend_domain_name
-  env                        = var.env
+  env                        = local.env
   name                       = var.product_name
 }
 
 module "rds" {
   source                       = "../modules/rds"
-  env                          = var.env
+  env                          = local.env
   private_subnets              = module.vpc.private_subnets
   vpc_id                       = module.vpc.vpc_id
   rds_sg_id                    = module.vpc.rds_sg_id
@@ -87,11 +92,10 @@ module "rds" {
 
 module "ecs" {
   source                           = "../modules/ecs"
-  env                              = var.env
-  debug                            = var.DEBUG
+  env                              = local.env
+  debug                            = local.debug
   aws_region                       = var.aws_region
   name                             = var.product_name
-  github_repo                      = var.github_repo
   tags                             = var.global_tags
   ecs_execution_role               = module.iam.ecs_execution_role
   ecs_task_role                    = module.iam.ecs_task_role
@@ -103,19 +107,18 @@ module "ecs" {
   db_host                          = module.rds.db_host
   db_port                          = module.rds.db_port
   db_password                      = module.rds.db_password
+  root_aws_access_key_id           = var.ROOT_AWS_ACCESS_KEY_ID
+  root_aws_secret_access_key       = var.ROOT_AWS_SECRET_ACCESS_KEY
   django_secret_key                = var.SECRET_KEY
-  ssl_redirect                     = var.SECURE_SSL_REDIRECT
+  ssl_redirect                     = local.secure_ssl_redirect
   cors_allowed_regexes             = var.CORS_ALLOWED_ORIGIN_REGEXES
-  allowed_hosts                    = var.ALLOWED_HOSTS
-  cors_allow_all_origins           = var.CORS_ALLOW_ALL_ORIGINS
-  default_domain                   = var.DEFAULT_DOMAIN
+  allowed_hosts                    = ".${var.route53_domain_name}"
+  cors_allow_all_origins           = local.cors_allow_all_origins
+  default_domain                   = local.frontend_domain_name
   default_admin_email              = var.DEFAULT_ADMIN_EMAIL
-  frontend_url                     = var.FRONTEND_URL
-  gmail_client_id                  = var.GMAIL_CLIENT_ID
-  gmail_client_secret              = var.GMAIL_CLIENT_SECRET
-  gmail_project_id                 = var.GMAIL_PROJECT_ID
+  frontend_url                     = "https://${local.frontend_domain_name}"
   ghcr_base_url                    = var.ghcr_base_url
-  github_username                  = var.github_username
+  github_username                  = local.github_username
   github_token                     = var.github_token
   image_tag                        = var.image_tag
   backend_certificate_arn          = module.acm.backend_certificate_arn

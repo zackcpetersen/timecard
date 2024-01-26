@@ -89,6 +89,10 @@ resource "aws_ecs_task_definition" "api" {
           "value" : tostring(var.db_port)
         },
         {
+          "name" : "ROOT_AWS_ACCESS_KEY_ID",
+          "value" : var.root_aws_access_key_id
+        },
+        {
           "name" : "AWS_STORAGE_BUCKET_NAME",
           "value" : var.s3_static_bucket_name
         },
@@ -105,14 +109,6 @@ resource "aws_ecs_task_definition" "api" {
           "value" : "storages.backends.s3boto3.S3Boto3Storage"
         },
         {
-          "name" : "GMAIL_CLIENT_ID",
-          "value" : var.gmail_client_id
-        },
-        {
-          "name" : "GMAIL_PROJECT_ID",
-          "value" : var.gmail_project_id
-        },
-        {
           "name" : "DEFAULT_ADMIN_EMAIL",
           "value" : var.default_admin_email
         }
@@ -120,8 +116,8 @@ resource "aws_ecs_task_definition" "api" {
       mountPoints : [],
       secrets : [
         {
-          "valueFrom" : aws_secretsmanager_secret_version.gmail_client_secret.arn,
-          "name" : "GMAIL_CLIENT_SECRET",
+          "valueFrom" : aws_secretsmanager_secret_version.root_aws_secret_access_key.arn,
+          "name" : "ROOT_AWS_SECRET_ACCESS_KEY",
         },
         {
           "valueFrom" : aws_secretsmanager_secret_version.django_secret_key.arn,

@@ -24,12 +24,6 @@ variable "product_name" {
   default     = "timecard"
 }
 
-variable "github_repo" {
-  type        = string
-  description = "Name of GitHub repository, used for ECS container definition ENV variables"
-  default     = "timecard"
-}
-
 variable "db_instance_class" {
   type        = string
   description = "Determines size of database to be created - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html"
@@ -88,13 +82,6 @@ variable "CORS_ALLOW_ALL_ORIGINS" {
 variable "CORS_ALLOWED_ORIGIN_REGEXES" {
   type        = string
   description = "Defined in Cloud workspace"
-  default     = ""
-}
-
-variable "ALLOWED_HOSTS" {
-  type        = string
-  description = "Defined in Cloud workspace"
-  default     = ""
 }
 
 variable "SECURE_SSL_REDIRECT" {
@@ -102,20 +89,9 @@ variable "SECURE_SSL_REDIRECT" {
   default = "True"
 }
 
-variable "DEFAULT_DOMAIN" {
-  type        = string
-  description = "Defined in Cloud workspace"
-}
-
 variable "DEFAULT_ADMIN_EMAIL" {
   type        = string
   description = "Email to send admin stuff to"
-  default     = "info@castlerockis.com"
-}
-
-variable "FRONTEND_URL" {
-  type        = string
-  description = "Defined in Cloud workspace"
 }
 
 variable "AWS_ACCESS_KEY_ID" {
@@ -146,34 +122,6 @@ variable "USE_S3" {
   default     = true
 }
 
-variable "STATICFILES_STORAGE" {
-  type        = string
-  description = "Defined in Cloud workspace"
-  default     = "storages.backends.s3boto3.S3StaticStorage"
-}
-
-variable "DEFAULT_FILE_STORAGE" {
-  type        = string
-  description = "Defined in Cloud workspace"
-  default     = "storages.backends.s3boto3.S3Boto3Storage"
-}
-
-variable "GMAIL_CLIENT_ID" {
-  type        = string
-  description = "Defined in Cloud workspace"
-}
-
-variable "GMAIL_PROJECT_ID" {
-  type        = string
-  description = "Defined in Cloud workspace"
-}
-
-variable "GMAIL_CLIENT_SECRET" {
-  type        = string
-  description = "Defined in Cloud workspace"
-  sensitive   = true
-}
-
 variable "ghcr_base_url" {
   type = string
 }
@@ -188,12 +136,6 @@ variable "github_token" {
   description = "Token for GitHub Container Registry"
   type        = string
   sensitive   = true
-}
-
-variable "github_username" {
-  description = "Username for GitHub Container Registry"
-  type        = string
-  default     = "zackcpetersen"
 }
 
 variable "route53_domain_name" {
