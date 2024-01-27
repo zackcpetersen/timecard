@@ -5,7 +5,6 @@ module "copyS3" {
   ROOT_AWS_ACCESS_KEY_ID     = var.ROOT_AWS_ACCESS_KEY_ID
   ROOT_AWS_SECRET_ACCESS_KEY = var.ROOT_AWS_SECRET_ACCESS_KEY
   aws_region                 = var.aws_region
-  source_account_id          = var.source_account_id
   source_bucket_name         = var.source_bucket_name
   destination_bucket_name    = var.destination_bucket_name
   env                        = var.env
