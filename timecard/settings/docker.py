@@ -46,8 +46,8 @@ DATABASES = {
 
 # AWS settings
 # Access key and secret access key should be from ROOT account - used for emails
-AWS_ACCESS_KEY_ID = get_env_variable("ROOT_AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = get_env_variable("ROOT_AWS_SECRET_ACCESS_KEY")
+SES_ACCESS_KEY_ID = get_env_variable("ROOT_AWS_ACCESS_KEY_ID")
+SES_SECRET_ACCESS_KEY = get_env_variable("ROOT_AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = get_env_variable('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_REGION_NAME = "us-west-2"
 AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
@@ -62,7 +62,7 @@ if USE_S3:
     DEFAULT_FILE_STORAGE = get_env_variable('DEFAULT_FILE_STORAGE')
 
 # Email Settings
-EMAIL_BACKEND = 'django_ses.SESBackend'
+EMAIL_BACKEND = 'accounts.api.email.custom_ses_backend.CustomSESBackend'
 EMAIL_DEFAULT_FROM_ADDRESS = "no-reply@projecttimecard.com"
 AWS_SES_REGION_NAME = "us-west-2"
 DEFAULT_ADMIN_EMAIL = get_env_variable('DEFAULT_ADMIN_EMAIL')

@@ -24,10 +24,6 @@ variable "ROOT_AWS_SECRET_ACCESS_KEY" {
   sensitive = true
 }
 
-variable "source_account_id" {
-  type = string
-}
-
 variable "source_bucket_name" {
   type = string
 }
