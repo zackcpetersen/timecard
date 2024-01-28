@@ -4,8 +4,8 @@ locals {
   debug                  = "False"
   secure_ssl_redirect    = "True"
   github_username        = "zackcpetersen"
-  frontend_domain_name   = "other.${var.route53_domain_name}"
-  backend_domain_name    = "notfront.${var.route53_domain_name}"
+  frontend_domain_name   = "www.${var.route53_domain_name}"
+  backend_domain_name    = "backend.${var.route53_domain_name}"
   env                    = "production"
 }
 
