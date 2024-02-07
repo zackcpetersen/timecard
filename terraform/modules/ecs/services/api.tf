@@ -38,7 +38,6 @@ resource "aws_ecs_task_definition" "api" {
           "containerPort" : 8000
         }
       ],
-      cpu : var.api_container_cpu,
       environment : [
         {
           "name" : "DJANGO_SETTINGS_MODULE",
@@ -128,7 +127,6 @@ resource "aws_ecs_task_definition" "api" {
           "name" : "DB_PASSWORD",
         }
       ],
-      memoryReservation : var.api_container_memory_reservation
       volumesFrom : [],
       image : "${var.ghcr_base_url}/web:${var.web_version}",
       repositoryCredentials : {
